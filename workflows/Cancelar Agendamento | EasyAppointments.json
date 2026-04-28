@@ -1,0 +1,1154 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2026-01-12T19:58:16.393Z",
+    "createdAt": "2026-01-12T19:58:16.393Z",
+    "versionId": "adae8237-027e-4d40-97b8-b8360b31257c",
+    "workflowId": "0O6y5NDvNkKnkHWl",
+    "nodes": [
+      {
+        "parameters": {
+          "url": "=https://orthox-easyappointments.reyhdo.easypanel.host/index.php/api/v1/appointments",
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "customerId",
+                "value": "={{ $json.id_usuario }}"
+              },
+              {
+                "name": "q",
+                "value": "={{ $json.data_agendada }}"
+              }
+            ]
+          },
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "accept",
+                "value": "application/json"
+              },
+              {
+                "name": "Authorization",
+                "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          256,
+          0
+        ],
+        "id": "2ac3e61e-af44-4715-8ddb-8591d1e77543",
+        "name": "GET appointments",
+        "notesInFlow": true,
+        "alwaysOutputData": true,
+        "onError": "continueRegularOutput",
+        "notes": "Busca id_agendamento pelo id_usuario"
+      },
+      {
+        "parameters": {
+          "method": "DELETE",
+          "url": "=https://orthox-easyappointments.reyhdo.easypanel.host/index.php/api/v1/appointments/{{ $('Filter agendamento correto').item.json.appointment.id }}",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "accept",
+                "value": "application/json"
+              },
+              {
+                "name": "Authorization",
+                "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1312,
+          -160
+        ],
+        "id": "0373290e-4b2e-4506-be3f-738635794ef8",
+        "name": "DELETE appointment",
+        "notesInFlow": true,
+        "alwaysOutputData": true,
+        "onError": "continueRegularOutput",
+        "notes": "Deleta agendamento pelo id_agendamento"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "d43cf8bc-a53e-4785-9aaa-5bf44a86358d",
+                "leftValue": "={{ $('GET appointments').last().json.id }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "number",
+                  "operation": "exists",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          480,
+          0
+        ],
+        "id": "af2bef18-719f-462a-9b9f-6daf80dd975b",
+        "name": "IF appointment existes"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "9f355590-726b-4449-bc72-db0b0fc78cb8",
+                "name": "response",
+                "value": "Agendamento não encontrado.",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1312,
+          16
+        ],
+        "id": "be3e3ba6-3137-4b7e-89c5-af457f557410",
+        "name": "Response não encontrado"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "afd37a83-cbff-4367-9a0f-e041a271d8d1",
+                "leftValue": "={{ $('inicio_fluxo').last().json.reagendamento }}",
+                "rightValue": "reagendamento",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          2016,
+          -160
+        ],
+        "id": "2bd049c4-1187-4a56-b940-d59ced854cbd",
+        "name": "IF reagendamento"
+      },
+      {
+        "parameters": {
+          "workflowInputs": {
+            "values": [
+              {
+                "name": "id_usuario",
+                "type": "any"
+              },
+              {
+                "name": "data_agendada"
+              },
+              {
+                "name": "nome_paciente"
+              },
+              {
+                "name": "reagendamento",
+                "type": "boolean"
+              },
+              {
+                "name": "session_id"
+              },
+              {
+                "name": "telefone"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.executeWorkflowTrigger",
+        "typeVersion": 1.1,
+        "position": [
+          0,
+          0
+        ],
+        "id": "5e9117c0-2380-4ce2-9535-ad7f99fa7ed4",
+        "name": "inicio_fluxo"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "9f355590-726b-4449-bc72-db0b0fc78cb8",
+                "name": "response",
+                "value": "Agendamento foi cancelado com sucesso.",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          2240,
+          -64
+        ],
+        "id": "d2574683-875a-4ceb-9b16-6955e4915f8a",
+        "name": "Response cancelamento"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "9f355590-726b-4449-bc72-db0b0fc78cb8",
+                "name": "response",
+                "value": "Agendamento anterior foi cancelado com sucesso, agora deve iniciar um novo agendamento.",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          2464,
+          -256
+        ],
+        "id": "270f67db-4e29-4bc0-9b39-97bfef6ee5a9",
+        "name": "Response reagendamento"
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "UPDATE public.sessao_agendamento\nSET deletado = true, atualizado_em = '{{ $now }}'::TIMESTAMPTZ\nWHERE telefone = '{{ $('inicio_fluxo').last().json.telefone }}'\n  AND deletado = false;",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          1568,
+          -160
+        ],
+        "id": "5e7e6aff-926d-45a6-97dc-8e9c6ca41fc9",
+        "name": "UPDATE deletado sessao_agendamento",
+        "notesInFlow": true,
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        },
+        "notes": "soft delete"
+      },
+      {
+        "parameters": {
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "ortho_x_chat_histories",
+            "mode": "list",
+            "cachedResultName": "ortho_x_chat_histories"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "session_id": "={{ $('Create new user session').last().json.session_id }}",
+              "message": "{|  \"type\": \"ai\",  \"content\": \"O usuário está reagendando uma consulta, então vou iniciar um novo agendamento do zero, perguntando convênio, dentista que indicou, unidade, procedimento, data e hora.\",  \"tool_calls\": [],  \"additional_kwargs\": {},  \"response_metadata\": {},  \"invalid_tool_calls\": []}"
+            },
+            "matchingColumns": [
+              "id"
+            ],
+            "schema": [
+              {
+                "id": "id",
+                "displayName": "id",
+                "required": false,
+                "defaultMatch": true,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "session_id",
+                "displayName": "session_id",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "message",
+                "displayName": "message",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "object",
+                "canBeUsedToMatch": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          2240,
+          -256
+        ],
+        "id": "5159f4a8-45f7-4ece-b031-34ca2cb98a50",
+        "name": "Atualiza chat_memory para reagendamento",
+        "notesInFlow": true,
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        },
+        "notes": "Mensagem salva no chat history para a IA saber que deve pedir dados do usuário"
+      },
+      {
+        "parameters": {
+          "jsCode": "const targetDate = $('inicio_fluxo').last().json.data_agendada; \nconst appointments = $('GET appointments').all();\n\nconst match = appointments.filter(item => item.json.start === targetDate);\n\nif (match.length === 0) {\n  return [\n    {\n      json: {\n        success: false,\n        message: `Nenhum agendamento encontrado ${targetDate}.`\n      }\n    }\n  ];\n}\n\nreturn [\n  {\n    json: {\n      success: true,\n      message: `Agendamento encontrado ${targetDate}.`,\n      appointment: match[0].json\n    }\n  }\n];"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          720,
+          -144
+        ],
+        "id": "7a9b095b-ddb6-458f-8d3c-801f6173d5ae",
+        "name": "Filter agendamento correto"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "2ff2f1ca-90c2-46ff-84b0-5d24d10aa1f1",
+                "leftValue": "={{ $('Filter agendamento correto').last().json.success }}",
+                "rightValue": "true",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          992,
+          -144
+        ],
+        "id": "3048f7cc-77cc-46a7-b37f-0dd44f67e658",
+        "name": "IF nenhum appointment no horário exato"
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT (public.create_new_session($1)).*;",
+          "options": {
+            "queryReplacement": "={{ $('inicio_fluxo').last().json.telefone }}"
+          }
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          1792,
+          -160
+        ],
+        "id": "5583212f-5a3e-4551-8d40-7ae56c93f640",
+        "name": "Create new user session",
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        }
+      }
+    ],
+    "connections": {
+      "GET appointments": {
+        "main": [
+          [
+            {
+              "node": "IF appointment existes",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "DELETE appointment": {
+        "main": [
+          [
+            {
+              "node": "UPDATE deletado sessao_agendamento",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF appointment existes": {
+        "main": [
+          [
+            {
+              "node": "Filter agendamento correto",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Response não encontrado",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF reagendamento": {
+        "main": [
+          [
+            {
+              "node": "Atualiza chat_memory para reagendamento",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Response cancelamento",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "inicio_fluxo": {
+        "main": [
+          [
+            {
+              "node": "GET appointments",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "UPDATE deletado sessao_agendamento": {
+        "main": [
+          [
+            {
+              "node": "Create new user session",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Atualiza chat_memory para reagendamento": {
+        "main": [
+          [
+            {
+              "node": "Response reagendamento",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Filter agendamento correto": {
+        "main": [
+          [
+            {
+              "node": "IF nenhum appointment no horário exato",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF nenhum appointment no horário exato": {
+        "main": [
+          [
+            {
+              "node": "DELETE appointment",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Response não encontrado",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create new user session": {
+        "main": [
+          [
+            {
+              "node": "IF reagendamento",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "system migration",
+    "name": null,
+    "description": null,
+    "autosaved": false
+  },
+  "activeVersionId": "adae8237-027e-4d40-97b8-b8360b31257c",
+  "connections": {
+    "GET appointments": {
+      "main": [
+        [
+          {
+            "node": "IF appointment existes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DELETE appointment": {
+      "main": [
+        [
+          {
+            "node": "UPDATE deletado sessao_agendamento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF appointment existes": {
+      "main": [
+        [
+          {
+            "node": "Filter agendamento correto",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Response não encontrado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF reagendamento": {
+      "main": [
+        [
+          {
+            "node": "Atualiza chat_memory para reagendamento",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Response cancelamento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "inicio_fluxo": {
+      "main": [
+        [
+          {
+            "node": "GET appointments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UPDATE deletado sessao_agendamento": {
+      "main": [
+        [
+          {
+            "node": "Create new user session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Atualiza chat_memory para reagendamento": {
+      "main": [
+        [
+          {
+            "node": "Response reagendamento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter agendamento correto": {
+      "main": [
+        [
+          {
+            "node": "IF nenhum appointment no horário exato",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF nenhum appointment no horário exato": {
+      "main": [
+        [
+          {
+            "node": "DELETE appointment",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Response não encontrado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create new user session": {
+      "main": [
+        [
+          {
+            "node": "IF reagendamento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-09-11T20:02:31.641Z",
+  "id": "0O6y5NDvNkKnkHWl",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Cancelar Agendamento | EasyAppointments",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "=https://orthox-easyappointments.reyhdo.easypanel.host/index.php/api/v1/appointments",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "customerId",
+              "value": "={{ $json.id_usuario }}"
+            },
+            {
+              "name": "q",
+              "value": "={{ $json.data_agendada }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        256,
+        0
+      ],
+      "id": "2ac3e61e-af44-4715-8ddb-8591d1e77543",
+      "name": "GET appointments",
+      "notesInFlow": true,
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput",
+      "notes": "Busca id_agendamento pelo id_usuario"
+    },
+    {
+      "parameters": {
+        "method": "DELETE",
+        "url": "=https://orthox-easyappointments.reyhdo.easypanel.host/index.php/api/v1/appointments/{{ $('Filter agendamento correto').item.json.appointment.id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1312,
+        -160
+      ],
+      "id": "0373290e-4b2e-4506-be3f-738635794ef8",
+      "name": "DELETE appointment",
+      "notesInFlow": true,
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput",
+      "notes": "Deleta agendamento pelo id_agendamento"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d43cf8bc-a53e-4785-9aaa-5bf44a86358d",
+              "leftValue": "={{ $('GET appointments').last().json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "number",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        480,
+        0
+      ],
+      "id": "af2bef18-719f-462a-9b9f-6daf80dd975b",
+      "name": "IF appointment existes"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9f355590-726b-4449-bc72-db0b0fc78cb8",
+              "name": "response",
+              "value": "Agendamento não encontrado.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1312,
+        16
+      ],
+      "id": "be3e3ba6-3137-4b7e-89c5-af457f557410",
+      "name": "Response não encontrado"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "afd37a83-cbff-4367-9a0f-e041a271d8d1",
+              "leftValue": "={{ $('inicio_fluxo').last().json.reagendamento }}",
+              "rightValue": "reagendamento",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2016,
+        -160
+      ],
+      "id": "2bd049c4-1187-4a56-b940-d59ced854cbd",
+      "name": "IF reagendamento"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "id_usuario",
+              "type": "any"
+            },
+            {
+              "name": "data_agendada"
+            },
+            {
+              "name": "nome_paciente"
+            },
+            {
+              "name": "reagendamento",
+              "type": "boolean"
+            },
+            {
+              "name": "session_id"
+            },
+            {
+              "name": "telefone"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "5e9117c0-2380-4ce2-9535-ad7f99fa7ed4",
+      "name": "inicio_fluxo"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9f355590-726b-4449-bc72-db0b0fc78cb8",
+              "name": "response",
+              "value": "Agendamento foi cancelado com sucesso.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2240,
+        -64
+      ],
+      "id": "d2574683-875a-4ceb-9b16-6955e4915f8a",
+      "name": "Response cancelamento"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9f355590-726b-4449-bc72-db0b0fc78cb8",
+              "name": "response",
+              "value": "Agendamento anterior foi cancelado com sucesso, agora deve iniciar um novo agendamento.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2464,
+        -256
+      ],
+      "id": "270f67db-4e29-4bc0-9b39-97bfef6ee5a9",
+      "name": "Response reagendamento"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE public.sessao_agendamento\nSET deletado = true, atualizado_em = '{{ $now }}'::TIMESTAMPTZ\nWHERE telefone = '{{ $('inicio_fluxo').last().json.telefone }}'\n  AND deletado = false;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1568,
+        -160
+      ],
+      "id": "5e7e6aff-926d-45a6-97dc-8e9c6ca41fc9",
+      "name": "UPDATE deletado sessao_agendamento",
+      "notesInFlow": true,
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      },
+      "notes": "soft delete"
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "ortho_x_chat_histories",
+          "mode": "list",
+          "cachedResultName": "ortho_x_chat_histories"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "session_id": "={{ $('Create new user session').last().json.session_id }}",
+            "message": "{|  \"type\": \"ai\",  \"content\": \"O usuário está reagendando uma consulta, então vou iniciar um novo agendamento do zero, perguntando convênio, dentista que indicou, unidade, procedimento, data e hora.\",  \"tool_calls\": [],  \"additional_kwargs\": {},  \"response_metadata\": {},  \"invalid_tool_calls\": []}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "session_id",
+              "displayName": "session_id",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2240,
+        -256
+      ],
+      "id": "5159f4a8-45f7-4ece-b031-34ca2cb98a50",
+      "name": "Atualiza chat_memory para reagendamento",
+      "notesInFlow": true,
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      },
+      "notes": "Mensagem salva no chat history para a IA saber que deve pedir dados do usuário"
+    },
+    {
+      "parameters": {
+        "jsCode": "const targetDate = $('inicio_fluxo').last().json.data_agendada; \nconst appointments = $('GET appointments').all();\n\nconst match = appointments.filter(item => item.json.start === targetDate);\n\nif (match.length === 0) {\n  return [\n    {\n      json: {\n        success: false,\n        message: `Nenhum agendamento encontrado ${targetDate}.`\n      }\n    }\n  ];\n}\n\nreturn [\n  {\n    json: {\n      success: true,\n      message: `Agendamento encontrado ${targetDate}.`,\n      appointment: match[0].json\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        -144
+      ],
+      "id": "7a9b095b-ddb6-458f-8d3c-801f6173d5ae",
+      "name": "Filter agendamento correto"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "2ff2f1ca-90c2-46ff-84b0-5d24d10aa1f1",
+              "leftValue": "={{ $('Filter agendamento correto').last().json.success }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        992,
+        -144
+      ],
+      "id": "3048f7cc-77cc-46a7-b37f-0dd44f67e658",
+      "name": "IF nenhum appointment no horário exato"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT (public.create_new_session($1)).*;",
+        "options": {
+          "queryReplacement": "={{ $('inicio_fluxo').last().json.telefone }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1792,
+        -160
+      ],
+      "id": "5583212f-5a3e-4551-8d40-7ae56c93f640",
+      "name": "Create new user session",
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "inicio_fluxo": [
+      {
+        "json": {
+          "id_usuario": 222,
+          "data_agendada": "2025-09-19 13:30:00",
+          "nome_paciente": "Joana Clara",
+          "reagendamento": false,
+          "session_id": "fcea1d4f-53b0-42e2-9182-de6461982e60",
+          "telefone": "19998219996"
+        }
+      }
+    ]
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-09-11T20:02:31.647Z",
+      "createdAt": "2025-09-11T20:02:31.647Z",
+      "role": "workflow:owner",
+      "workflowId": "0O6y5NDvNkKnkHWl",
+      "projectId": "IcfJLMCsRkuOqzR8"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-10-24T19:03:01.000Z",
+  "versionId": "adae8237-027e-4d40-97b8-b8360b31257c"
+}
