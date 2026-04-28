@@ -1,0 +1,363 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2026-04-28T19:43:43.000Z",
+    "createdAt": "2026-04-28T19:43:42.022Z",
+    "versionId": "e7fb515d-8bed-44d6-9757-fa972a6ef54f",
+    "workflowId": "qp5F9JmR17eTuxZH",
+    "nodes": [
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.openai.com/v1/embeddings",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Authorization"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"model\": \"text-embedding-3-small\",\n  \"input\": \"{{ $json.query }}\"\n}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          -80,
+          160
+        ],
+        "id": "d82136bd-e28f-44c3-af1f-8fbeeabaa185",
+        "name": "Embed Query usuário",
+        "notesInFlow": true,
+        "notes": "Está usando a API-KEY do Mau"
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT * FROM search_faq_chunks($1::vector, 0.4, 12);",
+          "options": {
+            "queryReplacement": "={{[$json.data[0].embedding]}}"
+          }
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          128,
+          160
+        ],
+        "id": "6c23375f-00c8-4713-b964-fd9dc3eac923",
+        "name": "Execute a SQL query",
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "const topN = 10;\nconst minSimilarity = 0.45;\n\n// Get ALL items from the previous node (not just the first one)\nconst allItems = $input.all();\n\n// Extract the data from each item\nconst dataArray = allItems.map(item => item.json);\n\nconsole.log(\"Total items received:\", dataArray.length);\n\n// Filter and format\nconst topContent = dataArray\n    .filter(item => item && item.similaridade >= minSimilarity)\n    .slice(0, topN)\n    .map((item, index) => {\n        return `${index + 1}. ${item.conteudo}\\n   (Relevância: ${(item.similaridade * 100).toFixed(1)}%)`;\n    })\n    .join('\\n\\n---\\n\\n');\n\nreturn [{ json: { \n    agent_response: topContent || \"No relevant content found\",\n    total_results: dataArray.length,\n    filtered_count: dataArray.filter(item => item.similaridade >= minSimilarity).length\n}}];"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          352,
+          160
+        ],
+        "id": "27fdd30f-f6e9-46c1-9451-b1f93c5b6f08",
+        "name": "Code"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "49f7b98f-9f75-46a0-b730-c16dab3931c4",
+                "name": "content_result",
+                "value": "={{ $json.agent_response }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          576,
+          160
+        ],
+        "id": "d6432cb4-1df4-4798-bf66-ce17bf4b96c1",
+        "name": "Edit Fields1"
+      },
+      {
+        "parameters": {
+          "workflowInputs": {
+            "values": [
+              {
+                "name": "query"
+              }
+            ]
+          }
+        },
+        "id": "300f4590-e03b-4c68-aa5e-7a3187132cce",
+        "typeVersion": 1.1,
+        "name": "Start",
+        "type": "n8n-nodes-base.executeWorkflowTrigger",
+        "position": [
+          -304,
+          160
+        ]
+      }
+    ],
+    "connections": {
+      "Embed Query usuário": {
+        "main": [
+          [
+            {
+              "node": "Execute a SQL query",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Execute a SQL query": {
+        "main": [
+          [
+            {
+              "node": "Code",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code": {
+        "main": [
+          [
+            {
+              "node": "Edit Fields1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Start": {
+        "main": [
+          [
+            {
+              "node": "Embed Query usuário",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Nano Incub",
+    "name": "Version e7fb515d",
+    "description": "",
+    "autosaved": false
+  },
+  "activeVersionId": "e7fb515d-8bed-44d6-9757-fa972a6ef54f",
+  "connections": {
+    "Embed Query usuário": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Embed Query usuário",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-10-20T20:38:34.825Z",
+  "id": "qp5F9JmR17eTuxZH",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Fluxo consulta FAQ - OrthoX",
+  "nodes": [
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/embeddings",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"text-embedding-3-small\",\n  \"input\": \"{{ $json.query }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -80,
+        160
+      ],
+      "id": "d82136bd-e28f-44c3-af1f-8fbeeabaa185",
+      "name": "Embed Query usuário",
+      "notesInFlow": true,
+      "notes": "Está usando a API-KEY do Mau"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM search_faq_chunks($1::vector, 0.4, 12);",
+        "options": {
+          "queryReplacement": "={{[$json.data[0].embedding]}}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        128,
+        160
+      ],
+      "id": "6c23375f-00c8-4713-b964-fd9dc3eac923",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const topN = 10;\nconst minSimilarity = 0.45;\n\n// Get ALL items from the previous node (not just the first one)\nconst allItems = $input.all();\n\n// Extract the data from each item\nconst dataArray = allItems.map(item => item.json);\n\nconsole.log(\"Total items received:\", dataArray.length);\n\n// Filter and format\nconst topContent = dataArray\n    .filter(item => item && item.similaridade >= minSimilarity)\n    .slice(0, topN)\n    .map((item, index) => {\n        return `${index + 1}. ${item.conteudo}\\n   (Relevância: ${(item.similaridade * 100).toFixed(1)}%)`;\n    })\n    .join('\\n\\n---\\n\\n');\n\nreturn [{ json: { \n    agent_response: topContent || \"No relevant content found\",\n    total_results: dataArray.length,\n    filtered_count: dataArray.filter(item => item.similaridade >= minSimilarity).length\n}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        352,
+        160
+      ],
+      "id": "27fdd30f-f6e9-46c1-9451-b1f93c5b6f08",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "49f7b98f-9f75-46a0-b730-c16dab3931c4",
+              "name": "content_result",
+              "value": "={{ $json.agent_response }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        576,
+        160
+      ],
+      "id": "d6432cb4-1df4-4798-bf66-ce17bf4b96c1",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "query"
+            }
+          ]
+        }
+      },
+      "id": "300f4590-e03b-4c68-aa5e-7a3187132cce",
+      "typeVersion": 1.1,
+      "name": "Start",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -304,
+        160
+      ]
+    }
+  ],
+  "pinData": {
+    "Start": [
+      {
+        "json": {
+          "query": "tomografia unidade São Bernardo do Campo"
+        }
+      }
+    ]
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-10-20T20:38:34.830Z",
+      "createdAt": "2025-10-20T20:38:34.830Z",
+      "role": "workflow:owner",
+      "workflowId": "qp5F9JmR17eTuxZH",
+      "projectId": "IcfJLMCsRkuOqzR8"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2026-04-28T19:43:42.020Z",
+  "versionId": "e7fb515d-8bed-44d6-9757-fa972a6ef54f"
+}
