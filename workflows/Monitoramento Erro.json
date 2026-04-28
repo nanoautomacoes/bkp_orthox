@@ -1,0 +1,467 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2026-01-12T19:58:16.393Z",
+    "createdAt": "2026-01-12T19:58:16.393Z",
+    "versionId": "349afb8d-9c59-441b-8b6c-ced4271922f5",
+    "workflowId": "xMZ12MFm8IYta9IH",
+    "nodes": [
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.errorTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ],
+        "id": "ad2367ae-f1f7-47af-afe1-e2a94cff0ac7",
+        "name": "Error Trigger"
+      },
+      {
+        "parameters": {
+          "resource": "messages-api",
+          "instanceName": "=celclaroinstance",
+          "remoteJid": "=5519998210119",
+          "messageText": "=⚠️ Erro no fluxo *_{{ $('Error Trigger').last().json.workflow.name || null }}_*\n\n*Mensagem de erro:* {{ $('Error Trigger').last().json.execution.error.message || null }}\n---\n*Último nó executado:* _{{ $('Error Trigger').last().json.execution.lastNodeExecuted || null }}_\n*URL da execução:* {{ $('Error Trigger').last().json.execution.url || null }}",
+          "options_message": {
+            "linkPreview": false
+          }
+        },
+        "type": "n8n-nodes-evolution-api.evolutionApi",
+        "typeVersion": 1,
+        "position": [
+          416,
+          0
+        ],
+        "id": "7eddaf49-dcd2-4f5e-8f55-59b7c4665672",
+        "name": "Evolution API5",
+        "credentials": {
+          "evolutionApi": {
+            "id": "3oTT7RsCuxervFw5",
+            "name": "Evolution account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "error_logs",
+            "mode": "list",
+            "cachedResultName": "error_logs"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "message": "={{ $(\"Error Trigger\").last().json.execution.error.message || null }}",
+              "last_node_executed": "={{ $(\"Error Trigger\").last().json.execution.lastNodeExecuted || null }}",
+              "workflow_id": "={{ $(\"Error Trigger\").last().json.workflow.id || null }}",
+              "workflow_name": "={{ $(\"Error Trigger\").last().json.workflow.name || null }}",
+              "error_time": "={{$(\"Error Trigger\").last().json.execution.error.timestamp || null }}",
+              "url_execution": "={{ $(\"Error Trigger\").last().json.execution.url || null }}",
+              "execution_id": "={{ $(\"Error Trigger\").last().json.execution.id || null }}"
+            },
+            "matchingColumns": [
+              "id"
+            ],
+            "schema": [
+              {
+                "id": "id",
+                "displayName": "id",
+                "required": false,
+                "defaultMatch": true,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "message",
+                "displayName": "message",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "last_node_executed",
+                "displayName": "last_node_executed",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "workflow_id",
+                "displayName": "workflow_id",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "workflow_name",
+                "displayName": "workflow_name",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "created_at",
+                "displayName": "created_at",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "error_time",
+                "displayName": "error_time",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "url_execution",
+                "displayName": "url_execution",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "execution_id",
+                "displayName": "execution_id",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          192,
+          0
+        ],
+        "id": "3b369d36-e1a7-4824-9e63-ef1e104efcd6",
+        "name": "Insert rows in a table",
+        "credentials": {
+          "postgres": {
+            "id": "AOFY6QPd1zNymEEO",
+            "name": "Supabase Flavio@nano"
+          }
+        }
+      }
+    ],
+    "connections": {
+      "Error Trigger": {
+        "main": [
+          [
+            {
+              "node": "Insert rows in a table",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Insert rows in a table": {
+        "main": [
+          [
+            {
+              "node": "Evolution API5",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "system migration",
+    "name": null,
+    "description": null,
+    "autosaved": false
+  },
+  "activeVersionId": "349afb8d-9c59-441b-8b6c-ced4271922f5",
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Insert rows in a table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert rows in a table": {
+      "main": [
+        [
+          {
+            "node": "Evolution API5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-10-09T13:01:07.747Z",
+  "id": "xMZ12MFm8IYta9IH",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Monitoramento Erro",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "ad2367ae-f1f7-47af-afe1-e2a94cff0ac7",
+      "name": "Error Trigger"
+    },
+    {
+      "parameters": {
+        "resource": "messages-api",
+        "instanceName": "=celclaroinstance",
+        "remoteJid": "=5519998210119",
+        "messageText": "=⚠️ Erro no fluxo *_{{ $('Error Trigger').last().json.workflow.name || null }}_*\n\n*Mensagem de erro:* {{ $('Error Trigger').last().json.execution.error.message || null }}\n---\n*Último nó executado:* _{{ $('Error Trigger').last().json.execution.lastNodeExecuted || null }}_\n*URL da execução:* {{ $('Error Trigger').last().json.execution.url || null }}",
+        "options_message": {
+          "linkPreview": false
+        }
+      },
+      "type": "n8n-nodes-evolution-api.evolutionApi",
+      "typeVersion": 1,
+      "position": [
+        416,
+        0
+      ],
+      "id": "7eddaf49-dcd2-4f5e-8f55-59b7c4665672",
+      "name": "Evolution API5",
+      "credentials": {
+        "evolutionApi": {
+          "id": "3oTT7RsCuxervFw5",
+          "name": "Evolution account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "error_logs",
+          "mode": "list",
+          "cachedResultName": "error_logs"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "message": "={{ $(\"Error Trigger\").last().json.execution.error.message || null }}",
+            "last_node_executed": "={{ $(\"Error Trigger\").last().json.execution.lastNodeExecuted || null }}",
+            "workflow_id": "={{ $(\"Error Trigger\").last().json.workflow.id || null }}",
+            "workflow_name": "={{ $(\"Error Trigger\").last().json.workflow.name || null }}",
+            "error_time": "={{$(\"Error Trigger\").last().json.execution.error.timestamp || null }}",
+            "url_execution": "={{ $(\"Error Trigger\").last().json.execution.url || null }}",
+            "execution_id": "={{ $(\"Error Trigger\").last().json.execution.id || null }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_node_executed",
+              "displayName": "last_node_executed",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "workflow_id",
+              "displayName": "workflow_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "workflow_name",
+              "displayName": "workflow_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "error_time",
+              "displayName": "error_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "url_execution",
+              "displayName": "url_execution",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "execution_id",
+              "displayName": "execution_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        192,
+        0
+      ],
+      "id": "3b369d36-e1a7-4824-9e63-ef1e104efcd6",
+      "name": "Insert rows in a table",
+      "credentials": {
+        "postgres": {
+          "id": "AOFY6QPd1zNymEEO",
+          "name": "Supabase Flavio@nano"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Error Trigger": [
+      {
+        "json": {
+          "execution": {
+            "id": "5295",
+            "url": "https://orthox-n8n.reyhdo.easypanel.host/workflow/5xd8BDCWMj8YytX8/executions/5295",
+            "error": {
+              "level": "error",
+              "tags": {},
+              "description": "Please return an array of objects, one for each item you would like to output.",
+              "node": {
+                "parameters": {
+                  "mode": "runOnceForAllItems",
+                  "language": "javaScript",
+                  "jsCode": "",
+                  "notice": ""
+                },
+                "type": "n8n-nodes-base.code",
+                "typeVersion": 2,
+                "position": [
+                  -160,
+                  2384
+                ],
+                "id": "4af34f11-4c8a-40ce-92cd-56a5f0afffe1",
+                "name": "Code"
+              },
+              "message": "Code doesn't return items properly",
+              "stack": "Error: Code doesn't return items properly\n    at validateRunCodeAllItems (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/n8n-nodes-base@file+packages+nodes-base_@aws-sdk+credential-providers@3.808.0_asn1.js@5_afd197edb2c1f848eae21a96a97fab23/node_modules/n8n-nodes-base/nodes/Code/result-validation.ts:132:9)\n    at JavaScriptSandbox.validateRunCodeAllItems (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/n8n-nodes-base@file+packages+nodes-base_@aws-sdk+credential-providers@3.808.0_asn1.js@5_afd197edb2c1f848eae21a96a97fab23/node_modules/n8n-nodes-base/nodes/Code/Sandbox.ts:74:33)\n    at JavaScriptSandbox.runCodeAllItems (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/n8n-nodes-base@file+packages+nodes-base_@aws-sdk+credential-providers@3.808.0_asn1.js@5_afd197edb2c1f848eae21a96a97fab23/node_modules/n8n-nodes-base/nodes/Code/JavaScriptSandbox.ts:98:15)\n    at ExecuteContext.execute (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/n8n-nodes-base@file+packages+nodes-base_@aws-sdk+credential-providers@3.808.0_asn1.js@5_afd197edb2c1f848eae21a96a97fab23/node_modules/n8n-nodes-base/nodes/Code/Code.node.ts:198:14)\n    at WorkflowExecute.executeNode (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/n8n-core@file+packages+core_@opentelemetry+api@1.9.0_@opentelemetry+sdk-trace-base@1.30_08b575bec2313d5d8a4cc75358971443/node_modules/n8n-core/src/execution-engine/workflow-execute.ts:1265:8)\n    at WorkflowExecute.runNode (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/n8n-core@file+packages+core_@opentelemetry+api@1.9.0_@opentelemetry+sdk-trace-base@1.30_08b575bec2313d5d8a4cc75358971443/node_modules/n8n-core/src/execution-engine/workflow-execute.ts:1446:11)\n    at /usr/local/lib/node_modules/n8n/node_modules/.pnpm/n8n-core@file+packages+core_@opentelemetry+api@1.9.0_@opentelemetry+sdk-trace-base@1.30_08b575bec2313d5d8a4cc75358971443/node_modules/n8n-core/src/execution-engine/workflow-execute.ts:1847:27\n    at /usr/local/lib/node_modules/n8n/node_modules/.pnpm/n8n-core@file+packages+core_@opentelemetry+api@1.9.0_@opentelemetry+sdk-trace-base@1.30_08b575bec2313d5d8a4cc75358971443/node_modules/n8n-core/src/execution-engine/workflow-execute.ts:2461:11"
+            },
+            "lastNodeExecuted": "Code",
+            "mode": "integrated"
+          },
+          "workflow": {
+            "id": "5xd8BDCWMj8YytX8",
+            "name": "Agents Garage"
+          }
+        }
+      }
+    ]
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-10-09T13:01:07.754Z",
+      "createdAt": "2025-10-09T13:01:07.754Z",
+      "role": "workflow:owner",
+      "workflowId": "xMZ12MFm8IYta9IH",
+      "projectId": "IcfJLMCsRkuOqzR8"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-10-09T15:07:44.000Z",
+  "versionId": "349afb8d-9c59-441b-8b6c-ced4271922f5"
+}
