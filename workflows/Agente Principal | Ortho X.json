@@ -1,0 +1,4052 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2026-01-12T19:58:16.509Z",
+    "createdAt": "2026-01-12T19:58:16.509Z",
+    "versionId": "064b5726-e38a-4a65-bea9-32c655924da5",
+    "workflowId": "tD0Gv0IfDlnzNUm0",
+    "nodes": [
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+        "typeVersion": 1.3,
+        "position": [
+          -2896,
+          336
+        ],
+        "id": "e32468b4-fb38-4af4-bbb7-52deb5c3efb0",
+        "name": "When chat message received",
+        "webhookId": "6f9ca9d4-e290-4cc1-87a0-78444721ff40",
+        "disabled": true
+      },
+      {
+        "parameters": {
+          "sessionIdType": "customKey",
+          "sessionKey": "={{ $('CREATE & SELECT cliente & user_session').last().json.result.session.session_id }}",
+          "tableName": "ortho_x_chat_histories",
+          "contextWindowLength": 15
+        },
+        "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+        "typeVersion": 1.3,
+        "position": [
+          1328,
+          496
+        ],
+        "id": "396381b4-8a92-4ef4-8cc8-a1b0a933abf5",
+        "name": "Postgres Chat Memory",
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "b12249d9-c3b0-40dc-a332-cc509fae1922",
+                "name": "telefone",
+                "value": "={{ $json.body.payload.from }}",
+                "type": "string"
+              },
+              {
+                "id": "0069d741-de73-40c2-9947-38b742d0d8b9",
+                "name": "chatInput",
+                "value": "={{ $json.body.payload.body }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          -2000,
+          336
+        ],
+        "id": "bd9c8fab-4ca0-4c5e-b57b-6bc9e85bd11a",
+        "name": "SET telefone"
+      },
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.manualTrigger",
+        "typeVersion": 1,
+        "position": [
+          -2896,
+          512
+        ],
+        "id": "9d2dbd3a-2d73-4bd6-9613-a58e1e077189",
+        "name": "When clicking ‘Execute workflow’",
+        "disabled": true
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "DO $$\nDECLARE\n  target_phone text := '{{ $('SET telefone').last().json.telefone.split('@')[0] }}';\nBEGIN\n  -- Step 1: Delete from user_session\n  DELETE FROM public.user_session\n  WHERE telefone = target_phone;\n\n  -- Step 2: Set deletado = true in sessao_agendamento \n  DELETE FROM public.sessao_agendamento \n  WHERE telefone = target_phone;\n\n  -- Step 3: Delete from cliente\n  DELETE FROM public.cliente\n  WHERE telefone = target_phone;\n\nEND $$;\n",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          -1328,
+          32
+        ],
+        "id": "e2e8cd33-06bf-4297-afa5-afd80809e513",
+        "name": "DELETE user_session, conversation_state, leads",
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "7173483a-a3cc-4e35-9dd7-4f181216d247",
+                "leftValue": "={{ $('SET telefone').last().json.chatInput }}",
+                "rightValue": "##delete",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals",
+                  "name": "filter.operator.equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          -1648,
+          336
+        ],
+        "id": "66380a5a-7835-4179-aeaf-4c161ad6e3b4",
+        "name": "IF trigger delete"
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "WITH existing_cliente AS (\n    SELECT *\n    FROM public.cliente\n    WHERE telefone = '{{ $('SET telefone').last().json.telefone.split('@')[0] }}'\n    LIMIT 1\n), inserted_cliente AS (\n    INSERT INTO public.cliente (telefone)\n    SELECT '{{ $('SET telefone').last().json.telefone.split('@')[0] }}'\n    WHERE NOT EXISTS (SELECT 1 FROM existing_cliente)\n    RETURNING *\n), final_cliente AS (\n    SELECT * FROM existing_cliente\n    UNION ALL\n    SELECT * FROM inserted_cliente\n), cliente_with_session AS (\n    SELECT \n        f.*,\n        s.session_id,\n        s.precisa_saudar,\n        us.transferido_para_humano,\n        us.id_agente_humano\n    FROM final_cliente f\n    CROSS JOIN LATERAL get_or_create_session(f.telefone) s\n    LEFT JOIN public.user_session us\n    ON us.id = s.session_id\n)\nSELECT json_build_object(\n    'cliente', to_jsonb(f) - 'session_id' - 'precisa_saudar' - 'transferido_para_humano' - 'id_agente_humano',\n    'session', json_build_object(\n        'session_id', f.session_id,\n        'precisa_saudar', f.precisa_saudar,\n        'transferido_para_humano', f.transferido_para_humano,\n        'id_agente_humano', f.id_agente_humano\n    )\n) AS result\nFROM cliente_with_session f;\n",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          368,
+          256
+        ],
+        "id": "a6ac407d-fc5f-4b37-99f0-0f5228053f74",
+        "name": "CREATE & SELECT cliente & user_session",
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "description": "=Chame esta ferramenta para criar um agendamento.",
+          "workflowId": {
+            "__rl": true,
+            "value": "QdM1vovkWoQMSLtF",
+            "mode": "list",
+            "cachedResultUrl": "/workflow/QdM1vovkWoQMSLtF",
+            "cachedResultName": "Agendamento V2 | Easy Appointments"
+          },
+          "workflowInputs": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "id_usuario": "={{ $('CREATE & SELECT cliente & user_session').last().json.result.cliente.id_usuario }}",
+              "telefone": "={{ $('CREATE & SELECT cliente & user_session').last().json.result.cliente.telefone }}",
+              "hora": "={{ $fromAI('hora', `Utilize esse campo para o horário do procedimento no formato hh:mm:ss`, 'string', 'nao_informado') }}",
+              "nome_paciente": "={{ $fromAI('nome_paciente', `Utilize esse campo para o nome do paciente`, 'string', 'nao_informado') }}",
+              "session_id": "={{ $('CREATE & SELECT cliente & user_session').last().json.result.session.session_id }}"
+            },
+            "matchingColumns": [],
+            "schema": [
+              {
+                "id": "hora",
+                "displayName": "hora",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "string",
+                "removed": false
+              },
+              {
+                "id": "id_usuario",
+                "displayName": "id_usuario",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "string",
+                "removed": false
+              },
+              {
+                "id": "telefone",
+                "displayName": "telefone",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "string",
+                "removed": false
+              },
+              {
+                "id": "nome_paciente",
+                "displayName": "nome_paciente",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "string",
+                "removed": false
+              },
+              {
+                "id": "session_id",
+                "displayName": "session_id",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "string",
+                "removed": false
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+        "typeVersion": 2.2,
+        "position": [
+          1408,
+          704
+        ],
+        "id": "a6e03c65-30b5-4a14-8b62-86e3e7dd748b",
+        "name": "criar_agendamento"
+      },
+      {
+        "parameters": {
+          "description": "=Chame esta ferramenta para vefiricar os horários disponíveis após o usuário informar nome e data, horário e o procedimento.",
+          "workflowId": {
+            "__rl": true,
+            "value": "MQZxGZkhiSk4BXLK",
+            "mode": "list",
+            "cachedResultUrl": "/workflow/MQZxGZkhiSk4BXLK",
+            "cachedResultName": "Busca Disponibilidade| Easy Appointments"
+          },
+          "workflowInputs": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "telefone": "={{ $('CREATE & SELECT cliente & user_session').last().json.result.cliente.telefone }}",
+              "hora": "={{ $fromAI('hora', `Utilize esse campo para o horário do procedimento`, 'string', 'nao_informado') }}"
+            },
+            "matchingColumns": [],
+            "schema": [
+              {
+                "id": "hora",
+                "displayName": "hora",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "string",
+                "removed": false
+              },
+              {
+                "id": "telefone",
+                "displayName": "telefone",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "removed": false
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+        "typeVersion": 2.2,
+        "position": [
+          1760,
+          704
+        ],
+        "id": "0a471c72-9a1b-44c7-ac11-0efe69d2e56e",
+        "name": "verifica_disponibilidade_agenda"
+      },
+      {
+        "parameters": {
+          "operation": "select",
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "sessao_agendamento",
+            "mode": "list",
+            "cachedResultName": "sessao_agendamento"
+          },
+          "limit": 1,
+          "where": {
+            "values": [
+              {
+                "column": "telefone",
+                "value": "={{ $('CREATE & SELECT cliente & user_session').last().json.result.cliente.telefone.split('@')[0] }}"
+              },
+              {
+                "column": "deletado",
+                "value": "false"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          1168,
+          272
+        ],
+        "id": "5ed37039-505b-4cb5-9e6b-49452da805ce",
+        "name": "SELECT sessao_agendamento",
+        "alwaysOutputData": true,
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "url": "https://orthox-easyappointments.reyhdo.easypanel.host/index.php/api/v1/customers",
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "q",
+                "value": "={{ $('SET telefone').last().json.telefone.split('@')[0] }}"
+              }
+            ]
+          },
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Authorization",
+                "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+              },
+              {
+                "name": "Accept",
+                "value": "application/json"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          -1072,
+          32
+        ],
+        "id": "102ed572-4f4c-481f-b386-8c79005219f3",
+        "name": "GET customer if exists",
+        "alwaysOutputData": true
+      },
+      {
+        "parameters": {
+          "method": "DELETE",
+          "url": "=https://orthox-easyappointments.reyhdo.easypanel.host/index.php/api/v1/customers/{{ $('GET customer if exists').last().json.id }}",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Authorization",
+                "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+              },
+              {
+                "name": "Accept",
+                "value": "application/json"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          -576,
+          -96
+        ],
+        "id": "241e4480-a86d-49ac-8f2f-53d251f7205f",
+        "name": "DELETE test customer",
+        "alwaysOutputData": true
+      },
+      {
+        "parameters": {
+          "description": "Consulta agendamentos existentes do cliente. Use para verificar, listar ou obter detalhes de agendamentos já confirmados pelo cliente.",
+          "workflowId": {
+            "__rl": true,
+            "value": "lDKIAPPZxKs173gl",
+            "mode": "list",
+            "cachedResultUrl": "/workflow/lDKIAPPZxKs173gl",
+            "cachedResultName": "EasyAppointments | Consulta Agendamento"
+          },
+          "workflowInputs": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "id_usuario": "={{ $('CREATE & SELECT cliente & user_session').last().json.result.cliente.id_usuario }}"
+            },
+            "matchingColumns": [],
+            "schema": [
+              {
+                "id": "telefone",
+                "displayName": "telefone",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "id_usuario",
+                "displayName": "id_usuario",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "cliente_solicita",
+                "displayName": "cliente_solicita",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "string",
+                "removed": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+        "typeVersion": 2.2,
+        "position": [
+          1952,
+          704
+        ],
+        "id": "c02b56ae-8d5a-4b4b-8658-91f513120ccc",
+        "name": "consulta_agendamento"
+      },
+      {
+        "parameters": {
+          "description": "Cancela agendamentos existentes do cliente. Use para cancelar agendamentos já confirmados, passe \"reagendamento = true\" caso o cliente queira reagendar.",
+          "workflowId": {
+            "__rl": true,
+            "value": "0O6y5NDvNkKnkHWl",
+            "mode": "list",
+            "cachedResultUrl": "/workflow/0O6y5NDvNkKnkHWl",
+            "cachedResultName": "Cancelar Agendamento | EasyAppointments"
+          },
+          "workflowInputs": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "id_usuario": "={{ $('CREATE & SELECT cliente & user_session').last().json.result.cliente.id_usuario }}",
+              "data_agendada": "={{ $fromAI('data_agendada', `data e hora da consulta agendada que deseja cancelar em formato YYYY-mm-dd hh:mm:ss`, 'string') }}",
+              "nome_paciente": "={{ $fromAI('nome_paciente', `O nome completo do paciente.`, 'string') }}",
+              "session_id": "={{ $('CREATE & SELECT cliente & user_session').last().json.result.session.session_id }}",
+              "reagendamento": "={{ $fromAI('reagendamento', `true se estiver fazendo reagendamento`, 'boolean', false) }}",
+              "telefone": "={{ $('CREATE & SELECT cliente & user_session').last().json.result.cliente.telefone }}"
+            },
+            "matchingColumns": [
+              "info_cancelamento"
+            ],
+            "schema": [
+              {
+                "id": "id_usuario",
+                "displayName": "id_usuario",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "data_agendada",
+                "displayName": "data_agendada",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "string",
+                "removed": false
+              },
+              {
+                "id": "nome_paciente",
+                "displayName": "nome_paciente",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "string",
+                "removed": false
+              },
+              {
+                "id": "reagendamento",
+                "displayName": "reagendamento",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "boolean",
+                "removed": false
+              },
+              {
+                "id": "session_id",
+                "displayName": "session_id",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "string",
+                "removed": false
+              },
+              {
+                "id": "telefone",
+                "displayName": "telefone",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "string",
+                "removed": false
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+        "typeVersion": 2.2,
+        "position": [
+          2144,
+          704
+        ],
+        "id": "d0e68948-8bea-40d3-ba58-4b27756374be",
+        "name": "cancela_agendamento"
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "={{ $('mensagem_concatenada').last().json.message }}",
+          "options": {
+            "systemMessage": "=Você é um assistente de inteligência artificial chamada Bia, uma agente especializada em tirar dúvidas e realizar o agendamento de exames para a clínica ortodôntica OrthoX. Sua missão é responder aos clientes pelo WhatsApp e guiá-los até a marcação da exame.\n\n## Objetivo\nSeu objetivo principal é conseguir as seguintes informações antes de consultar ou realizar um agendamento.\n\n{{\n  (() => {\n    const cliente = $('CREATE & SELECT cliente & user_session').last().json.result.cliente;\n    const sessao_agendamento = $('SELECT sessao_agendamento').last().json;\n\n    return `\nTelefone: ${\n        cliente?.telefone\n          ? `Informação já obtida (${cliente.telefone})`\n          : 'Solicite para a pessoa o telefone'\n      }\nNome: ${\n        cliente?.nome\n          ? `Informação já obtida, NÃO perguntar novamente (${cliente.nome})`\n          : '* **PRIMEIRA PERGUNTA OBRIGATÓRIA**: \"Qual seu nome?\" (para identificar quem está falando)'\n      }\nConvenio: ${\n        sessao_agendamento?.convenio\n          ? `Informação já obtida (${sessao_agendamento.convenio})`\n          : 'SEMPRE solicite para a pessoa se é por convênio ou particular. Caso o usuário responda apenas \"convênio\", solicite o nome do convênio. NUNCA registre apenas o valor \"convênio\"'\n      }\nPlano: ${\n        sessao_agendamento?.plano\n          ? `Informação já obtida (${sessao_agendamento.plano})`\n          : 'SOMENTE SE NÃO FOR Particular solicite para a pessoa qual o nome de seu plano dentro do convênio. Peça para a pessoa se certificar de escrever corretamente o nome do plano'\n      }\nDentista indicou: ${\n        sessao_agendamento?.dentista\n          ? `Informação já obtida (${sessao_agendamento.dentista})`\n          : 'SEMPRE solicite para a pessoa se foi indicada por algum dentista, SE sim, solicite o nome do dentista. Se o usuário ainda não respondeu se um dentista indicou, você DEVE perguntar: > “Algum dentista te indicou?” '\n      }\nUnidade: ${\n        sessao_agendamento?.unidade_id\n          ? `Informação já obtida (${sessao_agendamento.unidade_id})`\n          : 'SEMPRE solicite para a pessoa a unidade'\n      }\nProcedimento: ${\n        sessao_agendamento?.servico_id\n          ? sessao_agendamento.servico_id != \"undefined\" ? `Informação já obtida (${sessao_agendamento.servico_id})` : 'SEMPRE solicite para a pessoa o procedimento/exame desejado, podendo ser enviado via texto ou foto'\n          : 'SEMPRE solicite para a pessoa o procedimento/exame desejado, podendo ser enviado via texto ou foto'\n      }\nData Agendamento: ${\n        sessao_agendamento?.data_agendamento\n          ? `Informação já obtida (${sessao_agendamento.data_agendamento})`\n          : 'Solicite para a pessoa a data desejada'\n      }`;\n  })()\n}}\n\n## FLUXO OBRIGATÓRIO DE FERRAMENTAS (EXECUTAR NA ORDEM)\n\n### Fase 1 - Coleta de Dados:\n1. SEMPRE que receber Nome → EXECUTE `atualiza_dados` IMEDIATAMENTE\n2. SEMPRE que receber o Dentista que indicou → EXECUTE `atualiza_dados` IMEDIATAMENTE\n3. **Quando receber um Convênio:**\n   - Primeiro, EXECUTE `verificar_convenio`\n   - Se o convênio for válido, então EXECUTE `atualiza_dados`\n   - Se não for válido, informe ao usuário que o convênio não foi encontrado e pergunte se deseja falar com um atendente humano.\n4. SEMPRE que receber Plano → EXECUTE `atualiza_dados` IMEDIATAMENTE  \n5. SEMPRE que receber Unidade → EXECUTE `atualiza_dados` IMEDIATAMENTE  \n6. SEMPRE que receber Procedimento → EXECUTE `atualiza_dados` IMEDIATAMENTE\n   - CORRIJA a ortografia SOMENTE do Procedimento antes de atualizar\n\n### Fase 2 - Disponibilidade:\n7. SOMENTE APÓS ter Nome + Dentista que indicou + Convênio + Unidade + Procedimento coletados:\n   - Pergunte qual dia o usuário gostaria de agendar\n   - **SEMPRE** utilize a ferramenta `Think` para determinar o dia corretamente\n   - Quando usuário informar data agendamento → EXECUTE `atualiza_dados` IMEDIATAMENTE\n   - Após executar `atualiza_dados` → EXECUTE `verifica_disponibilidade_agenda`\n   - NUNCA sugira horários sem executar esta ferramenta\n\n### Fase 3 - Consulta:\n8. Para CONSULTAR agendamentos → EXECUTE `consulta_agendamento`\n   - NUNCA use informações de memória/histórico/chat history para listar agendamentos\n\n### Fase 4 - Ação Final:\n9. Para CRIAR agendamento → EXECUTE `criar_agendamento`\n10. Para CANCELAR → EXECUTE `consulta_agendamento` PRIMEIRO, DEPOIS `cancela_agendamento`\n   - **SEMPRE** utilize a ferramenta `Think` para determinar se completou o fluxo de cancelamento\n\n## GATILHOS AUTOMÁTICOS DE FERRAMENTAS\n\nEXECUTE IMEDIATAMENTE (sem avisar o usuário):\n- Nome recebido → `atualiza_dados`\n- Dentista que indicou recebido → `atualiza_dados`\n- Convênio recebido → `verificar_convenio` (NUNCA executar `atualiza_dados` antes da verificação)\n- Plano recebido → `atualiza_dados`\n- Unidade e Procedimento informados → `atualiza_dados`\n- Data/horário solicitado → `verifica_disponibilidade_agenda`\n- Pedido de cancelamento → `consulta_agendamento`\n- Pedido de consulta de agendamentos → `consulta_agendamento`\n- Confirmação de agendamento → `criar_agendamento`\n- Confirmação de cancelamento → `cancela_agendamento`\n- Solicitar falar com um \"agente humano\", \"atendente\", \"pessoa real\", \"médico\" → `falar_com_humano`\n- Dúvida sobre exames, serviços, procedimentos, equipamentos, unidades ou informações gerais → 'consulta_faq'\n- Pergunta sobre \"como funciona\", \"o que é\", \"qual a diferença\", \"preciso de...\" (questionamentos informativos) → 'consulta_faq'\n\n## BLOQUEIOS OBRIGATÓRIOS\n\n- **NUNCA** sugira horários sem executar `verifica_disponibilidade_agenda`\n- **NUNCA** mostre agendamentos sem executar `consulta_agendamento`\n- **NUNCA** crie agendamento sem confirmação explícita do usuário\n- **NUNCA** cancele sem primeiro executar `consulta_agendamento`\n- **NUNCA** use informações de memória/histórico/chat history para disponibilidades\n- **NUNCA** execute múltiplas operações simultâneas (crie/cancele APENAS um por vez)\n- **NUNCA** faça duas perguntas em uma única mensagem\n- **NUNCA** pause a conversa ou peça \"um momento\"\n- **NUNCA** responda que um convênio é aceito sem antes verificar na ferramenta `consulta_faq`\n- **NUNCA** anuncie ao usuário que vai usar ferramentas\n- **NUNCA** anuncie ao usuário que ocorreram erros, apenas faça a pergunta novamente.\n\nSEMPRE BLOQUEIE E PEÇA INFO SE:\n- Faltam dados obrigatórios para a ferramenta\n- Usuário não confirmou explicitamente a ação\n- Horário solicitado não está disponível (ofereça o próximo disponível)\n\n## USO OBRIGATÓRIO DE RESPOSTAS DAS FERRAMENTAS\n\nApós executar ferramenta:\n1. USE APENAS o campo 'response' da ferramenta como base da resposta\n2. NUNCA invente ou adicione informações não retornadas pela ferramenta\n3. Se sucesso → prossiga IMEDIATAMENTE com próxima pergunta pendente\n\n## Como usar as informações da ferramenta `consulta_faq`\n\n1. **SEMPRE** execute quando o cliente perguntar por endereço\n2. **Execute SEM avisar** quando detectar dúvida informativa\n3. **Utilize TODOS os documentos retornados** na resposta\n4. **Resuma e personalize** a informação para o contexto do cliente\n5. **Se não houver resultado**, mantenha o tom prestativo e ofereça orientação direta ou sugira contato com a unidade\n6. **Priorize o agendamento** - combine esclarecimento + próxima pergunta do fluxo quando necessário\n7. **Se o cliente perguntar se um convênio é aceito, use essa ferramenta para verificar antes de prosseguir\n\n## Diretrizes de Conversação\n\n* SEMPRE apresente-se dizendo seu nome e a sua função de maneira cordial\n* NUNCA tente agendar mais de um exame ao mesmo tempo\n* Você SÓ consegue agendar **UM EXAME POR VEZ**, caso o usuário deseje agendar mais de um exame, NOTIFIQUE-O de que precisará fazer o processo de agendamento múltiplas vezes\n* APÓS obter o nome do usuário, prossiga com outras informações\n* Você DEVE fazer apenas UMA pergunta por mensagem.\n* Após enviar uma pergunta, você DEVE parar e aguardar a resposta do usuário antes de continuar.\n* Jamais envie mais de uma pergunta na mesma mensagem, mesmo que as perguntas estejam relacionadas.\n* Não envie frases compostas que contenham duas interrogações (ex: “Qual o plano? Qual a unidade?”).\n* Não use ponto final seguido de outra pergunta (ex: “...plano. Qual unidade...”) — isso é proibido.\n* Se precisar perguntar outra coisa, espere a resposta anterior primeiro.\n* Se você detectar que está prestes a perguntar duas coisas na mesma frase, envie apenas a primeira pergunta e interrompa sua saída imediatamente.\n* Utilize a data de hoje para se orientar: {{ new Date().toLocaleString(\"pt-br\", {  weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }) }}\n* Você sempre receberá o dia e horário atuais; a partir daí, identifique datas como amanhã, depois de amanhã, semana que vem, mês que vem, ano que vem\n* NUNCA invente respostas\n* **NUNCA peça \"um momento\" ou similar** - mantenha o fluxo natural\n* NUNCA utilize emojis\n* Evite repetir o nome da pessoa em toda resposta. Use de forma natural, quando necessário\n\n## Unidades\n- SEMPRE liste as unidades na seguinte ordem:\n\n1. São Bernardo do Campo\n2. Diadema\n3. Santo André\n4. Unidade Premium\n\n- Se o usuário escolher a unidade de São Bernando do Campo (SBC) o id da unidade = 1\n- Se o usuário escolher a unidade de Diadema o id da unidade = 2\n- Se o usuário escolher a unidade de Santo André o id da unidade = 3\n- Se o usuário escolher a unidade Premium o id da unidade = 4\n- **Se o usuário estiver utilizando convênio, NUNCA cite a opção da unidade Premium**\n- **Mostre a unidade Premium SOMENTE se o usuário fizer por Particular**\n\n## Identificação do Paciente\n\n**FLUXO OBRIGATÓRIO:**\n- **SEMPRE PERGUNTE**: \"Este agendamento é para você ou para outra pessoa?\"\n\n**Se for para outra pessoa:**\n- Colete: \"Qual o nome completo da pessoa para o agendamento?\"\n- **IMPORTANTE**: NUNCA use `atualiza_dados` para o nome do paciente\n\n**Se for para o próprio usuário:**\n- Utilize o Nome já coletado\n\n## Fluxo de Coleta (IMPORTANTE)\nQuando receber uma informação do usuário:\n1. Use a ferramenta necessária SEM avisar\n2. IMEDIATAMENTE faça a próxima pergunta pendente\n3. NUNCA pause a conversa para \"atualizar\" ou \"registrar\"\n\n## Progresso Parcial\nSe o cliente fornecer apenas parte dos dados:\n- Agradeça brevemente E faça a próxima pergunta na MESMA mensagem\n- Exemplo: \"Perfeito! Agora, qual seu nome completo?\"\n\n## Procedimentos Específicos\n\n### Cancelamento\n- Nome recebido com pedido de cancelamento → EXECUTE `consulta_agendamento` IMEDIATAMENTE\n- SEMPRE liste TODOS os agendamentos numericamente após executar `consulta_agendamento`\n- QUANDO houver múltiplos agendamentos:\n  - LISTE: \"[1] Nome paciente - Unidade - Procedimento - Data/Hora\"\n  - AGUARDE o usuário escolher o NÚMERO ou procedimento ou data/hora\n  - NUNCA prossiga sem confirmação específica de QUAL cancelar\n- SEMPRE confirme ANTES de cancelar:\n  - MOSTRE: \"Confirma cancelamento de [procedimento] em [data/hora]?\"\n  - SOMENTE execute `cancela_agendamento` após confirmação explícita\n\n### Reagendamento\n- Se o usuário pedir reagendamento, notifique que ele deverá cancelar o agendamento e criar um novo\n- NUNCA tente realizar reagendamento direto\n- Realize o cancelamento passando o parâmetro \"reagendamento = true\"\n- Após cancelar, comece novo fluxo de agendamento pedindo: Unidade, Procedimento, Data e Hora\n\n### ⚠️ Crítico\n* **NUNCA** peça \"um momento\" ou similar** - mantenha o fluxo natural\n* Finalize sua resposta imediatamente após fazer uma única pergunta."
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 1.8,
+        "position": [
+          1456,
+          272
+        ],
+        "id": "2ee6175d-7bfd-4e42-9455-5be9bc5db1c0",
+        "name": "AI Agent"
+      },
+      {
+        "parameters": {
+          "description": "=Use esta ferramenta para determinar:\n- a data que o usuário solicitar, com base na data atual:  {{ new Date().toLocaleString(\"pt-br\", {  weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }) }}.\n- se o fluxo de cancelamento foi executado"
+        },
+        "type": "@n8n/n8n-nodes-langchain.toolThink",
+        "typeVersion": 1.1,
+        "position": [
+          1200,
+          496
+        ],
+        "id": "c362c93f-1efd-45b1-bdad-5d75eea64eba",
+        "name": "Think"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "fb44445d-7744-4b7e-9026-be8fd2ff6934",
+                "leftValue": "={{ $json.result.session.transferido_para_humano }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          608,
+          256
+        ],
+        "id": "f224fddd-2f9f-4d50-a5b3-1ed1a1ae0945",
+        "name": "IF transferido_para_humano"
+      },
+      {
+        "parameters": {
+          "description": "Utilize essa ferramenta quando EXPLICITAMENTE o cliente quiser falar com uma pessoa humana ou falar por ligação.",
+          "workflowId": {
+            "__rl": true,
+            "value": "I4PwOZXGMkOniWij",
+            "mode": "list",
+            "cachedResultUrl": "/workflow/I4PwOZXGMkOniWij",
+            "cachedResultName": "Falar com Humano"
+          },
+          "workflowInputs": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "telefone": "={{ $('CREATE & SELECT cliente & user_session').last().json.result.cliente.telefone }}"
+            },
+            "matchingColumns": [
+              "telefone"
+            ],
+            "schema": [
+              {
+                "id": "telefone",
+                "displayName": "telefone",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "string",
+                "removed": false
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+        "typeVersion": 2.2,
+        "position": [
+          2336,
+          704
+        ],
+        "id": "cef1160c-d598-45b6-a001-071831ef5d17",
+        "name": "falar_com_humano"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "11422931-70d4-467e-a25b-815d82d6eb43",
+                "leftValue": "={{ $json.propertyName.map(item => JSON.parse(item.replace(/^=/, ''))).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)).pop().message }}",
+                "rightValue": "={{ $('SET mensagem').last().json.mensagem }}",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals",
+                  "name": "filter.operator.equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          -352,
+          352
+        ],
+        "id": "ea9a4143-e48b-4275-b88f-b49278c478b1",
+        "name": "IF nova mensagem recebida"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "9b992a80-e353-45d7-86fe-855d8a621ed9",
+                "name": "message",
+                "value": "={{ $('Limpa a fila de mensagens').item.json.propertyName.join(\"\\n\") }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          112,
+          256
+        ],
+        "id": "6618f9ee-4767-46d8-ba7b-e6c63e061d04",
+        "name": "mensagem_concatenada"
+      },
+      {
+        "parameters": {
+          "operation": "get",
+          "key": "={{ $('SET telefone').last().json.telefone }}_{{ $now.format('dd-MM-yyyy') }}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.redis",
+        "typeVersion": 1,
+        "position": [
+          -560,
+          352
+        ],
+        "id": "52b43c57-12bf-49f9-80fa-ac2452c94bb8",
+        "name": "GET Mensagem Buffer",
+        "credentials": {
+          "redis": {
+            "id": "09S5reMQREDFaZPt",
+            "name": "Redis n8n"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "b06b399e-ee7a-4a50-99a8-463a0e70199f",
+                "name": "mensagem",
+                "value": "={{ $('SET telefone').last().json.chatInput }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          -1328,
+          352
+        ],
+        "id": "20af85ec-f605-46c3-9962-1c68ca0119c6",
+        "name": "SET mensagem"
+      },
+      {
+        "parameters": {
+          "operation": "delete",
+          "key": "={{ $('SET telefone').last().json.telefone }}_{{ $now.format('dd-MM-yyyy') }}"
+        },
+        "type": "n8n-nodes-base.redis",
+        "typeVersion": 1,
+        "position": [
+          -128,
+          256
+        ],
+        "id": "024e643d-f235-4bb3-9dc9-c6ab21f21612",
+        "name": "Limpa a fila de mensagens",
+        "credentials": {
+          "redis": {
+            "id": "09S5reMQREDFaZPt",
+            "name": "Redis n8n"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "push",
+          "list": "={{ $('SET telefone').last().json.telefone }}_{{ $now.format('dd-MM-yyyy') }}",
+          "messageData": "={{ JSON.stringify({\n      timestamp: new Date().toISOString(),\n      message: $('SET mensagem').last().json.mensagem \n    }) }}",
+          "tail": true
+        },
+        "type": "n8n-nodes-base.redis",
+        "typeVersion": 1,
+        "position": [
+          -1040,
+          352
+        ],
+        "id": "cebbfa1d-b868-40d7-87b7-200299dd7bcb",
+        "name": "Adiciona na fila",
+        "credentials": {
+          "redis": {
+            "id": "09S5reMQREDFaZPt",
+            "name": "Redis n8n"
+          }
+        }
+      },
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.noOp",
+        "typeVersion": 1,
+        "position": [
+          -128,
+          464
+        ],
+        "id": "7dcbc702-0111-4283-9df4-be9b40ea597f",
+        "name": "No Operation, do nothing"
+      },
+      {
+        "parameters": {
+          "amount": 10
+        },
+        "type": "n8n-nodes-base.wait",
+        "typeVersion": 1.1,
+        "position": [
+          -784,
+          352
+        ],
+        "id": "50f1916e-3fc3-49f4-92b2-08a9dfd317e6",
+        "name": "Wait",
+        "webhookId": "03ef1755-00e4-4603-90a2-fc4e02aaf987",
+        "disabled": true
+      },
+      {
+        "parameters": {
+          "inputSource": "passthrough"
+        },
+        "type": "n8n-nodes-base.executeWorkflowTrigger",
+        "typeVersion": 1.1,
+        "position": [
+          -2896,
+          688
+        ],
+        "id": "1c9f28e5-149e-4917-a9ef-9d0981e447f1",
+        "name": "Webhook Evo"
+      },
+      {
+        "parameters": {
+          "resource": "messages-api",
+          "instanceName": "={{ $('Webhook Evo').last().json.body.instance }}",
+          "remoteJid": "={{ $('Webhook Evo').item.json.body.data.key.remoteJid.split('@')[0] }}",
+          "messageText": "={{ $json.output }}",
+          "options_message": {
+            "linkPreview": false
+          }
+        },
+        "type": "n8n-nodes-evolution-api.evolutionApi",
+        "typeVersion": 1,
+        "position": [
+          3536,
+          160
+        ],
+        "id": "efaecec7-b9a0-45e6-b0ca-03b30bc553b2",
+        "name": "POST Mensagem Usuário",
+        "credentials": {
+          "evolutionApi": {
+            "id": "3oTT7RsCuxervFw5",
+            "name": "Evolution account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "description": "Busca no FAQ informações sobre exames, serviços, equipamentos, unidades e procedimentos da OrthoX. Use para responder dúvidas informativas do cliente.",
+          "workflowId": {
+            "__rl": true,
+            "value": "qp5F9JmR17eTuxZH",
+            "mode": "list",
+            "cachedResultUrl": "/workflow/qp5F9JmR17eTuxZH",
+            "cachedResultName": "Fluxo consulta FAQ - OrthoX"
+          },
+          "workflowInputs": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('query', `Pergunta ou consulta do cliente. Input exatamente o que o usuário está perguntando para encontrar informações relevantes no FAQ.`, 'string') }}"
+            },
+            "matchingColumns": [],
+            "schema": [
+              {
+                "id": "query",
+                "displayName": "query",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "string",
+                "removed": false
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+        "typeVersion": 2.2,
+        "position": [
+          2528,
+          704
+        ],
+        "id": "08c9f665-cc71-46c1-9ff7-1efaad14a76c",
+        "name": "consulta_faq"
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "id": "14bb2c0c-2d19-46c1-b528-acc6779930a7",
+        "name": "Loop Over Items3",
+        "type": "n8n-nodes-base.splitInBatches",
+        "typeVersion": 3,
+        "position": [
+          2528,
+          160
+        ],
+        "executeOnce": false
+      },
+      {
+        "parameters": {
+          "fieldToSplitOut": "output.messages",
+          "options": {
+            "destinationFieldName": "output"
+          }
+        },
+        "id": "db034b8f-4353-40de-b797-16280718b2ec",
+        "name": "Split de Mensagem",
+        "type": "n8n-nodes-base.splitOut",
+        "typeVersion": 1,
+        "position": [
+          2320,
+          160
+        ]
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=Whatsapp message to be splitted and formated: {{ $json.output }}",
+          "hasOutputParser": true,
+          "messages": {
+            "messageValues": [
+              {
+                "message": "=Você é um agente especializado em dividir mensagens do WhatsApp em partes naturais e conversacionais.\n\n### CRÍTICO: Sua saída deve ser APENAS um objeto JSON puro, sem blocos de código markdown (```json), sem texto antes ou depois.\n### Formato obrigatório: {\"output\":{\"messages\":[\"mensagem1\",\"mensagem2\",\"mensagem3\"]}}\n\n### ⚠️ REGRA FUNDAMENTAL\nNÃO quebre uma mensagem apenas porque é longa. Só divida quando houver REALMENTE duas ou mais ideias INDEPENDENTES que façam sentido sozinhas.\n\n### CENÁRIOS DE NÃO QUEBRA (mantenha TUDO junto):\n- Pergunta com suas opções/listagem (pergunta + resposta devem estar juntas)\n- Um tema/assunto único explicado em múltiplas linhas (ex: horários, informações sobre um exame)\n- Uma frase que dependa da próxima para fazer sentido (ex: \"Sábados:\" não pode ser quebrado de suas subdivisões)\n- Listas, tópicos ou subtópicos que se complementam\n\n### CENÁRIOS DE QUEBRA (divida quando apropriado):\n- Cumprimento/apresentação seguido de pergunta nova (ideias separadas)\n- Resposta de uma pergunta + nova pergunta diferente\n- Finalizações que são separáveis (ex: \"Pronto! [quebra] Deseja agendar agora?\")\n\n### REGRA DE CARACTERES\n- Menos de 300 caracteres: mantenha em UMA mensagem (mesmo que curta)\n- Mais de 300 caracteres: AINDA assim mantenha junto UNLESS houver ideias claramente separáveis\n- Nunca quebre apenas para respeitar limite de caracteres\n\n### FORMATAÇÃO\n- Sem *negrito*, sem __itálico__, sem ~~tachado__\n- Sem colchetes ou chaves extras fora do JSON\n- Links: www.exemplo.com.br (sem markdown)\n- Quebras de parágrafo: use \\n\\n quando necessário\n\n### ❌ ERRO COMUM\nNão faça isto:\n```\n{\"output\":{\"messages\":[\"- Sábados:\", \"  - Unidades Premium: 8h às 12h\", \"  - Unidade Centro: 8h às 13h\"]}}\n```\nA listagem está quebrada de forma que \"Sábados:\" fica órfão. Está errado.\n\n### ✅ CORRETO\n```\n{\"output\":{\"messages\":[\"As unidades funcionam: \\n\\n- Segunda a sexta: 8h às 18h\\n- Sábados:\\n  - Premium, Santo André, Diadema: 8h às 12h\\n  - São Bernardo Centro: 8h às 13h\\n\\nNão atendemos domingos.\"]}}\n```\n\n### Exemplos práticos:\n\n**Entrada:** \"Olá! Sou a Bia da OrthoX. Qual seu nome completo?\"\n**Saída:** {\"output\":{\"messages\":[\"Olá! Sou a Bia da OrthoX. Qual seu nome completo?\"]}} \n(Uma única ideia coesa)\n\n**Entrada:** \"Qual unidade você prefere? 1. SBC 2. Diadema 3. Santo André 4. Premium\"\n**Saída:** {\"output\":{\"messages\":[\"Qual unidade você prefere?\\n\\n1. SBC\\n2. Diadema\\n3. Santo André\\n4. Premium\"]}}\n(Pergunta + opções = mantém junto)\n\n**Entrada:** \"Perfeito! Seu nome é João. Agora, qual seu telefone?\"\n**Saída:** {\"output\":{\"messages\":[\"Perfeito! Seu nome é João.\",\"Agora, qual seu telefone?\"]}}\n(Confirmação + nova pergunta = ideias separáveis, quebra OK)\n\n### JAMAIS:\n- Envie mensagens vazias\n- Divida por limite de caracteres\n- Quebre informações que formam uma unidade temática\n- Deixe uma parte de uma listagem órfã (ex: \"Sábados:\" sem seus horários)"
+              }
+            ]
+          }
+        },
+        "id": "db945b61-41bb-471c-973d-842d33cf5057",
+        "name": "Split de mensagens",
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "typeVersion": 1.4,
+        "position": [
+          1984,
+          160
+        ]
+      },
+      {
+        "parameters": {
+          "amount": 2
+        },
+        "id": "211861cd-0493-40f1-9e9c-9aaab00d8bd6",
+        "name": "2 segundos",
+        "type": "n8n-nodes-base.wait",
+        "typeVersion": 1.1,
+        "position": [
+          3360,
+          176
+        ],
+        "webhookId": "a2c69e1c-13fe-44a2-962c-1249288537eb"
+      },
+      {
+        "parameters": {
+          "schemaType": "manual",
+          "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"messages\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      }\n    }\n  },\n  \"required\": [\"messages\"]\n}",
+          "autoFix": true
+        },
+        "id": "1895dbd7-3633-46dc-b945-624b43a2c32e",
+        "name": "Modelo Output1",
+        "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+        "typeVersion": 1.2,
+        "position": [
+          2048,
+          320
+        ]
+      },
+      {
+        "parameters": {
+          "options": {
+            "maxTokens": -1,
+            "temperature": 0.1,
+            "topP": 0.9
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+        "typeVersion": 1,
+        "position": [
+          1072,
+          496
+        ],
+        "id": "3271e567-280d-42d4-89f5-d25328851ffe",
+        "name": "OpenRouter Chat Model",
+        "credentials": {
+          "openRouterApi": {
+            "id": "qEMgoAYyLwMTsoVL",
+            "name": "OpenRouter NANO - Automações N8N"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "resource": "messages-api",
+          "instanceName": "={{ $('Webhook Evo').last().json.body.instance }}",
+          "remoteJid": "={{ $('Webhook Evo').item.json.body.data.key.remoteJid.split('@')[0] }}",
+          "messageText": "=Conversa reiniciada com sucesso!",
+          "options_message": {
+            "linkPreview": false
+          }
+        },
+        "type": "n8n-nodes-evolution-api.evolutionApi",
+        "typeVersion": 1,
+        "position": [
+          -896,
+          -192
+        ],
+        "id": "1592a055-8823-4ac6-a540-b58e56516112",
+        "name": "POST Mensagem Usuário1",
+        "credentials": {
+          "evolutionApi": {
+            "id": "3oTT7RsCuxervFw5",
+            "name": "Evolution account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "248d055c-f642-4bcf-bdee-09f0195085e0",
+                "name": "mensagem",
+                "value": "={{ $json.output }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          2736,
+          176
+        ],
+        "id": "dfa3cea0-7122-4999-9be7-fc292f97ca5c",
+        "name": "Edit Fields"
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT public.mark_deleted_sessao_agendamento('{{ $('CREATE & SELECT cliente & user_session').last().json.result.cliente.telefone.split('@')[0] }}');",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          896,
+          272
+        ],
+        "id": "9c1306b6-c715-470d-a82e-302e7efe9bab",
+        "name": "DELETE sessao_agendamento antigo",
+        "alwaysOutputData": true,
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        },
+        "notes": "Deleta sessao_agendamento antigo"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://orthox-waha.reyhdo.easypanel.host/api/sendText",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "accept",
+                "value": "application/json"
+              },
+              {
+                "name": "X-Api-Key",
+                "value": "8e130716e537469e98eb72ab4297c240"
+              },
+              {
+                "name": "api-key",
+                "value": "8e130716e537469e98eb72ab4297c240"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"chatId\": \"{{ $('Webhook Evo').last().json.body.payload.from }}\",\n  \"reply_to\": null,\n  \"text\": \"Conversa reiniciada com sucesso!\",\n  \"linkPreview\": false,\n  \"linkPreviewHighQuality\": false,\n  \"session\": \"default\"\n}\n\n\n\n",
+          "options": {
+            "redirect": {
+              "redirect": {}
+            }
+          }
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          -336,
+          48
+        ],
+        "id": "d9dfb7bb-900a-4b12-bb9b-a0f7154aac9a",
+        "name": "WAHA | HTTP Request1"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "5ba7e9cc-0ab2-49de-be13-24600859aba8",
+                "leftValue": "={{ $('GET customer if exists').last().json.id }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "number",
+                  "operation": "exists",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          -816,
+          32
+        ],
+        "id": "4a63153d-2804-4bf7-b8bc-dd891e60177a",
+        "name": "IF Customer exists"
+      },
+      {
+        "parameters": {
+          "description": "Utilize esta ferramenta para verificar se o convênio que o usuário mencionou é fornecido.",
+          "workflowId": {
+            "__rl": true,
+            "value": "lIhwjMLHYKL1chkP",
+            "mode": "list",
+            "cachedResultUrl": "/workflow/lIhwjMLHYKL1chkP",
+            "cachedResultName": "Verifica convênio"
+          },
+          "workflowInputs": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "convenio": "={{ $fromAI('convenio', `Utilize esse campo para preencher o nome do convênio da pessoa.`, 'string', '' ) }}"
+            },
+            "matchingColumns": [],
+            "schema": [
+              {
+                "id": "convenio",
+                "displayName": "convenio",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "string",
+                "removed": false
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+        "typeVersion": 2.2,
+        "position": [
+          2720,
+          704
+        ],
+        "id": "55a80178-f5a0-447b-b501-c284c1d9832d",
+        "name": "verificar_convenio"
+      },
+      {
+        "parameters": {
+          "options": {
+            "maxTokens": -1,
+            "temperature": 0.1,
+            "topP": 0.9
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+        "typeVersion": 1,
+        "position": [
+          1984,
+          416
+        ],
+        "id": "3f16b5e4-7c50-41da-83e5-4c6ebd224346",
+        "name": "OpenRouter Chat Model1",
+        "credentials": {
+          "openRouterApi": {
+            "id": "qEMgoAYyLwMTsoVL",
+            "name": "OpenRouter NANO - Automações N8N"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "description": "=SEMPRE utilize essa ferramenta para atualizar os dados do paciente a cada resposta obtida para as perguntas:\n\n- Nome completo\n- Convênio\n- Dentista que indicou\n- Unidade\n- Procedimento\n- Data\n\nSEMPRE utilize o valor coletado sem formatação e NUNCA invente valores para os campos.\n\nSE o usuário mostrou intenção de falar com um \"agente humano\", \"atendente\", \"pessoa real\", \"médico\", passe o valor `falar_com_humano` = true",
+          "workflowId": {
+            "__rl": true,
+            "value": "f9dJMIx7JfFiVcV9",
+            "mode": "list",
+            "cachedResultUrl": "/workflow/f9dJMIx7JfFiVcV9",
+            "cachedResultName": "Cadastro Usuário V6 | EasyAppointments"
+          },
+          "workflowInputs": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "telefone": "={{ $('CREATE & SELECT cliente & user_session').last().json.result.cliente.telefone}}",
+              "procedimento": "={{ $fromAI('procedimento', `O tipo de procedimento/exame solicitado pelo usuário`, 'string', 'nao_informado') }}",
+              "nome": "={{ $fromAI('nome', `Utilize esse campo para preencher o nome completo da pessoa`, 'string', 'nao_informado' ) }}",
+              "unidade": "={{ $fromAI('unidade', `Utilize esse campo para preencher o ID da unidade que a pessoa escolher. Utilize somente o número associado com a respectiva unidade.`, 'string', 'nao_informado' ) }}",
+              "data_agendamento": "={{ $fromAI('data_agendamento', `Somente a data escolhida pelo usuário no formato yyyy-MM-dd.`, 'string', 'nao_informado') }}",
+              "falar_com_humano": "={{ $fromAI('falar_com_humano', `Se o usuario deseja falar com um humano`, 'boolean', false) }}",
+              "convenio": "={{ $fromAI('convenio', `Utilize esse campo para preencher o nome do convênio da pessoa, ou Particular.`, 'string', 'nao_informado' ) }}",
+              "eh_dentista": "={{ $fromAI('is_dentista', 'Utilize esse campo caso o cliente queira falar com humano para determinar se o cliente é um dentista ou não', 'boolean', false)}}",
+              "eh_indicacao_dentista": "={{ $fromAI('dentista', `Utilize esse campo para preencher o nome do dentista que indicou a pessoa, ou preencha com 'Ninguém' caso não tenha sido indicada por nenhum dentista.`, 'string', 'nao_informado') }}",
+              "plano": "={{ $fromAI('plano', `Utilize esse campo para preencher o nome do plano médico da pessoa.`, 'string', 'nao_informado' ) }}"
+            },
+            "matchingColumns": [],
+            "schema": [
+              {
+                "id": "telefone",
+                "displayName": "telefone",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "string"
+              },
+              {
+                "id": "nome",
+                "displayName": "nome",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "string",
+                "removed": false
+              },
+              {
+                "id": "convenio",
+                "displayName": "convenio",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "string",
+                "removed": false
+              },
+              {
+                "id": "plano",
+                "displayName": "plano",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "string",
+                "removed": false
+              },
+              {
+                "id": "unidade",
+                "displayName": "unidade",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "string",
+                "removed": false
+              },
+              {
+                "id": "procedimento",
+                "displayName": "procedimento",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "string",
+                "removed": false
+              },
+              {
+                "id": "data_agendamento",
+                "displayName": "data_agendamento",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "string",
+                "removed": false
+              },
+              {
+                "id": "eh_dentista",
+                "displayName": "eh_dentista",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "boolean",
+                "removed": false
+              },
+              {
+                "id": "falar_com_humano",
+                "displayName": "falar_com_humano",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "boolean",
+                "removed": false
+              },
+              {
+                "id": "eh_indicacao_dentista",
+                "displayName": "eh_indicacao_dentista",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "string",
+                "removed": false
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+        "typeVersion": 2.2,
+        "position": [
+          1584,
+          704
+        ],
+        "id": "a0bb977a-a0e7-4a74-9ec6-8453f9be0eb4",
+        "name": "atualiza_dados"
+      },
+      {
+        "parameters": {
+          "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.myNewField = 1;\n}\n\nreturn {\n  json: {\n    body: {\n      payload: {\n        from: \"5519991753867@c.us\",\n        body: $input.first().json.chatInput\n      }\n    }\n  }\n};"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -2608,
+          336
+        ],
+        "id": "ecc998d0-028f-4075-83c5-5a38468a297d",
+        "name": "Parse Retorno WAHA + número fixo"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://autobots-waha.5lyxxc.easypanel.host/api/sendText",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "accept",
+                "value": "application/json"
+              },
+              {
+                "name": "X-Api-Key",
+                "value": "8e130716e537469e98eb72ab4297c240"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"chatId\": \"{{ $('Webhook Evo').last().json.body.payload.from }}\",\n  \"reply_to\": null,\n  \"text\": {{ $json.mensagem.toJsonString() }},\n  \"linkPreview\": false,\n  \"linkPreviewHighQuality\": false,\n  \"session\": \"default\"\n}\n\n\n\n",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          2944,
+          176
+        ],
+        "id": "80e852bb-34c0-444c-9e85-93516af2056d",
+        "name": "WAHA | HTTP Request"
+      }
+    ],
+    "connections": {
+      "When chat message received": {
+        "main": [
+          [
+            {
+              "node": "Parse Retorno WAHA + número fixo",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Postgres Chat Memory": {
+        "ai_memory": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_memory",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "SET telefone": {
+        "main": [
+          [
+            {
+              "node": "IF trigger delete",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "When clicking ‘Execute workflow’": {
+        "main": [
+          [
+            {
+              "node": "SET telefone",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "DELETE user_session, conversation_state, leads": {
+        "main": [
+          [
+            {
+              "node": "GET customer if exists",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF trigger delete": {
+        "main": [
+          [
+            {
+              "node": "DELETE user_session, conversation_state, leads",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "SET mensagem",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "CREATE & SELECT cliente & user_session": {
+        "main": [
+          [
+            {
+              "node": "IF transferido_para_humano",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "criar_agendamento": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "verifica_disponibilidade_agenda": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "SELECT sessao_agendamento": {
+        "main": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "GET customer if exists": {
+        "main": [
+          [
+            {
+              "node": "IF Customer exists",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "consulta_agendamento": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "cancela_agendamento": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Think": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF transferido_para_humano": {
+        "main": [
+          [],
+          [
+            {
+              "node": "DELETE sessao_agendamento antigo",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "falar_com_humano": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF nova mensagem recebida": {
+        "main": [
+          [
+            {
+              "node": "Limpa a fila de mensagens",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "No Operation, do nothing",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "GET Mensagem Buffer": {
+        "main": [
+          [
+            {
+              "node": "IF nova mensagem recebida",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "SET mensagem": {
+        "main": [
+          [
+            {
+              "node": "Adiciona na fila",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Limpa a fila de mensagens": {
+        "main": [
+          [
+            {
+              "node": "mensagem_concatenada",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Adiciona na fila": {
+        "main": [
+          [
+            {
+              "node": "Wait",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait": {
+        "main": [
+          [
+            {
+              "node": "GET Mensagem Buffer",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "mensagem_concatenada": {
+        "main": [
+          [
+            {
+              "node": "CREATE & SELECT cliente & user_session",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "AI Agent": {
+        "main": [
+          [
+            {
+              "node": "Split de mensagens",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Webhook Evo": {
+        "main": [
+          [
+            {
+              "node": "SET telefone",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "consulta_faq": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Loop Over Items3": {
+        "main": [
+          [],
+          [
+            {
+              "node": "Edit Fields",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Split de Mensagem": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Items3",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Split de mensagens": {
+        "main": [
+          [
+            {
+              "node": "Split de Mensagem",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "2 segundos": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Items3",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Modelo Output1": {
+        "ai_outputParser": [
+          [
+            {
+              "node": "Split de mensagens",
+              "type": "ai_outputParser",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "POST Mensagem Usuário": {
+        "main": [
+          []
+        ]
+      },
+      "OpenRouter Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "DELETE test customer": {
+        "main": [
+          [
+            {
+              "node": "WAHA | HTTP Request1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Edit Fields": {
+        "main": [
+          [
+            {
+              "node": "WAHA | HTTP Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "DELETE sessao_agendamento antigo": {
+        "main": [
+          [
+            {
+              "node": "SELECT sessao_agendamento",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF Customer exists": {
+        "main": [
+          [
+            {
+              "node": "DELETE test customer",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "WAHA | HTTP Request1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "verificar_convenio": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenRouter Chat Model1": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Modelo Output1",
+              "type": "ai_languageModel",
+              "index": 0
+            },
+            {
+              "node": "Split de mensagens",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "atualiza_dados": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Parse Retorno WAHA + número fixo": {
+        "main": [
+          [
+            {
+              "node": "SET telefone",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "WAHA | HTTP Request": {
+        "main": [
+          [
+            {
+              "node": "2 segundos",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "system migration",
+    "name": null,
+    "description": null,
+    "autosaved": false
+  },
+  "activeVersionId": "064b5726-e38a-4a65-bea9-32c655924da5",
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Parse Retorno WAHA + número fixo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SET telefone": {
+      "main": [
+        [
+          {
+            "node": "IF trigger delete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "SET telefone",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DELETE user_session, conversation_state, leads": {
+      "main": [
+        [
+          {
+            "node": "GET customer if exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF trigger delete": {
+      "main": [
+        [
+          {
+            "node": "DELETE user_session, conversation_state, leads",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "SET mensagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CREATE & SELECT cliente & user_session": {
+      "main": [
+        [
+          {
+            "node": "IF transferido_para_humano",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "criar_agendamento": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "verifica_disponibilidade_agenda": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SELECT sessao_agendamento": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET customer if exists": {
+      "main": [
+        [
+          {
+            "node": "IF Customer exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "consulta_agendamento": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "cancela_agendamento": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Think": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF transferido_para_humano": {
+      "main": [
+        [],
+        [
+          {
+            "node": "DELETE sessao_agendamento antigo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "falar_com_humano": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF nova mensagem recebida": {
+      "main": [
+        [
+          {
+            "node": "Limpa a fila de mensagens",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Mensagem Buffer": {
+      "main": [
+        [
+          {
+            "node": "IF nova mensagem recebida",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SET mensagem": {
+      "main": [
+        [
+          {
+            "node": "Adiciona na fila",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limpa a fila de mensagens": {
+      "main": [
+        [
+          {
+            "node": "mensagem_concatenada",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Adiciona na fila": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "GET Mensagem Buffer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "mensagem_concatenada": {
+      "main": [
+        [
+          {
+            "node": "CREATE & SELECT cliente & user_session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Split de mensagens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook Evo": {
+      "main": [
+        [
+          {
+            "node": "SET telefone",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "consulta_faq": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items3": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split de Mensagem": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split de mensagens": {
+      "main": [
+        [
+          {
+            "node": "Split de Mensagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2 segundos": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Modelo Output1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Split de mensagens",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "POST Mensagem Usuário": {
+      "main": [
+        []
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DELETE test customer": {
+      "main": [
+        [
+          {
+            "node": "WAHA | HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "WAHA | HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DELETE sessao_agendamento antigo": {
+      "main": [
+        [
+          {
+            "node": "SELECT sessao_agendamento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Customer exists": {
+      "main": [
+        [
+          {
+            "node": "DELETE test customer",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "WAHA | HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "verificar_convenio": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Modelo Output1",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Split de mensagens",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "atualiza_dados": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Retorno WAHA + número fixo": {
+      "main": [
+        [
+          {
+            "node": "SET telefone",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WAHA | HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "2 segundos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-09-01T17:06:33.421Z",
+  "id": "tD0Gv0IfDlnzNUm0",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Agente Principal | Ortho X",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -2896,
+        336
+      ],
+      "id": "e32468b4-fb38-4af4-bbb7-52deb5c3efb0",
+      "name": "When chat message received",
+      "webhookId": "6f9ca9d4-e290-4cc1-87a0-78444721ff40",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('CREATE & SELECT cliente & user_session').last().json.result.session.session_id }}",
+        "tableName": "ortho_x_chat_histories",
+        "contextWindowLength": 15
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        1328,
+        496
+      ],
+      "id": "396381b4-8a92-4ef4-8cc8-a1b0a933abf5",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b12249d9-c3b0-40dc-a332-cc509fae1922",
+              "name": "telefone",
+              "value": "={{ $json.body.payload.from }}",
+              "type": "string"
+            },
+            {
+              "id": "0069d741-de73-40c2-9947-38b742d0d8b9",
+              "name": "chatInput",
+              "value": "={{ $json.body.payload.body }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2000,
+        336
+      ],
+      "id": "bd9c8fab-4ca0-4c5e-b57b-6bc9e85bd11a",
+      "name": "SET telefone"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -2896,
+        512
+      ],
+      "id": "9d2dbd3a-2d73-4bd6-9613-a58e1e077189",
+      "name": "When clicking ‘Execute workflow’",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "DO $$\nDECLARE\n  target_phone text := '{{ $('SET telefone').last().json.telefone.split('@')[0] }}';\nBEGIN\n  -- Step 1: Delete from user_session\n  DELETE FROM public.user_session\n  WHERE telefone = target_phone;\n\n  -- Step 2: Set deletado = true in sessao_agendamento \n  DELETE FROM public.sessao_agendamento \n  WHERE telefone = target_phone;\n\n  -- Step 3: Delete from cliente\n  DELETE FROM public.cliente\n  WHERE telefone = target_phone;\n\nEND $$;\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -1328,
+        32
+      ],
+      "id": "e2e8cd33-06bf-4297-afa5-afd80809e513",
+      "name": "DELETE user_session, conversation_state, leads",
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "7173483a-a3cc-4e35-9dd7-4f181216d247",
+              "leftValue": "={{ $('SET telefone').last().json.chatInput }}",
+              "rightValue": "##delete",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1648,
+        336
+      ],
+      "id": "66380a5a-7835-4179-aeaf-4c161ad6e3b4",
+      "name": "IF trigger delete"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "WITH existing_cliente AS (\n    SELECT *\n    FROM public.cliente\n    WHERE telefone = '{{ $('SET telefone').last().json.telefone.split('@')[0] }}'\n    LIMIT 1\n), inserted_cliente AS (\n    INSERT INTO public.cliente (telefone)\n    SELECT '{{ $('SET telefone').last().json.telefone.split('@')[0] }}'\n    WHERE NOT EXISTS (SELECT 1 FROM existing_cliente)\n    RETURNING *\n), final_cliente AS (\n    SELECT * FROM existing_cliente\n    UNION ALL\n    SELECT * FROM inserted_cliente\n), cliente_with_session AS (\n    SELECT \n        f.*,\n        s.session_id,\n        s.precisa_saudar,\n        us.transferido_para_humano,\n        us.id_agente_humano\n    FROM final_cliente f\n    CROSS JOIN LATERAL get_or_create_session(f.telefone) s\n    LEFT JOIN public.user_session us\n    ON us.id = s.session_id\n)\nSELECT json_build_object(\n    'cliente', to_jsonb(f) - 'session_id' - 'precisa_saudar' - 'transferido_para_humano' - 'id_agente_humano',\n    'session', json_build_object(\n        'session_id', f.session_id,\n        'precisa_saudar', f.precisa_saudar,\n        'transferido_para_humano', f.transferido_para_humano,\n        'id_agente_humano', f.id_agente_humano\n    )\n) AS result\nFROM cliente_with_session f;\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        368,
+        256
+      ],
+      "id": "a6ac407d-fc5f-4b37-99f0-0f5228053f74",
+      "name": "CREATE & SELECT cliente & user_session",
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "=Chame esta ferramenta para criar um agendamento.",
+        "workflowId": {
+          "__rl": true,
+          "value": "QdM1vovkWoQMSLtF",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/QdM1vovkWoQMSLtF",
+          "cachedResultName": "Agendamento V2 | Easy Appointments"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id_usuario": "={{ $('CREATE & SELECT cliente & user_session').last().json.result.cliente.id_usuario }}",
+            "telefone": "={{ $('CREATE & SELECT cliente & user_session').last().json.result.cliente.telefone }}",
+            "hora": "={{ $fromAI('hora', `Utilize esse campo para o horário do procedimento no formato hh:mm:ss`, 'string', 'nao_informado') }}",
+            "nome_paciente": "={{ $fromAI('nome_paciente', `Utilize esse campo para o nome do paciente`, 'string', 'nao_informado') }}",
+            "session_id": "={{ $('CREATE & SELECT cliente & user_session').last().json.result.session.session_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "hora",
+              "displayName": "hora",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "id_usuario",
+              "displayName": "id_usuario",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "telefone",
+              "displayName": "telefone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "nome_paciente",
+              "displayName": "nome_paciente",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "session_id",
+              "displayName": "session_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        1408,
+        704
+      ],
+      "id": "a6e03c65-30b5-4a14-8b62-86e3e7dd748b",
+      "name": "criar_agendamento"
+    },
+    {
+      "parameters": {
+        "description": "=Chame esta ferramenta para vefiricar os horários disponíveis após o usuário informar nome e data, horário e o procedimento.",
+        "workflowId": {
+          "__rl": true,
+          "value": "MQZxGZkhiSk4BXLK",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/MQZxGZkhiSk4BXLK",
+          "cachedResultName": "Busca Disponibilidade| Easy Appointments"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "telefone": "={{ $('CREATE & SELECT cliente & user_session').last().json.result.cliente.telefone }}",
+            "hora": "={{ $fromAI('hora', `Utilize esse campo para o horário do procedimento`, 'string', 'nao_informado') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "hora",
+              "displayName": "hora",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "telefone",
+              "displayName": "telefone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        1760,
+        704
+      ],
+      "id": "0a471c72-9a1b-44c7-ac11-0efe69d2e56e",
+      "name": "verifica_disponibilidade_agenda"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "sessao_agendamento",
+          "mode": "list",
+          "cachedResultName": "sessao_agendamento"
+        },
+        "limit": 1,
+        "where": {
+          "values": [
+            {
+              "column": "telefone",
+              "value": "={{ $('CREATE & SELECT cliente & user_session').last().json.result.cliente.telefone.split('@')[0] }}"
+            },
+            {
+              "column": "deletado",
+              "value": "false"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1168,
+        272
+      ],
+      "id": "5ed37039-505b-4cb5-9e6b-49452da805ce",
+      "name": "SELECT sessao_agendamento",
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "url": "https://orthox-easyappointments.reyhdo.easypanel.host/index.php/api/v1/customers",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{ $('SET telefone').last().json.telefone.split('@')[0] }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1072,
+        32
+      ],
+      "id": "102ed572-4f4c-481f-b386-8c79005219f3",
+      "name": "GET customer if exists",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "method": "DELETE",
+        "url": "=https://orthox-easyappointments.reyhdo.easypanel.host/index.php/api/v1/customers/{{ $('GET customer if exists').last().json.id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -576,
+        -96
+      ],
+      "id": "241e4480-a86d-49ac-8f2f-53d251f7205f",
+      "name": "DELETE test customer",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "description": "Consulta agendamentos existentes do cliente. Use para verificar, listar ou obter detalhes de agendamentos já confirmados pelo cliente.",
+        "workflowId": {
+          "__rl": true,
+          "value": "lDKIAPPZxKs173gl",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/lDKIAPPZxKs173gl",
+          "cachedResultName": "EasyAppointments | Consulta Agendamento"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id_usuario": "={{ $('CREATE & SELECT cliente & user_session').last().json.result.cliente.id_usuario }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "telefone",
+              "displayName": "telefone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "id_usuario",
+              "displayName": "id_usuario",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "cliente_solicita",
+              "displayName": "cliente_solicita",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        1952,
+        704
+      ],
+      "id": "c02b56ae-8d5a-4b4b-8658-91f513120ccc",
+      "name": "consulta_agendamento"
+    },
+    {
+      "parameters": {
+        "description": "Cancela agendamentos existentes do cliente. Use para cancelar agendamentos já confirmados, passe \"reagendamento = true\" caso o cliente queira reagendar.",
+        "workflowId": {
+          "__rl": true,
+          "value": "0O6y5NDvNkKnkHWl",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/0O6y5NDvNkKnkHWl",
+          "cachedResultName": "Cancelar Agendamento | EasyAppointments"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id_usuario": "={{ $('CREATE & SELECT cliente & user_session').last().json.result.cliente.id_usuario }}",
+            "data_agendada": "={{ $fromAI('data_agendada', `data e hora da consulta agendada que deseja cancelar em formato YYYY-mm-dd hh:mm:ss`, 'string') }}",
+            "nome_paciente": "={{ $fromAI('nome_paciente', `O nome completo do paciente.`, 'string') }}",
+            "session_id": "={{ $('CREATE & SELECT cliente & user_session').last().json.result.session.session_id }}",
+            "reagendamento": "={{ $fromAI('reagendamento', `true se estiver fazendo reagendamento`, 'boolean', false) }}",
+            "telefone": "={{ $('CREATE & SELECT cliente & user_session').last().json.result.cliente.telefone }}"
+          },
+          "matchingColumns": [
+            "info_cancelamento"
+          ],
+          "schema": [
+            {
+              "id": "id_usuario",
+              "displayName": "id_usuario",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "data_agendada",
+              "displayName": "data_agendada",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "nome_paciente",
+              "displayName": "nome_paciente",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "reagendamento",
+              "displayName": "reagendamento",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "boolean",
+              "removed": false
+            },
+            {
+              "id": "session_id",
+              "displayName": "session_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "telefone",
+              "displayName": "telefone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        2144,
+        704
+      ],
+      "id": "d0e68948-8bea-40d3-ba58-4b27756374be",
+      "name": "cancela_agendamento"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('mensagem_concatenada').last().json.message }}",
+        "options": {
+          "systemMessage": "=Você é um assistente de inteligência artificial chamada Bia, uma agente especializada em tirar dúvidas e realizar o agendamento de exames para a clínica ortodôntica OrthoX. Sua missão é responder aos clientes pelo WhatsApp e guiá-los até a marcação da exame.\n\n## Objetivo\nSeu objetivo principal é conseguir as seguintes informações antes de consultar ou realizar um agendamento.\n\n{{\n  (() => {\n    const cliente = $('CREATE & SELECT cliente & user_session').last().json.result.cliente;\n    const sessao_agendamento = $('SELECT sessao_agendamento').last().json;\n\n    return `\nTelefone: ${\n        cliente?.telefone\n          ? `Informação já obtida (${cliente.telefone})`\n          : 'Solicite para a pessoa o telefone'\n      }\nNome: ${\n        cliente?.nome\n          ? `Informação já obtida, NÃO perguntar novamente (${cliente.nome})`\n          : '* **PRIMEIRA PERGUNTA OBRIGATÓRIA**: \"Qual seu nome?\" (para identificar quem está falando)'\n      }\nConvenio: ${\n        sessao_agendamento?.convenio\n          ? `Informação já obtida (${sessao_agendamento.convenio})`\n          : 'SEMPRE solicite para a pessoa se é por convênio ou particular. Caso o usuário responda apenas \"convênio\", solicite o nome do convênio. NUNCA registre apenas o valor \"convênio\"'\n      }\nPlano: ${\n        sessao_agendamento?.plano\n          ? `Informação já obtida (${sessao_agendamento.plano})`\n          : 'SOMENTE SE NÃO FOR Particular solicite para a pessoa qual o nome de seu plano dentro do convênio. Peça para a pessoa se certificar de escrever corretamente o nome do plano'\n      }\nDentista indicou: ${\n        sessao_agendamento?.dentista\n          ? `Informação já obtida (${sessao_agendamento.dentista})`\n          : 'SEMPRE solicite para a pessoa se foi indicada por algum dentista, SE sim, solicite o nome do dentista. Se o usuário ainda não respondeu se um dentista indicou, você DEVE perguntar: > “Algum dentista te indicou?” '\n      }\nUnidade: ${\n        sessao_agendamento?.unidade_id\n          ? `Informação já obtida (${sessao_agendamento.unidade_id})`\n          : 'SEMPRE solicite para a pessoa a unidade'\n      }\nProcedimento: ${\n        sessao_agendamento?.servico_id\n          ? sessao_agendamento.servico_id != \"undefined\" ? `Informação já obtida (${sessao_agendamento.servico_id})` : 'SEMPRE solicite para a pessoa o procedimento/exame desejado, podendo ser enviado via texto ou foto'\n          : 'SEMPRE solicite para a pessoa o procedimento/exame desejado, podendo ser enviado via texto ou foto'\n      }\nData Agendamento: ${\n        sessao_agendamento?.data_agendamento\n          ? `Informação já obtida (${sessao_agendamento.data_agendamento})`\n          : 'Solicite para a pessoa a data desejada'\n      }`;\n  })()\n}}\n\n## FLUXO OBRIGATÓRIO DE FERRAMENTAS (EXECUTAR NA ORDEM)\n\n### Fase 1 - Coleta de Dados:\n1. SEMPRE que receber Nome → EXECUTE `atualiza_dados` IMEDIATAMENTE\n2. SEMPRE que receber o Dentista que indicou → EXECUTE `atualiza_dados` IMEDIATAMENTE\n3. **Quando receber um Convênio:**\n   - Primeiro, EXECUTE `verificar_convenio`\n   - Se o convênio for válido, então EXECUTE `atualiza_dados`\n   - Se não for válido, informe ao usuário que o convênio não foi encontrado e pergunte se deseja falar com um atendente humano.\n4. SEMPRE que receber Plano → EXECUTE `atualiza_dados` IMEDIATAMENTE  \n5. SEMPRE que receber Unidade → EXECUTE `atualiza_dados` IMEDIATAMENTE  \n6. SEMPRE que receber Procedimento → EXECUTE `atualiza_dados` IMEDIATAMENTE\n   - CORRIJA a ortografia SOMENTE do Procedimento antes de atualizar\n\n### Fase 2 - Disponibilidade:\n7. SOMENTE APÓS ter Nome + Dentista que indicou + Convênio + Unidade + Procedimento coletados:\n   - Pergunte qual dia o usuário gostaria de agendar\n   - **SEMPRE** utilize a ferramenta `Think` para determinar o dia corretamente\n   - Quando usuário informar data agendamento → EXECUTE `atualiza_dados` IMEDIATAMENTE\n   - Após executar `atualiza_dados` → EXECUTE `verifica_disponibilidade_agenda`\n   - NUNCA sugira horários sem executar esta ferramenta\n\n### Fase 3 - Consulta:\n8. Para CONSULTAR agendamentos → EXECUTE `consulta_agendamento`\n   - NUNCA use informações de memória/histórico/chat history para listar agendamentos\n\n### Fase 4 - Ação Final:\n9. Para CRIAR agendamento → EXECUTE `criar_agendamento`\n10. Para CANCELAR → EXECUTE `consulta_agendamento` PRIMEIRO, DEPOIS `cancela_agendamento`\n   - **SEMPRE** utilize a ferramenta `Think` para determinar se completou o fluxo de cancelamento\n\n## GATILHOS AUTOMÁTICOS DE FERRAMENTAS\n\nEXECUTE IMEDIATAMENTE (sem avisar o usuário):\n- Nome recebido → `atualiza_dados`\n- Dentista que indicou recebido → `atualiza_dados`\n- Convênio recebido → `verificar_convenio` (NUNCA executar `atualiza_dados` antes da verificação)\n- Plano recebido → `atualiza_dados`\n- Unidade e Procedimento informados → `atualiza_dados`\n- Data/horário solicitado → `verifica_disponibilidade_agenda`\n- Pedido de cancelamento → `consulta_agendamento`\n- Pedido de consulta de agendamentos → `consulta_agendamento`\n- Confirmação de agendamento → `criar_agendamento`\n- Confirmação de cancelamento → `cancela_agendamento`\n- Solicitar falar com um \"agente humano\", \"atendente\", \"pessoa real\", \"médico\" → `falar_com_humano`\n- Dúvida sobre exames, serviços, procedimentos, equipamentos, unidades ou informações gerais → 'consulta_faq'\n- Pergunta sobre \"como funciona\", \"o que é\", \"qual a diferença\", \"preciso de...\" (questionamentos informativos) → 'consulta_faq'\n\n## BLOQUEIOS OBRIGATÓRIOS\n\n- **NUNCA** sugira horários sem executar `verifica_disponibilidade_agenda`\n- **NUNCA** mostre agendamentos sem executar `consulta_agendamento`\n- **NUNCA** crie agendamento sem confirmação explícita do usuário\n- **NUNCA** cancele sem primeiro executar `consulta_agendamento`\n- **NUNCA** use informações de memória/histórico/chat history para disponibilidades\n- **NUNCA** execute múltiplas operações simultâneas (crie/cancele APENAS um por vez)\n- **NUNCA** faça duas perguntas em uma única mensagem\n- **NUNCA** pause a conversa ou peça \"um momento\"\n- **NUNCA** responda que um convênio é aceito sem antes verificar na ferramenta `consulta_faq`\n- **NUNCA** anuncie ao usuário que vai usar ferramentas\n- **NUNCA** anuncie ao usuário que ocorreram erros, apenas faça a pergunta novamente.\n\nSEMPRE BLOQUEIE E PEÇA INFO SE:\n- Faltam dados obrigatórios para a ferramenta\n- Usuário não confirmou explicitamente a ação\n- Horário solicitado não está disponível (ofereça o próximo disponível)\n\n## USO OBRIGATÓRIO DE RESPOSTAS DAS FERRAMENTAS\n\nApós executar ferramenta:\n1. USE APENAS o campo 'response' da ferramenta como base da resposta\n2. NUNCA invente ou adicione informações não retornadas pela ferramenta\n3. Se sucesso → prossiga IMEDIATAMENTE com próxima pergunta pendente\n\n## Como usar as informações da ferramenta `consulta_faq`\n\n1. **SEMPRE** execute quando o cliente perguntar por endereço\n2. **Execute SEM avisar** quando detectar dúvida informativa\n3. **Utilize TODOS os documentos retornados** na resposta\n4. **Resuma e personalize** a informação para o contexto do cliente\n5. **Se não houver resultado**, mantenha o tom prestativo e ofereça orientação direta ou sugira contato com a unidade\n6. **Priorize o agendamento** - combine esclarecimento + próxima pergunta do fluxo quando necessário\n7. **Se o cliente perguntar se um convênio é aceito, use essa ferramenta para verificar antes de prosseguir\n\n## Diretrizes de Conversação\n\n* SEMPRE apresente-se dizendo seu nome e a sua função de maneira cordial\n* NUNCA tente agendar mais de um exame ao mesmo tempo\n* Você SÓ consegue agendar **UM EXAME POR VEZ**, caso o usuário deseje agendar mais de um exame, NOTIFIQUE-O de que precisará fazer o processo de agendamento múltiplas vezes\n* APÓS obter o nome do usuário, prossiga com outras informações\n* Você DEVE fazer apenas UMA pergunta por mensagem.\n* Após enviar uma pergunta, você DEVE parar e aguardar a resposta do usuário antes de continuar.\n* Jamais envie mais de uma pergunta na mesma mensagem, mesmo que as perguntas estejam relacionadas.\n* Não envie frases compostas que contenham duas interrogações (ex: “Qual o plano? Qual a unidade?”).\n* Não use ponto final seguido de outra pergunta (ex: “...plano. Qual unidade...”) — isso é proibido.\n* Se precisar perguntar outra coisa, espere a resposta anterior primeiro.\n* Se você detectar que está prestes a perguntar duas coisas na mesma frase, envie apenas a primeira pergunta e interrompa sua saída imediatamente.\n* Utilize a data de hoje para se orientar: {{ new Date().toLocaleString(\"pt-br\", {  weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }) }}\n* Você sempre receberá o dia e horário atuais; a partir daí, identifique datas como amanhã, depois de amanhã, semana que vem, mês que vem, ano que vem\n* NUNCA invente respostas\n* **NUNCA peça \"um momento\" ou similar** - mantenha o fluxo natural\n* NUNCA utilize emojis\n* Evite repetir o nome da pessoa em toda resposta. Use de forma natural, quando necessário\n\n## Unidades\n- SEMPRE liste as unidades na seguinte ordem:\n\n1. São Bernardo do Campo\n2. Diadema\n3. Santo André\n4. Unidade Premium\n\n- Se o usuário escolher a unidade de São Bernando do Campo (SBC) o id da unidade = 1\n- Se o usuário escolher a unidade de Diadema o id da unidade = 2\n- Se o usuário escolher a unidade de Santo André o id da unidade = 3\n- Se o usuário escolher a unidade Premium o id da unidade = 4\n- **Se o usuário estiver utilizando convênio, NUNCA cite a opção da unidade Premium**\n- **Mostre a unidade Premium SOMENTE se o usuário fizer por Particular**\n\n## Identificação do Paciente\n\n**FLUXO OBRIGATÓRIO:**\n- **SEMPRE PERGUNTE**: \"Este agendamento é para você ou para outra pessoa?\"\n\n**Se for para outra pessoa:**\n- Colete: \"Qual o nome completo da pessoa para o agendamento?\"\n- **IMPORTANTE**: NUNCA use `atualiza_dados` para o nome do paciente\n\n**Se for para o próprio usuário:**\n- Utilize o Nome já coletado\n\n## Fluxo de Coleta (IMPORTANTE)\nQuando receber uma informação do usuário:\n1. Use a ferramenta necessária SEM avisar\n2. IMEDIATAMENTE faça a próxima pergunta pendente\n3. NUNCA pause a conversa para \"atualizar\" ou \"registrar\"\n\n## Progresso Parcial\nSe o cliente fornecer apenas parte dos dados:\n- Agradeça brevemente E faça a próxima pergunta na MESMA mensagem\n- Exemplo: \"Perfeito! Agora, qual seu nome completo?\"\n\n## Procedimentos Específicos\n\n### Cancelamento\n- Nome recebido com pedido de cancelamento → EXECUTE `consulta_agendamento` IMEDIATAMENTE\n- SEMPRE liste TODOS os agendamentos numericamente após executar `consulta_agendamento`\n- QUANDO houver múltiplos agendamentos:\n  - LISTE: \"[1] Nome paciente - Unidade - Procedimento - Data/Hora\"\n  - AGUARDE o usuário escolher o NÚMERO ou procedimento ou data/hora\n  - NUNCA prossiga sem confirmação específica de QUAL cancelar\n- SEMPRE confirme ANTES de cancelar:\n  - MOSTRE: \"Confirma cancelamento de [procedimento] em [data/hora]?\"\n  - SOMENTE execute `cancela_agendamento` após confirmação explícita\n\n### Reagendamento\n- Se o usuário pedir reagendamento, notifique que ele deverá cancelar o agendamento e criar um novo\n- NUNCA tente realizar reagendamento direto\n- Realize o cancelamento passando o parâmetro \"reagendamento = true\"\n- Após cancelar, comece novo fluxo de agendamento pedindo: Unidade, Procedimento, Data e Hora\n\n### ⚠️ Crítico\n* **NUNCA** peça \"um momento\" ou similar** - mantenha o fluxo natural\n* Finalize sua resposta imediatamente após fazer uma única pergunta."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "position": [
+        1456,
+        272
+      ],
+      "id": "2ee6175d-7bfd-4e42-9455-5be9bc5db1c0",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "description": "=Use esta ferramenta para determinar:\n- a data que o usuário solicitar, com base na data atual:  {{ new Date().toLocaleString(\"pt-br\", {  weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }) }}.\n- se o fluxo de cancelamento foi executado"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1.1,
+      "position": [
+        1200,
+        496
+      ],
+      "id": "c362c93f-1efd-45b1-bdad-5d75eea64eba",
+      "name": "Think"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "fb44445d-7744-4b7e-9026-be8fd2ff6934",
+              "leftValue": "={{ $json.result.session.transferido_para_humano }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        608,
+        256
+      ],
+      "id": "f224fddd-2f9f-4d50-a5b3-1ed1a1ae0945",
+      "name": "IF transferido_para_humano"
+    },
+    {
+      "parameters": {
+        "description": "Utilize essa ferramenta quando EXPLICITAMENTE o cliente quiser falar com uma pessoa humana ou falar por ligação.",
+        "workflowId": {
+          "__rl": true,
+          "value": "I4PwOZXGMkOniWij",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/I4PwOZXGMkOniWij",
+          "cachedResultName": "Falar com Humano"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "telefone": "={{ $('CREATE & SELECT cliente & user_session').last().json.result.cliente.telefone }}"
+          },
+          "matchingColumns": [
+            "telefone"
+          ],
+          "schema": [
+            {
+              "id": "telefone",
+              "displayName": "telefone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        2336,
+        704
+      ],
+      "id": "cef1160c-d598-45b6-a001-071831ef5d17",
+      "name": "falar_com_humano"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "11422931-70d4-467e-a25b-815d82d6eb43",
+              "leftValue": "={{ $json.propertyName.map(item => JSON.parse(item.replace(/^=/, ''))).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)).pop().message }}",
+              "rightValue": "={{ $('SET mensagem').last().json.mensagem }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -352,
+        352
+      ],
+      "id": "ea9a4143-e48b-4275-b88f-b49278c478b1",
+      "name": "IF nova mensagem recebida"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9b992a80-e353-45d7-86fe-855d8a621ed9",
+              "name": "message",
+              "value": "={{ $('Limpa a fila de mensagens').item.json.propertyName.join(\"\\n\") }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        112,
+        256
+      ],
+      "id": "6618f9ee-4767-46d8-ba7b-e6c63e061d04",
+      "name": "mensagem_concatenada"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "key": "={{ $('SET telefone').last().json.telefone }}_{{ $now.format('dd-MM-yyyy') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -560,
+        352
+      ],
+      "id": "52b43c57-12bf-49f9-80fa-ac2452c94bb8",
+      "name": "GET Mensagem Buffer",
+      "credentials": {
+        "redis": {
+          "id": "09S5reMQREDFaZPt",
+          "name": "Redis n8n"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b06b399e-ee7a-4a50-99a8-463a0e70199f",
+              "name": "mensagem",
+              "value": "={{ $('SET telefone').last().json.chatInput }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1328,
+        352
+      ],
+      "id": "20af85ec-f605-46c3-9962-1c68ca0119c6",
+      "name": "SET mensagem"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "key": "={{ $('SET telefone').last().json.telefone }}_{{ $now.format('dd-MM-yyyy') }}"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -128,
+        256
+      ],
+      "id": "024e643d-f235-4bb3-9dc9-c6ab21f21612",
+      "name": "Limpa a fila de mensagens",
+      "credentials": {
+        "redis": {
+          "id": "09S5reMQREDFaZPt",
+          "name": "Redis n8n"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "push",
+        "list": "={{ $('SET telefone').last().json.telefone }}_{{ $now.format('dd-MM-yyyy') }}",
+        "messageData": "={{ JSON.stringify({\n      timestamp: new Date().toISOString(),\n      message: $('SET mensagem').last().json.mensagem \n    }) }}",
+        "tail": true
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -1040,
+        352
+      ],
+      "id": "cebbfa1d-b868-40d7-87b7-200299dd7bcb",
+      "name": "Adiciona na fila",
+      "credentials": {
+        "redis": {
+          "id": "09S5reMQREDFaZPt",
+          "name": "Redis n8n"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -128,
+        464
+      ],
+      "id": "7dcbc702-0111-4283-9df4-be9b40ea597f",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -784,
+        352
+      ],
+      "id": "50f1916e-3fc3-49f4-92b2-08a9dfd317e6",
+      "name": "Wait",
+      "webhookId": "03ef1755-00e4-4603-90a2-fc4e02aaf987",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -2896,
+        688
+      ],
+      "id": "1c9f28e5-149e-4917-a9ef-9d0981e447f1",
+      "name": "Webhook Evo"
+    },
+    {
+      "parameters": {
+        "resource": "messages-api",
+        "instanceName": "={{ $('Webhook Evo').last().json.body.instance }}",
+        "remoteJid": "={{ $('Webhook Evo').item.json.body.data.key.remoteJid.split('@')[0] }}",
+        "messageText": "={{ $json.output }}",
+        "options_message": {
+          "linkPreview": false
+        }
+      },
+      "type": "n8n-nodes-evolution-api.evolutionApi",
+      "typeVersion": 1,
+      "position": [
+        3536,
+        160
+      ],
+      "id": "efaecec7-b9a0-45e6-b0ca-03b30bc553b2",
+      "name": "POST Mensagem Usuário",
+      "credentials": {
+        "evolutionApi": {
+          "id": "3oTT7RsCuxervFw5",
+          "name": "Evolution account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Busca no FAQ informações sobre exames, serviços, equipamentos, unidades e procedimentos da OrthoX. Use para responder dúvidas informativas do cliente.",
+        "workflowId": {
+          "__rl": true,
+          "value": "qp5F9JmR17eTuxZH",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/qp5F9JmR17eTuxZH",
+          "cachedResultName": "Fluxo consulta FAQ - OrthoX"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('query', `Pergunta ou consulta do cliente. Input exatamente o que o usuário está perguntando para encontrar informações relevantes no FAQ.`, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        2528,
+        704
+      ],
+      "id": "08c9f665-cc71-46c1-9ff7-1efaad14a76c",
+      "name": "consulta_faq"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "14bb2c0c-2d19-46c1-b528-acc6779930a7",
+      "name": "Loop Over Items3",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        2528,
+        160
+      ],
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "output.messages",
+        "options": {
+          "destinationFieldName": "output"
+        }
+      },
+      "id": "db034b8f-4353-40de-b797-16280718b2ec",
+      "name": "Split de Mensagem",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        2320,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Whatsapp message to be splitted and formated: {{ $json.output }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=Você é um agente especializado em dividir mensagens do WhatsApp em partes naturais e conversacionais.\n\n### CRÍTICO: Sua saída deve ser APENAS um objeto JSON puro, sem blocos de código markdown (```json), sem texto antes ou depois.\n### Formato obrigatório: {\"output\":{\"messages\":[\"mensagem1\",\"mensagem2\",\"mensagem3\"]}}\n\n### ⚠️ REGRA FUNDAMENTAL\nNÃO quebre uma mensagem apenas porque é longa. Só divida quando houver REALMENTE duas ou mais ideias INDEPENDENTES que façam sentido sozinhas.\n\n### CENÁRIOS DE NÃO QUEBRA (mantenha TUDO junto):\n- Pergunta com suas opções/listagem (pergunta + resposta devem estar juntas)\n- Um tema/assunto único explicado em múltiplas linhas (ex: horários, informações sobre um exame)\n- Uma frase que dependa da próxima para fazer sentido (ex: \"Sábados:\" não pode ser quebrado de suas subdivisões)\n- Listas, tópicos ou subtópicos que se complementam\n\n### CENÁRIOS DE QUEBRA (divida quando apropriado):\n- Cumprimento/apresentação seguido de pergunta nova (ideias separadas)\n- Resposta de uma pergunta + nova pergunta diferente\n- Finalizações que são separáveis (ex: \"Pronto! [quebra] Deseja agendar agora?\")\n\n### REGRA DE CARACTERES\n- Menos de 300 caracteres: mantenha em UMA mensagem (mesmo que curta)\n- Mais de 300 caracteres: AINDA assim mantenha junto UNLESS houver ideias claramente separáveis\n- Nunca quebre apenas para respeitar limite de caracteres\n\n### FORMATAÇÃO\n- Sem *negrito*, sem __itálico__, sem ~~tachado__\n- Sem colchetes ou chaves extras fora do JSON\n- Links: www.exemplo.com.br (sem markdown)\n- Quebras de parágrafo: use \\n\\n quando necessário\n\n### ❌ ERRO COMUM\nNão faça isto:\n```\n{\"output\":{\"messages\":[\"- Sábados:\", \"  - Unidades Premium: 8h às 12h\", \"  - Unidade Centro: 8h às 13h\"]}}\n```\nA listagem está quebrada de forma que \"Sábados:\" fica órfão. Está errado.\n\n### ✅ CORRETO\n```\n{\"output\":{\"messages\":[\"As unidades funcionam: \\n\\n- Segunda a sexta: 8h às 18h\\n- Sábados:\\n  - Premium, Santo André, Diadema: 8h às 12h\\n  - São Bernardo Centro: 8h às 13h\\n\\nNão atendemos domingos.\"]}}\n```\n\n### Exemplos práticos:\n\n**Entrada:** \"Olá! Sou a Bia da OrthoX. Qual seu nome completo?\"\n**Saída:** {\"output\":{\"messages\":[\"Olá! Sou a Bia da OrthoX. Qual seu nome completo?\"]}} \n(Uma única ideia coesa)\n\n**Entrada:** \"Qual unidade você prefere? 1. SBC 2. Diadema 3. Santo André 4. Premium\"\n**Saída:** {\"output\":{\"messages\":[\"Qual unidade você prefere?\\n\\n1. SBC\\n2. Diadema\\n3. Santo André\\n4. Premium\"]}}\n(Pergunta + opções = mantém junto)\n\n**Entrada:** \"Perfeito! Seu nome é João. Agora, qual seu telefone?\"\n**Saída:** {\"output\":{\"messages\":[\"Perfeito! Seu nome é João.\",\"Agora, qual seu telefone?\"]}}\n(Confirmação + nova pergunta = ideias separáveis, quebra OK)\n\n### JAMAIS:\n- Envie mensagens vazias\n- Divida por limite de caracteres\n- Quebre informações que formam uma unidade temática\n- Deixe uma parte de uma listagem órfã (ex: \"Sábados:\" sem seus horários)"
+            }
+          ]
+        }
+      },
+      "id": "db945b61-41bb-471c-973d-842d33cf5057",
+      "name": "Split de mensagens",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [
+        1984,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 2
+      },
+      "id": "211861cd-0493-40f1-9e9c-9aaab00d8bd6",
+      "name": "2 segundos",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3360,
+        176
+      ],
+      "webhookId": "a2c69e1c-13fe-44a2-962c-1249288537eb"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"messages\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      }\n    }\n  },\n  \"required\": [\"messages\"]\n}",
+        "autoFix": true
+      },
+      "id": "1895dbd7-3633-46dc-b945-624b43a2c32e",
+      "name": "Modelo Output1",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        2048,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "options": {
+          "maxTokens": -1,
+          "temperature": 0.1,
+          "topP": 0.9
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        1072,
+        496
+      ],
+      "id": "3271e567-280d-42d4-89f5-d25328851ffe",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "qEMgoAYyLwMTsoVL",
+          "name": "OpenRouter NANO - Automações N8N"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "messages-api",
+        "instanceName": "={{ $('Webhook Evo').last().json.body.instance }}",
+        "remoteJid": "={{ $('Webhook Evo').item.json.body.data.key.remoteJid.split('@')[0] }}",
+        "messageText": "=Conversa reiniciada com sucesso!",
+        "options_message": {
+          "linkPreview": false
+        }
+      },
+      "type": "n8n-nodes-evolution-api.evolutionApi",
+      "typeVersion": 1,
+      "position": [
+        -896,
+        -192
+      ],
+      "id": "1592a055-8823-4ac6-a540-b58e56516112",
+      "name": "POST Mensagem Usuário1",
+      "credentials": {
+        "evolutionApi": {
+          "id": "3oTT7RsCuxervFw5",
+          "name": "Evolution account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "248d055c-f642-4bcf-bdee-09f0195085e0",
+              "name": "mensagem",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2736,
+        176
+      ],
+      "id": "dfa3cea0-7122-4999-9be7-fc292f97ca5c",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT public.mark_deleted_sessao_agendamento('{{ $('CREATE & SELECT cliente & user_session').last().json.result.cliente.telefone.split('@')[0] }}');",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        896,
+        272
+      ],
+      "id": "9c1306b6-c715-470d-a82e-302e7efe9bab",
+      "name": "DELETE sessao_agendamento antigo",
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      },
+      "notes": "Deleta sessao_agendamento antigo"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://orthox-waha.reyhdo.easypanel.host/api/sendText",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-Api-Key",
+              "value": "8e130716e537469e98eb72ab4297c240"
+            },
+            {
+              "name": "api-key",
+              "value": "8e130716e537469e98eb72ab4297c240"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"chatId\": \"{{ $('Webhook Evo').last().json.body.payload.from }}\",\n  \"reply_to\": null,\n  \"text\": \"Conversa reiniciada com sucesso!\",\n  \"linkPreview\": false,\n  \"linkPreviewHighQuality\": false,\n  \"session\": \"default\"\n}\n\n\n\n",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -336,
+        48
+      ],
+      "id": "d9dfb7bb-900a-4b12-bb9b-a0f7154aac9a",
+      "name": "WAHA | HTTP Request1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5ba7e9cc-0ab2-49de-be13-24600859aba8",
+              "leftValue": "={{ $('GET customer if exists').last().json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "number",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -816,
+        32
+      ],
+      "id": "4a63153d-2804-4bf7-b8bc-dd891e60177a",
+      "name": "IF Customer exists"
+    },
+    {
+      "parameters": {
+        "description": "Utilize esta ferramenta para verificar se o convênio que o usuário mencionou é fornecido.",
+        "workflowId": {
+          "__rl": true,
+          "value": "lIhwjMLHYKL1chkP",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/lIhwjMLHYKL1chkP",
+          "cachedResultName": "Verifica convênio"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "convenio": "={{ $fromAI('convenio', `Utilize esse campo para preencher o nome do convênio da pessoa.`, 'string', '' ) }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "convenio",
+              "displayName": "convenio",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        2720,
+        704
+      ],
+      "id": "55a80178-f5a0-447b-b501-c284c1d9832d",
+      "name": "verificar_convenio"
+    },
+    {
+      "parameters": {
+        "options": {
+          "maxTokens": -1,
+          "temperature": 0.1,
+          "topP": 0.9
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        1984,
+        416
+      ],
+      "id": "3f16b5e4-7c50-41da-83e5-4c6ebd224346",
+      "name": "OpenRouter Chat Model1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "qEMgoAYyLwMTsoVL",
+          "name": "OpenRouter NANO - Automações N8N"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "=SEMPRE utilize essa ferramenta para atualizar os dados do paciente a cada resposta obtida para as perguntas:\n\n- Nome completo\n- Convênio\n- Dentista que indicou\n- Unidade\n- Procedimento\n- Data\n\nSEMPRE utilize o valor coletado sem formatação e NUNCA invente valores para os campos.\n\nSE o usuário mostrou intenção de falar com um \"agente humano\", \"atendente\", \"pessoa real\", \"médico\", passe o valor `falar_com_humano` = true",
+        "workflowId": {
+          "__rl": true,
+          "value": "f9dJMIx7JfFiVcV9",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/f9dJMIx7JfFiVcV9",
+          "cachedResultName": "Cadastro Usuário V6 | EasyAppointments"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "telefone": "={{ $('CREATE & SELECT cliente & user_session').last().json.result.cliente.telefone}}",
+            "procedimento": "={{ $fromAI('procedimento', `O tipo de procedimento/exame solicitado pelo usuário`, 'string', 'nao_informado') }}",
+            "nome": "={{ $fromAI('nome', `Utilize esse campo para preencher o nome completo da pessoa`, 'string', 'nao_informado' ) }}",
+            "unidade": "={{ $fromAI('unidade', `Utilize esse campo para preencher o ID da unidade que a pessoa escolher. Utilize somente o número associado com a respectiva unidade.`, 'string', 'nao_informado' ) }}",
+            "data_agendamento": "={{ $fromAI('data_agendamento', `Somente a data escolhida pelo usuário no formato yyyy-MM-dd.`, 'string', 'nao_informado') }}",
+            "falar_com_humano": "={{ $fromAI('falar_com_humano', `Se o usuario deseja falar com um humano`, 'boolean', false) }}",
+            "convenio": "={{ $fromAI('convenio', `Utilize esse campo para preencher o nome do convênio da pessoa, ou Particular.`, 'string', 'nao_informado' ) }}",
+            "eh_dentista": "={{ $fromAI('is_dentista', 'Utilize esse campo caso o cliente queira falar com humano para determinar se o cliente é um dentista ou não', 'boolean', false)}}",
+            "eh_indicacao_dentista": "={{ $fromAI('dentista', `Utilize esse campo para preencher o nome do dentista que indicou a pessoa, ou preencha com 'Ninguém' caso não tenha sido indicada por nenhum dentista.`, 'string', 'nao_informado') }}",
+            "plano": "={{ $fromAI('plano', `Utilize esse campo para preencher o nome do plano médico da pessoa.`, 'string', 'nao_informado' ) }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "telefone",
+              "displayName": "telefone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "nome",
+              "displayName": "nome",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "convenio",
+              "displayName": "convenio",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "plano",
+              "displayName": "plano",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "unidade",
+              "displayName": "unidade",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "procedimento",
+              "displayName": "procedimento",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "data_agendamento",
+              "displayName": "data_agendamento",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "eh_dentista",
+              "displayName": "eh_dentista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "boolean",
+              "removed": false
+            },
+            {
+              "id": "falar_com_humano",
+              "displayName": "falar_com_humano",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "boolean",
+              "removed": false
+            },
+            {
+              "id": "eh_indicacao_dentista",
+              "displayName": "eh_indicacao_dentista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        1584,
+        704
+      ],
+      "id": "a0bb977a-a0e7-4a74-9ec6-8453f9be0eb4",
+      "name": "atualiza_dados"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.myNewField = 1;\n}\n\nreturn {\n  json: {\n    body: {\n      payload: {\n        from: \"5519991753867@c.us\",\n        body: $input.first().json.chatInput\n      }\n    }\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2608,
+        336
+      ],
+      "id": "ecc998d0-028f-4075-83c5-5a38468a297d",
+      "name": "Parse Retorno WAHA + número fixo"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://autobots-waha.5lyxxc.easypanel.host/api/sendText",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-Api-Key",
+              "value": "8e130716e537469e98eb72ab4297c240"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"chatId\": \"{{ $('Webhook Evo').last().json.body.payload.from }}\",\n  \"reply_to\": null,\n  \"text\": {{ $json.mensagem.toJsonString() }},\n  \"linkPreview\": false,\n  \"linkPreviewHighQuality\": false,\n  \"session\": \"default\"\n}\n\n\n\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2944,
+        176
+      ],
+      "id": "80e852bb-34c0-444c-9e85-93516af2056d",
+      "name": "WAHA | HTTP Request"
+    }
+  ],
+  "pinData": {
+    "Webhook Evo": [
+      {
+        "json": {
+          "headers": {
+            "host": "orthox-n8n.reyhdo.easypanel.host",
+            "user-agent": "WAHA/2025.11.4",
+            "content-length": "3242",
+            "accept": "application/json, text/plain, */*",
+            "accept-encoding": "gzip, compress, deflate, br",
+            "content-type": "application/json",
+            "x-forwarded-for": "72.60.63.225",
+            "x-forwarded-host": "orthox-n8n.reyhdo.easypanel.host",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "bcfaa6f85db2",
+            "x-real-ip": "72.60.63.225",
+            "x-webhook-request-id": "140t01r1cminn7cqt",
+            "x-webhook-timestamp": "1764623388485"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "id": "evt_01kbdw03t4bjnb8sgb4ac0t2kq",
+            "timestamp": 1764623388485,
+            "event": "message",
+            "session": "default",
+            "metadata": {},
+            "me": {
+              "id": "5519995785753@c.us",
+              "pushName": "Assistente NANO (Pessoal)"
+            },
+            "payload": {
+              "id": "false_5519992754853@c.us_3EB0CD10EE3EB75B643F8A",
+              "timestamp": 1764623388,
+              "from": "5519992754853@c.us",
+              "fromMe": false,
+              "source": "app",
+              "to": "5519995785753@c.us",
+              "body": "oi de novo",
+              "hasMedia": false,
+              "media": null,
+              "ack": 1,
+              "ackName": "SERVER",
+              "location": null,
+              "vCards": [],
+              "_data": {
+                "id": {
+                  "fromMe": false,
+                  "remote": "5519992754853@c.us",
+                  "id": "3EB0CD10EE3EB75B643F8A",
+                  "_serialized": "false_5519992754853@c.us_3EB0CD10EE3EB75B643F8A"
+                },
+                "viewed": false,
+                "body": "oi de novo",
+                "type": "chat",
+                "t": 1764623388,
+                "clientReceivedTsMillis": 1764623388441,
+                "notifyName": "Hugo Ferreira",
+                "from": "5519992754853@c.us",
+                "to": "5519995785753@c.us",
+                "ack": 1,
+                "invis": false,
+                "isNewMsg": true,
+                "star": false,
+                "kicNotified": false,
+                "recvFresh": true,
+                "isFromTemplate": false,
+                "thumbnail": "",
+                "faviconMMSMetadata": null,
+                "isAdsMedia": false,
+                "pollInvalidated": false,
+                "isSentCagPollCreation": false,
+                "latestEditMsgKey": null,
+                "latestEditSenderTimestampMs": null,
+                "mentionedJidList": [],
+                "groupMentions": [],
+                "isEventCanceled": false,
+                "eventInvalidated": false,
+                "isVcardOverMmsDocument": false,
+                "questionReplyQuotedMessage": null,
+                "questionResponsesCount": 0,
+                "readQuestionResponsesCount": 0,
+                "hasReaction": false,
+                "ephemeralSettingTimestamp": 1764421585,
+                "disappearingModeInitiator": "chat",
+                "disappearingModeTrigger": "chat_settings",
+                "disappearingModeInitiatedByMe": true,
+                "viewMode": "VISIBLE",
+                "messageSecret": {
+                  "0": 245,
+                  "1": 174,
+                  "2": 191,
+                  "3": 133,
+                  "4": 75,
+                  "5": 251,
+                  "6": 223,
+                  "7": 64,
+                  "8": 174,
+                  "9": 48,
+                  "10": 81,
+                  "11": 85,
+                  "12": 11,
+                  "13": 138,
+                  "14": 83,
+                  "15": 32,
+                  "16": 243,
+                  "17": 92,
+                  "18": 255,
+                  "19": 64,
+                  "20": 60,
+                  "21": 100,
+                  "22": 117,
+                  "23": 101,
+                  "24": 171,
+                  "25": 84,
+                  "26": 137,
+                  "27": 156,
+                  "28": 177,
+                  "29": 77,
+                  "30": 181,
+                  "31": 52
+                },
+                "inviteGrpType": "DEFAULT",
+                "productHeaderImageRejected": false,
+                "lastPlaybackProgress": 0,
+                "isDynamicReplyButtonsMsg": false,
+                "isCarouselCard": false,
+                "parentMsgId": null,
+                "callSilenceReason": null,
+                "isVideoCall": false,
+                "callDuration": null,
+                "callCreator": null,
+                "callParticipants": null,
+                "isCallLink": null,
+                "callLinkToken": null,
+                "isMdHistoryMsg": false,
+                "stickerSentTs": 0,
+                "isAvatar": false,
+                "lastUpdateFromServerTs": 0,
+                "invokedBotWid": null,
+                "bizBotType": null,
+                "botResponseTargetId": null,
+                "botPluginType": null,
+                "botPluginReferenceIndex": null,
+                "botPluginSearchProvider": null,
+                "botPluginSearchUrl": null,
+                "botPluginSearchQuery": null,
+                "botPluginMaybeParent": false,
+                "botReelPluginThumbnailCdnUrl": null,
+                "botMessageDisclaimerText": null,
+                "botMsgBodyType": null,
+                "reportingTokenInfo": {
+                  "reportingToken": {
+                    "0": 250,
+                    "1": 32,
+                    "2": 13,
+                    "3": 158,
+                    "4": 78,
+                    "5": 69,
+                    "6": 137,
+                    "7": 52,
+                    "8": 145,
+                    "9": 65,
+                    "10": 96,
+                    "11": 102,
+                    "12": 228,
+                    "13": 223,
+                    "14": 30,
+                    "15": 150
+                  },
+                  "version": 2,
+                  "reportingTag": {
+                    "0": 1,
+                    "1": 13,
+                    "2": 242,
+                    "3": 207,
+                    "4": 29,
+                    "5": 178,
+                    "6": 255,
+                    "7": 53,
+                    "8": 195,
+                    "9": 237,
+                    "10": 107,
+                    "11": 126,
+                    "12": 228,
+                    "13": 193,
+                    "14": 236,
+                    "15": 98,
+                    "16": 95,
+                    "17": 61,
+                    "18": 200,
+                    "19": 179
+                  }
+                },
+                "requiresDirectConnection": null,
+                "bizContentPlaceholderType": null,
+                "hostedBizEncStateMismatch": false,
+                "senderOrRecipientAccountTypeHosted": false,
+                "placeholderCreatedWhenAccountIsHosted": false,
+                "groupHistoryBundleMessageKey": null,
+                "groupHistoryBundleMetadata": null,
+                "links": []
+              }
+            },
+            "engine": "WEBJS",
+            "environment": {
+              "version": "2025.11.4",
+              "engine": "WEBJS",
+              "tier": "CORE",
+              "browser": "/usr/bin/chromium"
+            }
+          },
+          "webhookUrl": "https://orthox-n8n.reyhdo.easypanel.host/webhook/agente-master-v3",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Sao_Paulo",
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "xMZ12MFm8IYta9IH"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-09-01T17:06:33.437Z",
+      "createdAt": "2025-09-01T17:06:33.437Z",
+      "role": "workflow:owner",
+      "workflowId": "tD0Gv0IfDlnzNUm0",
+      "projectId": "IcfJLMCsRkuOqzR8"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-12-01T21:16:19.000Z",
+  "versionId": "064b5726-e38a-4a65-bea9-32c655924da5"
+}
