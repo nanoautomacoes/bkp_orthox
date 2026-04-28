@@ -1,0 +1,2359 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2026-01-12T19:58:16.393Z",
+    "createdAt": "2026-01-12T19:58:16.393Z",
+    "versionId": "e0747910-375c-4748-8c1c-b539f94b8485",
+    "workflowId": "QdM1vovkWoQMSLtF",
+    "nodes": [
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "5c20304d-bacc-4dd7-a54b-b26ec2f6243c",
+                "leftValue": "={{ $('POST agendamento easy_appointments').last().json.status }}",
+                "rightValue": "Agendado",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals",
+                  "name": "filter.operator.equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          1312,
+          -16
+        ],
+        "id": "81349b40-7942-4256-9c87-970480624ecd",
+        "name": "If"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "f50f3acb-0fe0-4cfc-9257-bba4027d5cfa",
+                "name": "response",
+                "value": "Erro ao realizar o procedimento",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1632,
+          64
+        ],
+        "id": "dce6a951-a0d4-4488-8343-0b4db1eff396",
+        "name": "erro agendamento"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "f50f3acb-0fe0-4cfc-9257-bba4027d5cfa",
+                "name": "response",
+                "value": "=Consulta agendada com sucesso, informar o usuário seguindo o exemplo:\n\n```\nO seu exame ficou agendado no dia {dia} às {horário} no seguinte endereço: {{ $('GET endereço').last().json.endereco }}\n▪️ No dia do exame favor apresentar a solicitação do dentista com documento.\n▪️ Caso seja pelo convênio odontológico, apresentar a carteirinha e a receita/pedido original.\n▪️ Caso agende uma documentação odontológica com moldagem das arcadas, indicado fazer jejum de pelo menos 1h e 30 minutos.\n\nObrigado por escolher a Ortho X\nQualquer dúvida, estamos à sua disposição 😊\n```",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          3120,
+          336
+        ],
+        "id": "e68c0381-6b6e-43df-8b9a-0a91556f295e",
+        "name": "Resposta Agendamento Criado com sucesso"
+      },
+      {
+        "parameters": {
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "agendamentos_confirmados",
+            "mode": "list",
+            "cachedResultName": "agendamentos_confirmados"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "telefone": "={{ $('inicio_fluxo').last().json.telefone }}",
+              "id_agendamento": "={{ $('POST agendamento easy_appointments').last().json.id }}",
+              "paciente": "={{ $('inicio_fluxo').last().json.nome_paciente }}",
+              "data_agendamento": "={{ $('POST agendamento easy_appointments').last().json.start }}",
+              "unidade": "={{ $('GET endereço').last().json.nome }}",
+              "convenio": "={{ $('SELECT `sessao_agendamento`').last().json.convenio }}",
+              "procedimento": "={{ $('GET duracao evento').last().json.name }}"
+            },
+            "matchingColumns": [
+              "id"
+            ],
+            "schema": [
+              {
+                "id": "id",
+                "displayName": "id",
+                "required": false,
+                "defaultMatch": true,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "telefone",
+                "displayName": "telefone",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "id_agendamento",
+                "displayName": "id_agendamento",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "created_at",
+                "displayName": "created_at",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "updated_at",
+                "displayName": "updated_at",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "paciente",
+                "displayName": "paciente",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "data_agendamento",
+                "displayName": "data_agendamento",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "convenio",
+                "displayName": "convenio",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "unidade",
+                "displayName": "unidade",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "procedimento",
+                "displayName": "procedimento",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          1840,
+          -96
+        ],
+        "id": "87a26acd-3cc7-4ab3-b698-51a8142730bb",
+        "name": "INSERT id_agendamento",
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "select",
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "sessao_agendamento",
+            "mode": "list",
+            "cachedResultName": "sessao_agendamento"
+          },
+          "limit": 10,
+          "where": {
+            "values": [
+              {
+                "column": "telefone",
+                "value": "={{ $('inicio_fluxo').last().json.telefone }}"
+              },
+              {
+                "column": "deletado",
+                "value": "={{ false }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          160,
+          16
+        ],
+        "id": "52763a8e-58c5-4f31-ae08-96874b028027",
+        "name": "SELECT `sessao_agendamento`",
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "workflowInputs": {
+            "values": [
+              {
+                "name": "hora"
+              },
+              {
+                "name": "id_usuario"
+              },
+              {
+                "name": "telefone"
+              },
+              {
+                "name": "nome_paciente"
+              },
+              {
+                "name": "session_id"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.executeWorkflowTrigger",
+        "typeVersion": 1.1,
+        "position": [
+          -256,
+          16
+        ],
+        "id": "9d85d492-baa9-447d-a727-8d30732f4157",
+        "name": "inicio_fluxo"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://orthox-easyappointments.reyhdo.easypanel.host/index.php/api/v1/appointments",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "accept",
+                "value": "application/json"
+              },
+              {
+                "name": "Authorization",
+                "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+              }
+            ]
+          },
+          "sendBody": true,
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "start",
+                "value": "={{ new Date($('SELECT `sessao_agendamento`').last().json.data_agendamento + \"T\" + $('inicio_fluxo').last().json.hora).toISOString().replace(\"T\",\" \").substring(0,19) }}"
+              },
+              {
+                "name": "end",
+                "value": "={{ new Date(new Date($('SELECT `sessao_agendamento`').last().json.data_agendamento + \"T\" + $('inicio_fluxo').last().json.hora).getTime() + $('GET duracao evento').last().json.duration * 60000).toISOString().replace(\"T\",\" \").substring(0,19) }}"
+              },
+              {
+                "name": "color",
+                "value": "#acbefb"
+              },
+              {
+                "name": "status",
+                "value": "Agendado"
+              },
+              {
+                "name": "customerId",
+                "value": "={{ $('inicio_fluxo').last().json.id_usuario }}"
+              },
+              {
+                "name": "providerId",
+                "value": "={{ $('SELECT `sessao_agendamento`').last().json.provider_id }}"
+              },
+              {
+                "name": "serviceId",
+                "value": "={{ $('SELECT `sessao_agendamento`').last().json.servico_id }}"
+              },
+              {
+                "name": "notes",
+                "value": "={{ $('inicio_fluxo').item.json.nome_paciente }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1056,
+          0
+        ],
+        "id": "5855b5ae-118b-492e-b8f1-6f9e9f23547f",
+        "name": "POST agendamento easy_appointments",
+        "notesInFlow": true,
+        "onError": "continueErrorOutput",
+        "notes": "Existe uma diferença de horario no start e end de inputs e do outputs por conta do fuso horário (UTC-3)"
+      },
+      {
+        "parameters": {
+          "url": "=https://orthox-easyappointments.reyhdo.easypanel.host/index.php/api/v1/services/{{ $('SELECT `sessao_agendamento`').last().json.servico_id }}",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Authorization",
+                "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+              },
+              {
+                "name": "accept",
+                "value": "application/json"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          784,
+          0
+        ],
+        "id": "de15d9b2-ef47-4905-99c2-bdb975855579",
+        "name": "GET duracao evento"
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "UPDATE public.sessao_agendamento\nSET deletado = true\nWHERE telefone = '{{ $('inicio_fluxo').last().json.telefone }}'\n  AND deletado = false;",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          2944,
+          -96
+        ],
+        "id": "143c85e9-6f9e-448f-8561-5c6714a8df33",
+        "name": "UPDATE deletado sessao_agendamento",
+        "notesInFlow": true,
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        },
+        "notes": "soft delete"
+      },
+      {
+        "parameters": {
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "ortho_x_chat_histories",
+            "mode": "list",
+            "cachedResultName": "ortho_x_chat_histories"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "session_id": "={{ $('CREATE new user session').last().json.session_id }}",
+              "message": "{\n  \"type\": \"ai\",\n  \"content\": \"O usuário finalizou o agendamento da consulta. Voltarei a meu estado inicial, sendo prestativa e estando disponível a responder quaisquer dúvidas, ou iniciar um novo agendamento.\",\n  \"tool_calls\": [],\n  \"additional_kwargs\": {},\n  \"response_metadata\": {},\n  \"invalid_tool_calls\": []\n}"
+            },
+            "matchingColumns": [
+              "id"
+            ],
+            "schema": [
+              {
+                "id": "id",
+                "displayName": "id",
+                "required": false,
+                "defaultMatch": true,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "session_id",
+                "displayName": "session_id",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "message",
+                "displayName": "message",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "object",
+                "canBeUsedToMatch": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          3392,
+          -96
+        ],
+        "id": "0f6e8230-04f2-4b96-bc13-11c27603f728",
+        "name": "Atualiza chat_memory",
+        "notesInFlow": true,
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        },
+        "notes": "Mensagem salva no chat history para a IA ignorar as datas passadas"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "3c371fae-2aca-4441-98ac-40ab6bc4db4d",
+                "name": "response",
+                "value": "`sessao_agendamento` não encontrado. Certifique-se de ter executado a ferramenta `atualiza_dados` antes de prosseguir",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          576,
+          112
+        ],
+        "id": "a1ab3920-a00b-4f7f-bffc-586c901dd1b5",
+        "name": "erro sessao_agendamento"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "cc941453-fd95-4a08-b96a-21697e1b9883",
+                "leftValue": "={{ $('SELECT `sessao_agendamento`').last().json }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "object",
+                  "operation": "exists",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          368,
+          16
+        ],
+        "id": "df521253-0213-4f6e-925e-7ddf68114b6b",
+        "name": "IF sessao_agendamento exists"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "f792b829-fd23-42fa-900f-924390a6b699",
+                "name": "response",
+                "value": "Ocorreu um erro ao tentar criar o agendamento. \n**provider_id está nulo, execute novamente a ferramente `verifica_disponibilidade_agenda`**",
+                "type": "string"
+              },
+              {
+                "id": "71efb3d9-1b28-427c-8986-65d767f8ea38",
+                "name": "message",
+                "value": "={{  $('POST agendamento easy_appointments') }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1312,
+          160
+        ],
+        "id": "1d99de47-71d6-48f2-9808-2d2bb5e8fdd3",
+        "name": "Erro ao criar o agendamento"
+      },
+      {
+        "parameters": {
+          "amount": 7
+        },
+        "type": "n8n-nodes-base.wait",
+        "typeVersion": 1.1,
+        "position": [
+          -48,
+          16
+        ],
+        "id": "75e4ed14-1f47-435c-aa17-6193fa11c8ce",
+        "name": "Wait",
+        "webhookId": "1833bb45-fe38-4d4a-9ff3-58df20fb6bdf"
+      },
+      {
+        "parameters": {
+          "operation": "select",
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "servico_categoria",
+            "mode": "list",
+            "cachedResultName": "servico_categoria"
+          },
+          "limit": 1,
+          "where": {
+            "values": [
+              {
+                "column": "id",
+                "value": "={{ $('SELECT `sessao_agendamento`').last().json.unidade_id }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          1632,
+          -96
+        ],
+        "id": "c6224b7f-51fa-4ef1-a428-1d4e8d2d91c6",
+        "name": "GET endereço",
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "f11fd7d0-4a33-4818-acde-387c04fd3e89",
+                "name": "paciente",
+                "value": "={{ $('inicio_fluxo').last().json.nome_paciente }}",
+                "type": "string"
+              },
+              {
+                "id": "223ec50d-0f53-4029-974d-941b5be7ef42",
+                "name": "telefone",
+                "value": "={{ $('inicio_fluxo').last().json.telefone }}",
+                "type": "string"
+              },
+              {
+                "id": "bc33ca4c-8cee-4157-b66a-83361400f74a",
+                "name": "data_agendamento",
+                "value": "={{ $('POST agendamento easy_appointments').last().json.start.toDateTime().format('dd/MM/yyyy HH:mm') }}",
+                "type": "string"
+              },
+              {
+                "id": "2edc6902-86ab-4f0d-9d09-9c83d118c35c",
+                "name": "convenio",
+                "value": "={{ $('SELECT `sessao_agendamento`').last().json.convenio }}",
+                "type": "string"
+              },
+              {
+                "id": "557ec557-fffc-4b0e-8d4f-927af1f3a25d",
+                "name": "unidade",
+                "value": "={{ $('GET endereço').last().json.nome }}",
+                "type": "string"
+              },
+              {
+                "id": "9cabbad2-c822-4472-9d9a-b5ae9e03d6ca",
+                "name": "procedimento_escrito",
+                "value": "={{ $('SELECT `sessao_agendamento`').last().json.procedimento }}",
+                "type": "string"
+              },
+              {
+                "id": "56d22778-6e07-485b-b7ae-9f0ac86cdf8e",
+                "name": "procedimento",
+                "value": "={{ $('GET duracao evento').last().json.name }}",
+                "type": "string"
+              },
+              {
+                "id": "7297503d-18c7-492b-a18d-186eafbe5106",
+                "name": "mensagens",
+                "value": "={{ $('Formata mensagens').item.json.conversation_text }}",
+                "type": "string"
+              },
+              {
+                "id": "a99cb61f-b1c5-4892-94bb-9f9f0f1f9884",
+                "name": "dentista",
+                "value": "={{ $('SELECT `sessao_agendamento`').last().json.dentista == 'undefined' ? 'Sem indicação' : $('SELECT `sessao_agendamento`').last().json.dentista }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          2448,
+          -96
+        ],
+        "id": "b6e7d17d-cf49-4155-9987-666ac279620f",
+        "name": "Dados para o email"
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT message\nFROM ortho_x_chat_histories\nWHERE session_id = '{{ $('inicio_fluxo').last().json.session_id }}'\nORDER BY id ASC;\n",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          2032,
+          -96
+        ],
+        "id": "ed38c912-e9a5-40c3-a153-68a4ea07f978",
+        "name": "SELECT mensagens da sessão",
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "const messages = $items().map(item => {\n  let msg = item.json.message;\n\n  // Ensure message is an object\n  if (typeof msg === 'string') {\n    try {\n      msg = JSON.parse(msg);\n    } catch (err) {\n      throw new Error(`Failed to parse message: ${msg}`);\n    }\n  }\n\n  let role = msg.type === 'ai' ? '🤖 Chatbot' : '🧑 Usuário';\n  let content = msg.content;\n\n  // Some human messages have JSON-encoded content (timestamp + message)\n  if (typeof content === 'string' && content.trim().startsWith('{')) {\n    try {\n      const inner = JSON.parse(content);\n      if (inner.message) {\n        content = inner.message;\n      }\n    } catch (e) {\n      // keep as-is if not valid JSON\n    }\n  }\n\n  // Ignorar comando ##delete\n  if (content === '##delete') return null;\n\n  return `${role}: ${content}`;\n}).filter(Boolean); // remove nulls\n\nconst formatted = messages.join('<br>');\n\nreturn [\n  {\n    json: {\n      session_id: $(\"inicio_fluxo\").last().json.session_id,\n      conversation_text: formatted\n    }\n  }\n];\n"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2240,
+          -96
+        ],
+        "id": "56fe9075-338c-428e-938e-859ea659fcfd",
+        "name": "Formata mensagens"
+      },
+      {
+        "parameters": {
+          "fromEmail": "postmaster@mg.nanoincub.com.br",
+          "toEmail": "arisa.keitha@nanoincub.com.br",
+          "html": "=<!DOCTYPE html>\n<html lang=\"pt-BR\">\n<head>\n  <meta charset=\"UTF-8\">\n  <title>Confirmação de Consulta - {{ $('Dados para o email').last().json.paciente }} </title>\n  <style>\n    :root {\n      --white: #ffffff;\n      --orange: #e15029;\n      --blue-dark: #123c5a;\n      --red-dark: #762427;\n      --paragrafo: 15px;\n      --h1: 50px;\n      --h4: 26px;\n    }\n\n    body {\n      font-family: Arial, sans-serif;\n      background-color: var(--blue-dark);\n      margin: 0;\n      padding: 0;\n      color: var(--blue-dark);\n    }\n\n    .container {\n      max-width: 600px;\n      margin: 40px auto;\n      background: var(--white);\n      border-radius: 12px;\n      box-shadow: 0 4px 12px rgba(0,0,0,0.15);\n      overflow: hidden;\n    }\n\n    .header {\n      background-color: var(--orange);\n      color: var(--white);\n      text-align: center;\n      padding: 25px;\n    }\n\n    .header h1 {\n      margin: 0;\n      font-size: var(--h4);\n      font-weight: 600;\n      letter-spacing: 0.5px;\n    }\n\n    .content {\n      padding: 25px 35px;\n      line-height: 1.7;\n    }\n\n    .content h2 {\n      font-size: var(--h4);\n      color: var(--blue-dark);\n      margin-top: 0;\n    }\n\n    .info {\n      background-color: #f8f9fa;\n      border-left: 5px solid var(--orange);\n      border-radius: 8px;\n      padding: 18px;\n      margin-top: 15px;\n      font-size: var(--paragrafo);\n    }\n\n    .info p {\n      margin: 8px 0;\n      color: var(--blue-dark);\n    }\n\n    .info strong {\n      color: var(--red-dark);\n    }\n\n    .footer {\n      background-color: #f0f3f5;\n      text-align: center;\n      padding: 18px;\n      font-size: 13px;\n      color: var(--blue-dark);\n    }\n\n    .footer p {\n      margin: 0;\n      font-style: italic;\n    }\n\n    a {\n      color: var(--orange);\n      text-decoration: none;\n    }\n  </style>\n</head>\n<body>\n  <div class=\"container\">\n    <div class=\"header\">\n      <h1>Confirmação de Consulta</h1>\n    </div>\n    <div class=\"content\">\n      <p>Segue abaixo os detalhes do agendamento de {{ $('Dados para o email').last().json.paciente }}</p>\n\n      <div class=\"info\">\n        <p><strong>Data e Horário:</strong> {{ $('Dados para o email').last().json.data_agendamento }}</p>\n        <p><strong>Convênio:</strong> {{ $('Dados para o email').last().json.convenio }}</p>\n        <p><strong>Unidade:</strong> {{ $('Dados para o email').last().json.unidade }}</p>\n        <p><strong>Procedimento (Solicitado pelo usuário):</strong> {{ $('Dados para o email').last().json.procedimento_escrito }}</p>\n        <p><strong>Procedimento (Normalizado no sistema):</strong> {{ $('Dados para o email').last().json.procedimento }}</p>\n        <p><strong>Indicação Dentista:</strong> {{ $('Dados para o email').last().json.dentista }}</p>\n        <p><strong>Telefone do Paciente:</strong> {{ $('Dados para o email').last().json.telefone }}</p>\n      </div>\n\n      <div class=\"info\">\n        <h2>Mensagens:</h2>\n        {{ $('Dados para o email').last().json.mensagens }}\n      </div>\n\n      <p style=\"margin-top: 25px;\">Por favor, verifique se todas as informações estão corretas antes de confirmar o agendamento no sistema.</p>\n    </div>\n    <div class=\"footer\">\n      <p>Mensagem automática – Sistema de Agendamento</p>\n    </div>\n  </div>\n</body>\n</html>\n",
+          "options": {
+            "attachments": ""
+          }
+        },
+        "type": "n8n-nodes-base.emailSend",
+        "typeVersion": 2.1,
+        "position": [
+          2720,
+          -96
+        ],
+        "id": "58ea5368-52a2-46e1-a37c-924a37c532c8",
+        "name": "Send email",
+        "webhookId": "c168b829-4c21-41ee-a834-079a6ab237af",
+        "credentials": {
+          "smtp": {
+            "id": "5WDAgTSVFrytD13E",
+            "name": "SMTP account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "html": "<!DOCTYPE html>\n<html lang=\"pt-BR\">\n<head>\n  <meta charset=\"UTF-8\">\n  <title>Confirmação de Consulta - {{ $('Dados para o email').last().json.paciente }} </title>\n  <style>\n    :root {\n      --white: #ffffff;\n      --orange: #e15029;\n      --blue-dark: #123c5a;\n      --red-dark: #762427;\n      --paragrafo: 15px;\n      --h1: 50px;\n      --h4: 26px;\n    }\n\n    body {\n      font-family: Arial, sans-serif;\n      background-color: var(--blue-dark);\n      margin: 0;\n      padding: 0;\n      color: var(--blue-dark);\n    }\n\n    .container {\n      max-width: 600px;\n      margin: 40px auto;\n      background: var(--white);\n      border-radius: 12px;\n      box-shadow: 0 4px 12px rgba(0,0,0,0.15);\n      overflow: hidden;\n    }\n\n    .header {\n      background-color: var(--orange);\n      color: var(--white);\n      text-align: center;\n      padding: 25px;\n    }\n\n    .header h1 {\n      margin: 0;\n      font-size: var(--h4);\n      font-weight: 600;\n      letter-spacing: 0.5px;\n    }\n\n    .content {\n      padding: 25px 35px;\n      line-height: 1.7;\n    }\n\n    .content h2 {\n      font-size: var(--h4);\n      color: var(--blue-dark);\n      margin-top: 0;\n    }\n\n    .info {\n      background-color: #f8f9fa;\n      border-left: 5px solid var(--orange);\n      border-radius: 8px;\n      padding: 18px;\n      margin-top: 15px;\n      font-size: var(--paragrafo);\n    }\n\n    .info p {\n      margin: 8px 0;\n      color: var(--blue-dark);\n    }\n\n    .info strong {\n      color: var(--red-dark);\n    }\n\n    .footer {\n      background-color: #f0f3f5;\n      text-align: center;\n      padding: 18px;\n      font-size: 13px;\n      color: var(--blue-dark);\n    }\n\n    .footer p {\n      margin: 0;\n      font-style: italic;\n    }\n\n    a {\n      color: var(--orange);\n      text-decoration: none;\n    }\n  </style>\n</head>\n<body>\n  <div class=\"container\">\n    <div class=\"header\">\n      <h1>Confirmação de Consulta</h1>\n    </div>\n    <div class=\"content\">\n      <p>Olá, <strong>[Responsável pelo agendamento]</strong>!</p>\n      <p>Segue abaixo os detalhes do agendamento de {{ $('Dados para o email').last().json.paciente }}</p>\n\n      <div class=\"info\">\n        <p><strong>Data e Horário:</strong> {{ $('Dados para o email').last().json.data_agendamento }}</p>\n        <p><strong>Convênio:</strong> {{ $('Dados para o email').last().json.convenio }}</p>\n        <p><strong>Unidade:</strong> {{ $('Dados para o email').last().json.unidade }}</p>\n        <p><strong>Procedimento (Solicitado pelo usuário):</strong> {{ $('Dados para o email').last().json.procedimento_escrito }}</p>\n        <p><strong>Procedimento (Normalizado no sistema):</strong> {{ $('Dados para o email').last().json.procedimento }}</p>\n        <p><strong>Indicação Dentista:</strong> {{ $('Dados para o email').last().json.dentista }}</p>\n        <p><strong>Telefone do Paciente:</strong> {{ $('Dados para o email').last().json.telefone }}</p>\n      </div>\n\n      <p style=\"margin-top: 25px;\">Por favor, verifique se todas as informações estão corretas antes de confirmar o agendamento no sistema.</p>\n    </div>\n    <div class=\"footer\">\n      <p>Mensagem automática – Sistema de Agendamento</p>\n    </div>\n  </div>\n</body>\n</html>\n"
+        },
+        "type": "n8n-nodes-base.html",
+        "typeVersion": 1.2,
+        "position": [
+          2896,
+          128
+        ],
+        "id": "77d6cd75-d492-4750-81ee-cd6cb38c741e",
+        "name": "HTML"
+      },
+      {
+        "parameters": {
+          "htmlInput": "={{ $json.html }}"
+        },
+        "id": "82183394-9c25-4b4d-b0f8-39312303f51d",
+        "name": "HTML to PDF",
+        "type": "@custom-js/n8n-nodes-pdf-toolkit.html2Pdf",
+        "position": [
+          3120,
+          128
+        ],
+        "typeVersion": 1,
+        "credentials": {
+          "customJsApi": {
+            "id": "OR7Hg702rWsVCtCT",
+            "name": "CustomJS account flavio.angeleu@nano..."
+          }
+        }
+      },
+      {
+        "parameters": {
+          "resource": "messages-api",
+          "operation": "send-document",
+          "instanceName": "=celclaroinstance",
+          "remoteJid": "={{ $('inicio_fluxo').last().json.telefone }}",
+          "media": "={{ $json.data }}",
+          "caption": "Exemplo de envio do email",
+          "fileName": "agendamento.pdf",
+          "options_message": {}
+        },
+        "type": "n8n-nodes-evolution-api.evolutionApi",
+        "typeVersion": 1,
+        "position": [
+          2896,
+          336
+        ],
+        "id": "1c5aae8e-4788-43b9-9ad3-11f6e6927e09",
+        "name": "POST Mensagem Usuário",
+        "credentials": {
+          "evolutionApi": {
+            "id": "3oTT7RsCuxervFw5",
+            "name": "Evolution account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "binaryToPropery",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.extractFromFile",
+        "typeVersion": 1,
+        "position": [
+          2672,
+          336
+        ],
+        "id": "9710f422-fff2-480b-81b2-c373771bf073",
+        "name": "Extract from File"
+      },
+      {
+        "parameters": {
+          "amount": 10
+        },
+        "type": "n8n-nodes-base.wait",
+        "typeVersion": 1.1,
+        "position": [
+          2672,
+          128
+        ],
+        "id": "3812ee62-6ecd-4930-ae17-f8227c76a5b6",
+        "name": "Wait1",
+        "webhookId": "f58768a7-6b6e-4d2a-bb57-562f68df6f0b"
+      },
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.noOp",
+        "typeVersion": 1,
+        "position": [
+          3600,
+          -96
+        ],
+        "id": "4e56a24f-d7cf-456b-90e6-e410d773a669",
+        "name": "No Operation, do nothing"
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT (public.create_new_session($1)).*;",
+          "options": {
+            "queryReplacement": "={{ $('inicio_fluxo').last().json.telefone }}"
+          }
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          3168,
+          -96
+        ],
+        "id": "fba15a3d-c73e-47e7-88b4-7e11865991c5",
+        "name": "CREATE new user session",
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        }
+      }
+    ],
+    "connections": {
+      "If": {
+        "main": [
+          [
+            {
+              "node": "GET endereço",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "erro agendamento",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Resposta Agendamento Criado com sucesso": {
+        "main": [
+          []
+        ]
+      },
+      "SELECT `sessao_agendamento`": {
+        "main": [
+          [
+            {
+              "node": "IF sessao_agendamento exists",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "inicio_fluxo": {
+        "main": [
+          [
+            {
+              "node": "Wait",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "POST agendamento easy_appointments": {
+        "main": [
+          [
+            {
+              "node": "If",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Erro ao criar o agendamento",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "INSERT id_agendamento": {
+        "main": [
+          [
+            {
+              "node": "SELECT mensagens da sessão",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "GET duracao evento": {
+        "main": [
+          [
+            {
+              "node": "POST agendamento easy_appointments",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "UPDATE deletado sessao_agendamento": {
+        "main": [
+          [
+            {
+              "node": "CREATE new user session",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Atualiza chat_memory": {
+        "main": [
+          [
+            {
+              "node": "No Operation, do nothing",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF sessao_agendamento exists": {
+        "main": [
+          [
+            {
+              "node": "GET duracao evento",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "erro sessao_agendamento",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait": {
+        "main": [
+          [
+            {
+              "node": "SELECT `sessao_agendamento`",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "GET endereço": {
+        "main": [
+          [
+            {
+              "node": "INSERT id_agendamento",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Dados para o email": {
+        "main": [
+          [
+            {
+              "node": "Send email",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Wait1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "SELECT mensagens da sessão": {
+        "main": [
+          [
+            {
+              "node": "Formata mensagens",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Formata mensagens": {
+        "main": [
+          [
+            {
+              "node": "Dados para o email",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Send email": {
+        "main": [
+          [
+            {
+              "node": "UPDATE deletado sessao_agendamento",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTML": {
+        "main": [
+          [
+            {
+              "node": "HTML to PDF",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTML to PDF": {
+        "main": [
+          [
+            {
+              "node": "Extract from File",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract from File": {
+        "main": [
+          [
+            {
+              "node": "POST Mensagem Usuário",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait1": {
+        "main": [
+          [
+            {
+              "node": "HTML",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "POST Mensagem Usuário": {
+        "main": [
+          [
+            {
+              "node": "Resposta Agendamento Criado com sucesso",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "CREATE new user session": {
+        "main": [
+          [
+            {
+              "node": "Atualiza chat_memory",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "system migration",
+    "name": null,
+    "description": null,
+    "autosaved": false
+  },
+  "activeVersionId": "e0747910-375c-4748-8c1c-b539f94b8485",
+  "connections": {
+    "If": {
+      "main": [
+        [
+          {
+            "node": "GET endereço",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "erro agendamento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resposta Agendamento Criado com sucesso": {
+      "main": [
+        []
+      ]
+    },
+    "SELECT `sessao_agendamento`": {
+      "main": [
+        [
+          {
+            "node": "IF sessao_agendamento exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "inicio_fluxo": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "POST agendamento easy_appointments": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Erro ao criar o agendamento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "INSERT id_agendamento": {
+      "main": [
+        [
+          {
+            "node": "SELECT mensagens da sessão",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET duracao evento": {
+      "main": [
+        [
+          {
+            "node": "POST agendamento easy_appointments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UPDATE deletado sessao_agendamento": {
+      "main": [
+        [
+          {
+            "node": "CREATE new user session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Atualiza chat_memory": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF sessao_agendamento exists": {
+      "main": [
+        [
+          {
+            "node": "GET duracao evento",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "erro sessao_agendamento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "SELECT `sessao_agendamento`",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET endereço": {
+      "main": [
+        [
+          {
+            "node": "INSERT id_agendamento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dados para o email": {
+      "main": [
+        [
+          {
+            "node": "Send email",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SELECT mensagens da sessão": {
+      "main": [
+        [
+          {
+            "node": "Formata mensagens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formata mensagens": {
+      "main": [
+        [
+          {
+            "node": "Dados para o email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send email": {
+      "main": [
+        [
+          {
+            "node": "UPDATE deletado sessao_agendamento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML": {
+      "main": [
+        [
+          {
+            "node": "HTML to PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML to PDF": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "POST Mensagem Usuário",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "POST Mensagem Usuário": {
+      "main": [
+        [
+          {
+            "node": "Resposta Agendamento Criado com sucesso",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CREATE new user session": {
+      "main": [
+        [
+          {
+            "node": "Atualiza chat_memory",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-10-13T14:11:28.002Z",
+  "id": "QdM1vovkWoQMSLtF",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Agendamento V2 | Easy Appointments",
+  "nodes": [
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5c20304d-bacc-4dd7-a54b-b26ec2f6243c",
+              "leftValue": "={{ $('POST agendamento easy_appointments').last().json.status }}",
+              "rightValue": "Agendado",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1312,
+        -16
+      ],
+      "id": "81349b40-7942-4256-9c87-970480624ecd",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f50f3acb-0fe0-4cfc-9257-bba4027d5cfa",
+              "name": "response",
+              "value": "Erro ao realizar o procedimento",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1632,
+        64
+      ],
+      "id": "dce6a951-a0d4-4488-8343-0b4db1eff396",
+      "name": "erro agendamento"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f50f3acb-0fe0-4cfc-9257-bba4027d5cfa",
+              "name": "response",
+              "value": "=Consulta agendada com sucesso, informar o usuário seguindo o exemplo:\n\n```\nO seu exame ficou agendado no dia {dia} às {horário} no seguinte endereço: {{ $('GET endereço').last().json.endereco }}\n▪️ No dia do exame favor apresentar a solicitação do dentista com documento.\n▪️ Caso seja pelo convênio odontológico, apresentar a carteirinha e a receita/pedido original.\n▪️ Caso agende uma documentação odontológica com moldagem das arcadas, indicado fazer jejum de pelo menos 1h e 30 minutos.\n\nObrigado por escolher a Ortho X\nQualquer dúvida, estamos à sua disposição 😊\n```",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3120,
+        336
+      ],
+      "id": "e68c0381-6b6e-43df-8b9a-0a91556f295e",
+      "name": "Resposta Agendamento Criado com sucesso"
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "agendamentos_confirmados",
+          "mode": "list",
+          "cachedResultName": "agendamentos_confirmados"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "telefone": "={{ $('inicio_fluxo').last().json.telefone }}",
+            "id_agendamento": "={{ $('POST agendamento easy_appointments').last().json.id }}",
+            "paciente": "={{ $('inicio_fluxo').last().json.nome_paciente }}",
+            "data_agendamento": "={{ $('POST agendamento easy_appointments').last().json.start }}",
+            "unidade": "={{ $('GET endereço').last().json.nome }}",
+            "convenio": "={{ $('SELECT `sessao_agendamento`').last().json.convenio }}",
+            "procedimento": "={{ $('GET duracao evento').last().json.name }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "telefone",
+              "displayName": "telefone",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "id_agendamento",
+              "displayName": "id_agendamento",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "paciente",
+              "displayName": "paciente",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "data_agendamento",
+              "displayName": "data_agendamento",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "convenio",
+              "displayName": "convenio",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "unidade",
+              "displayName": "unidade",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "procedimento",
+              "displayName": "procedimento",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1840,
+        -96
+      ],
+      "id": "87a26acd-3cc7-4ab3-b698-51a8142730bb",
+      "name": "INSERT id_agendamento",
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "sessao_agendamento",
+          "mode": "list",
+          "cachedResultName": "sessao_agendamento"
+        },
+        "limit": 10,
+        "where": {
+          "values": [
+            {
+              "column": "telefone",
+              "value": "={{ $('inicio_fluxo').last().json.telefone }}"
+            },
+            {
+              "column": "deletado",
+              "value": "={{ false }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        160,
+        16
+      ],
+      "id": "52763a8e-58c5-4f31-ae08-96874b028027",
+      "name": "SELECT `sessao_agendamento`",
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "hora"
+            },
+            {
+              "name": "id_usuario"
+            },
+            {
+              "name": "telefone"
+            },
+            {
+              "name": "nome_paciente"
+            },
+            {
+              "name": "session_id"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -256,
+        16
+      ],
+      "id": "9d85d492-baa9-447d-a727-8d30732f4157",
+      "name": "inicio_fluxo"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://orthox-easyappointments.reyhdo.easypanel.host/index.php/api/v1/appointments",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "start",
+              "value": "={{ new Date($('SELECT `sessao_agendamento`').last().json.data_agendamento + \"T\" + $('inicio_fluxo').last().json.hora).toISOString().replace(\"T\",\" \").substring(0,19) }}"
+            },
+            {
+              "name": "end",
+              "value": "={{ new Date(new Date($('SELECT `sessao_agendamento`').last().json.data_agendamento + \"T\" + $('inicio_fluxo').last().json.hora).getTime() + $('GET duracao evento').last().json.duration * 60000).toISOString().replace(\"T\",\" \").substring(0,19) }}"
+            },
+            {
+              "name": "color",
+              "value": "#acbefb"
+            },
+            {
+              "name": "status",
+              "value": "Agendado"
+            },
+            {
+              "name": "customerId",
+              "value": "={{ $('inicio_fluxo').last().json.id_usuario }}"
+            },
+            {
+              "name": "providerId",
+              "value": "={{ $('SELECT `sessao_agendamento`').last().json.provider_id }}"
+            },
+            {
+              "name": "serviceId",
+              "value": "={{ $('SELECT `sessao_agendamento`').last().json.servico_id }}"
+            },
+            {
+              "name": "notes",
+              "value": "={{ $('inicio_fluxo').item.json.nome_paciente }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1056,
+        0
+      ],
+      "id": "5855b5ae-118b-492e-b8f1-6f9e9f23547f",
+      "name": "POST agendamento easy_appointments",
+      "notesInFlow": true,
+      "onError": "continueErrorOutput",
+      "notes": "Existe uma diferença de horario no start e end de inputs e do outputs por conta do fuso horário (UTC-3)"
+    },
+    {
+      "parameters": {
+        "url": "=https://orthox-easyappointments.reyhdo.easypanel.host/index.php/api/v1/services/{{ $('SELECT `sessao_agendamento`').last().json.servico_id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+            },
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        784,
+        0
+      ],
+      "id": "de15d9b2-ef47-4905-99c2-bdb975855579",
+      "name": "GET duracao evento"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE public.sessao_agendamento\nSET deletado = true\nWHERE telefone = '{{ $('inicio_fluxo').last().json.telefone }}'\n  AND deletado = false;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2944,
+        -96
+      ],
+      "id": "143c85e9-6f9e-448f-8561-5c6714a8df33",
+      "name": "UPDATE deletado sessao_agendamento",
+      "notesInFlow": true,
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      },
+      "notes": "soft delete"
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "ortho_x_chat_histories",
+          "mode": "list",
+          "cachedResultName": "ortho_x_chat_histories"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "session_id": "={{ $('CREATE new user session').last().json.session_id }}",
+            "message": "{\n  \"type\": \"ai\",\n  \"content\": \"O usuário finalizou o agendamento da consulta. Voltarei a meu estado inicial, sendo prestativa e estando disponível a responder quaisquer dúvidas, ou iniciar um novo agendamento.\",\n  \"tool_calls\": [],\n  \"additional_kwargs\": {},\n  \"response_metadata\": {},\n  \"invalid_tool_calls\": []\n}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "session_id",
+              "displayName": "session_id",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        3392,
+        -96
+      ],
+      "id": "0f6e8230-04f2-4b96-bc13-11c27603f728",
+      "name": "Atualiza chat_memory",
+      "notesInFlow": true,
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      },
+      "notes": "Mensagem salva no chat history para a IA ignorar as datas passadas"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3c371fae-2aca-4441-98ac-40ab6bc4db4d",
+              "name": "response",
+              "value": "`sessao_agendamento` não encontrado. Certifique-se de ter executado a ferramenta `atualiza_dados` antes de prosseguir",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        576,
+        112
+      ],
+      "id": "a1ab3920-a00b-4f7f-bffc-586c901dd1b5",
+      "name": "erro sessao_agendamento"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cc941453-fd95-4a08-b96a-21697e1b9883",
+              "leftValue": "={{ $('SELECT `sessao_agendamento`').last().json }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        368,
+        16
+      ],
+      "id": "df521253-0213-4f6e-925e-7ddf68114b6b",
+      "name": "IF sessao_agendamento exists"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f792b829-fd23-42fa-900f-924390a6b699",
+              "name": "response",
+              "value": "Ocorreu um erro ao tentar criar o agendamento. \n**provider_id está nulo, execute novamente a ferramente `verifica_disponibilidade_agenda`**",
+              "type": "string"
+            },
+            {
+              "id": "71efb3d9-1b28-427c-8986-65d767f8ea38",
+              "name": "message",
+              "value": "={{  $('POST agendamento easy_appointments') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1312,
+        160
+      ],
+      "id": "1d99de47-71d6-48f2-9808-2d2bb5e8fdd3",
+      "name": "Erro ao criar o agendamento"
+    },
+    {
+      "parameters": {
+        "amount": 7
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -48,
+        16
+      ],
+      "id": "75e4ed14-1f47-435c-aa17-6193fa11c8ce",
+      "name": "Wait",
+      "webhookId": "1833bb45-fe38-4d4a-9ff3-58df20fb6bdf"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "servico_categoria",
+          "mode": "list",
+          "cachedResultName": "servico_categoria"
+        },
+        "limit": 1,
+        "where": {
+          "values": [
+            {
+              "column": "id",
+              "value": "={{ $('SELECT `sessao_agendamento`').last().json.unidade_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1632,
+        -96
+      ],
+      "id": "c6224b7f-51fa-4ef1-a428-1d4e8d2d91c6",
+      "name": "GET endereço",
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f11fd7d0-4a33-4818-acde-387c04fd3e89",
+              "name": "paciente",
+              "value": "={{ $('inicio_fluxo').last().json.nome_paciente }}",
+              "type": "string"
+            },
+            {
+              "id": "223ec50d-0f53-4029-974d-941b5be7ef42",
+              "name": "telefone",
+              "value": "={{ $('inicio_fluxo').last().json.telefone }}",
+              "type": "string"
+            },
+            {
+              "id": "bc33ca4c-8cee-4157-b66a-83361400f74a",
+              "name": "data_agendamento",
+              "value": "={{ $('POST agendamento easy_appointments').last().json.start.toDateTime().format('dd/MM/yyyy HH:mm') }}",
+              "type": "string"
+            },
+            {
+              "id": "2edc6902-86ab-4f0d-9d09-9c83d118c35c",
+              "name": "convenio",
+              "value": "={{ $('SELECT `sessao_agendamento`').last().json.convenio }}",
+              "type": "string"
+            },
+            {
+              "id": "557ec557-fffc-4b0e-8d4f-927af1f3a25d",
+              "name": "unidade",
+              "value": "={{ $('GET endereço').last().json.nome }}",
+              "type": "string"
+            },
+            {
+              "id": "9cabbad2-c822-4472-9d9a-b5ae9e03d6ca",
+              "name": "procedimento_escrito",
+              "value": "={{ $('SELECT `sessao_agendamento`').last().json.procedimento }}",
+              "type": "string"
+            },
+            {
+              "id": "56d22778-6e07-485b-b7ae-9f0ac86cdf8e",
+              "name": "procedimento",
+              "value": "={{ $('GET duracao evento').last().json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "7297503d-18c7-492b-a18d-186eafbe5106",
+              "name": "mensagens",
+              "value": "={{ $('Formata mensagens').item.json.conversation_text }}",
+              "type": "string"
+            },
+            {
+              "id": "a99cb61f-b1c5-4892-94bb-9f9f0f1f9884",
+              "name": "dentista",
+              "value": "={{ $('SELECT `sessao_agendamento`').last().json.dentista == 'undefined' ? 'Sem indicação' : $('SELECT `sessao_agendamento`').last().json.dentista }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2448,
+        -96
+      ],
+      "id": "b6e7d17d-cf49-4155-9987-666ac279620f",
+      "name": "Dados para o email"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT message\nFROM ortho_x_chat_histories\nWHERE session_id = '{{ $('inicio_fluxo').last().json.session_id }}'\nORDER BY id ASC;\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2032,
+        -96
+      ],
+      "id": "ed38c912-e9a5-40c3-a153-68a4ea07f978",
+      "name": "SELECT mensagens da sessão",
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const messages = $items().map(item => {\n  let msg = item.json.message;\n\n  // Ensure message is an object\n  if (typeof msg === 'string') {\n    try {\n      msg = JSON.parse(msg);\n    } catch (err) {\n      throw new Error(`Failed to parse message: ${msg}`);\n    }\n  }\n\n  let role = msg.type === 'ai' ? '🤖 Chatbot' : '🧑 Usuário';\n  let content = msg.content;\n\n  // Some human messages have JSON-encoded content (timestamp + message)\n  if (typeof content === 'string' && content.trim().startsWith('{')) {\n    try {\n      const inner = JSON.parse(content);\n      if (inner.message) {\n        content = inner.message;\n      }\n    } catch (e) {\n      // keep as-is if not valid JSON\n    }\n  }\n\n  // Ignorar comando ##delete\n  if (content === '##delete') return null;\n\n  return `${role}: ${content}`;\n}).filter(Boolean); // remove nulls\n\nconst formatted = messages.join('<br>');\n\nreturn [\n  {\n    json: {\n      session_id: $(\"inicio_fluxo\").last().json.session_id,\n      conversation_text: formatted\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2240,
+        -96
+      ],
+      "id": "56fe9075-338c-428e-938e-859ea659fcfd",
+      "name": "Formata mensagens"
+    },
+    {
+      "parameters": {
+        "fromEmail": "postmaster@mg.nanoincub.com.br",
+        "toEmail": "arisa.keitha@nanoincub.com.br",
+        "html": "=<!DOCTYPE html>\n<html lang=\"pt-BR\">\n<head>\n  <meta charset=\"UTF-8\">\n  <title>Confirmação de Consulta - {{ $('Dados para o email').last().json.paciente }} </title>\n  <style>\n    :root {\n      --white: #ffffff;\n      --orange: #e15029;\n      --blue-dark: #123c5a;\n      --red-dark: #762427;\n      --paragrafo: 15px;\n      --h1: 50px;\n      --h4: 26px;\n    }\n\n    body {\n      font-family: Arial, sans-serif;\n      background-color: var(--blue-dark);\n      margin: 0;\n      padding: 0;\n      color: var(--blue-dark);\n    }\n\n    .container {\n      max-width: 600px;\n      margin: 40px auto;\n      background: var(--white);\n      border-radius: 12px;\n      box-shadow: 0 4px 12px rgba(0,0,0,0.15);\n      overflow: hidden;\n    }\n\n    .header {\n      background-color: var(--orange);\n      color: var(--white);\n      text-align: center;\n      padding: 25px;\n    }\n\n    .header h1 {\n      margin: 0;\n      font-size: var(--h4);\n      font-weight: 600;\n      letter-spacing: 0.5px;\n    }\n\n    .content {\n      padding: 25px 35px;\n      line-height: 1.7;\n    }\n\n    .content h2 {\n      font-size: var(--h4);\n      color: var(--blue-dark);\n      margin-top: 0;\n    }\n\n    .info {\n      background-color: #f8f9fa;\n      border-left: 5px solid var(--orange);\n      border-radius: 8px;\n      padding: 18px;\n      margin-top: 15px;\n      font-size: var(--paragrafo);\n    }\n\n    .info p {\n      margin: 8px 0;\n      color: var(--blue-dark);\n    }\n\n    .info strong {\n      color: var(--red-dark);\n    }\n\n    .footer {\n      background-color: #f0f3f5;\n      text-align: center;\n      padding: 18px;\n      font-size: 13px;\n      color: var(--blue-dark);\n    }\n\n    .footer p {\n      margin: 0;\n      font-style: italic;\n    }\n\n    a {\n      color: var(--orange);\n      text-decoration: none;\n    }\n  </style>\n</head>\n<body>\n  <div class=\"container\">\n    <div class=\"header\">\n      <h1>Confirmação de Consulta</h1>\n    </div>\n    <div class=\"content\">\n      <p>Segue abaixo os detalhes do agendamento de {{ $('Dados para o email').last().json.paciente }}</p>\n\n      <div class=\"info\">\n        <p><strong>Data e Horário:</strong> {{ $('Dados para o email').last().json.data_agendamento }}</p>\n        <p><strong>Convênio:</strong> {{ $('Dados para o email').last().json.convenio }}</p>\n        <p><strong>Unidade:</strong> {{ $('Dados para o email').last().json.unidade }}</p>\n        <p><strong>Procedimento (Solicitado pelo usuário):</strong> {{ $('Dados para o email').last().json.procedimento_escrito }}</p>\n        <p><strong>Procedimento (Normalizado no sistema):</strong> {{ $('Dados para o email').last().json.procedimento }}</p>\n        <p><strong>Indicação Dentista:</strong> {{ $('Dados para o email').last().json.dentista }}</p>\n        <p><strong>Telefone do Paciente:</strong> {{ $('Dados para o email').last().json.telefone }}</p>\n      </div>\n\n      <div class=\"info\">\n        <h2>Mensagens:</h2>\n        {{ $('Dados para o email').last().json.mensagens }}\n      </div>\n\n      <p style=\"margin-top: 25px;\">Por favor, verifique se todas as informações estão corretas antes de confirmar o agendamento no sistema.</p>\n    </div>\n    <div class=\"footer\">\n      <p>Mensagem automática – Sistema de Agendamento</p>\n    </div>\n  </div>\n</body>\n</html>\n",
+        "options": {
+          "attachments": ""
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        2720,
+        -96
+      ],
+      "id": "58ea5368-52a2-46e1-a37c-924a37c532c8",
+      "name": "Send email",
+      "webhookId": "c168b829-4c21-41ee-a834-079a6ab237af",
+      "credentials": {
+        "smtp": {
+          "id": "5WDAgTSVFrytD13E",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "html": "<!DOCTYPE html>\n<html lang=\"pt-BR\">\n<head>\n  <meta charset=\"UTF-8\">\n  <title>Confirmação de Consulta - {{ $('Dados para o email').last().json.paciente }} </title>\n  <style>\n    :root {\n      --white: #ffffff;\n      --orange: #e15029;\n      --blue-dark: #123c5a;\n      --red-dark: #762427;\n      --paragrafo: 15px;\n      --h1: 50px;\n      --h4: 26px;\n    }\n\n    body {\n      font-family: Arial, sans-serif;\n      background-color: var(--blue-dark);\n      margin: 0;\n      padding: 0;\n      color: var(--blue-dark);\n    }\n\n    .container {\n      max-width: 600px;\n      margin: 40px auto;\n      background: var(--white);\n      border-radius: 12px;\n      box-shadow: 0 4px 12px rgba(0,0,0,0.15);\n      overflow: hidden;\n    }\n\n    .header {\n      background-color: var(--orange);\n      color: var(--white);\n      text-align: center;\n      padding: 25px;\n    }\n\n    .header h1 {\n      margin: 0;\n      font-size: var(--h4);\n      font-weight: 600;\n      letter-spacing: 0.5px;\n    }\n\n    .content {\n      padding: 25px 35px;\n      line-height: 1.7;\n    }\n\n    .content h2 {\n      font-size: var(--h4);\n      color: var(--blue-dark);\n      margin-top: 0;\n    }\n\n    .info {\n      background-color: #f8f9fa;\n      border-left: 5px solid var(--orange);\n      border-radius: 8px;\n      padding: 18px;\n      margin-top: 15px;\n      font-size: var(--paragrafo);\n    }\n\n    .info p {\n      margin: 8px 0;\n      color: var(--blue-dark);\n    }\n\n    .info strong {\n      color: var(--red-dark);\n    }\n\n    .footer {\n      background-color: #f0f3f5;\n      text-align: center;\n      padding: 18px;\n      font-size: 13px;\n      color: var(--blue-dark);\n    }\n\n    .footer p {\n      margin: 0;\n      font-style: italic;\n    }\n\n    a {\n      color: var(--orange);\n      text-decoration: none;\n    }\n  </style>\n</head>\n<body>\n  <div class=\"container\">\n    <div class=\"header\">\n      <h1>Confirmação de Consulta</h1>\n    </div>\n    <div class=\"content\">\n      <p>Olá, <strong>[Responsável pelo agendamento]</strong>!</p>\n      <p>Segue abaixo os detalhes do agendamento de {{ $('Dados para o email').last().json.paciente }}</p>\n\n      <div class=\"info\">\n        <p><strong>Data e Horário:</strong> {{ $('Dados para o email').last().json.data_agendamento }}</p>\n        <p><strong>Convênio:</strong> {{ $('Dados para o email').last().json.convenio }}</p>\n        <p><strong>Unidade:</strong> {{ $('Dados para o email').last().json.unidade }}</p>\n        <p><strong>Procedimento (Solicitado pelo usuário):</strong> {{ $('Dados para o email').last().json.procedimento_escrito }}</p>\n        <p><strong>Procedimento (Normalizado no sistema):</strong> {{ $('Dados para o email').last().json.procedimento }}</p>\n        <p><strong>Indicação Dentista:</strong> {{ $('Dados para o email').last().json.dentista }}</p>\n        <p><strong>Telefone do Paciente:</strong> {{ $('Dados para o email').last().json.telefone }}</p>\n      </div>\n\n      <p style=\"margin-top: 25px;\">Por favor, verifique se todas as informações estão corretas antes de confirmar o agendamento no sistema.</p>\n    </div>\n    <div class=\"footer\">\n      <p>Mensagem automática – Sistema de Agendamento</p>\n    </div>\n  </div>\n</body>\n</html>\n"
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        2896,
+        128
+      ],
+      "id": "77d6cd75-d492-4750-81ee-cd6cb38c741e",
+      "name": "HTML"
+    },
+    {
+      "parameters": {
+        "htmlInput": "={{ $json.html }}"
+      },
+      "id": "82183394-9c25-4b4d-b0f8-39312303f51d",
+      "name": "HTML to PDF",
+      "type": "@custom-js/n8n-nodes-pdf-toolkit.html2Pdf",
+      "position": [
+        3120,
+        128
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "customJsApi": {
+          "id": "OR7Hg702rWsVCtCT",
+          "name": "CustomJS account flavio.angeleu@nano..."
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "messages-api",
+        "operation": "send-document",
+        "instanceName": "=celclaroinstance",
+        "remoteJid": "={{ $('inicio_fluxo').last().json.telefone }}",
+        "media": "={{ $json.data }}",
+        "caption": "Exemplo de envio do email",
+        "fileName": "agendamento.pdf",
+        "options_message": {}
+      },
+      "type": "n8n-nodes-evolution-api.evolutionApi",
+      "typeVersion": 1,
+      "position": [
+        2896,
+        336
+      ],
+      "id": "1c5aae8e-4788-43b9-9ad3-11f6e6927e09",
+      "name": "POST Mensagem Usuário",
+      "credentials": {
+        "evolutionApi": {
+          "id": "3oTT7RsCuxervFw5",
+          "name": "Evolution account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "binaryToPropery",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        2672,
+        336
+      ],
+      "id": "9710f422-fff2-480b-81b2-c373771bf073",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2672,
+        128
+      ],
+      "id": "3812ee62-6ecd-4930-ae17-f8227c76a5b6",
+      "name": "Wait1",
+      "webhookId": "f58768a7-6b6e-4d2a-bb57-562f68df6f0b"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        3600,
+        -96
+      ],
+      "id": "4e56a24f-d7cf-456b-90e6-e410d773a669",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT (public.create_new_session($1)).*;",
+        "options": {
+          "queryReplacement": "={{ $('inicio_fluxo').last().json.telefone }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        3168,
+        -96
+      ],
+      "id": "fba15a3d-c73e-47e7-88b4-7e11865991c5",
+      "name": "CREATE new user session",
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "inicio_fluxo": [
+      {
+        "json": {
+          "hora": "10:00:00",
+          "id_usuario": 279,
+          "telefone": "5511973202606",
+          "nome_paciente": "Sandro",
+          "session_id": "9f49b2cf-2825-4169-a3f9-8492922bb595"
+        }
+      }
+    ]
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Sao_Paulo",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-10-13T14:11:28.006Z",
+      "createdAt": "2025-10-13T14:11:28.006Z",
+      "role": "workflow:owner",
+      "workflowId": "QdM1vovkWoQMSLtF",
+      "projectId": "IcfJLMCsRkuOqzR8"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-11-12T13:20:37.000Z",
+  "versionId": "e0747910-375c-4748-8c1c-b539f94b8485"
+}
