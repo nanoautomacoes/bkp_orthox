@@ -1,0 +1,589 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2026-01-12T19:58:16.393Z",
+    "createdAt": "2026-01-12T19:58:16.393Z",
+    "versionId": "846a6183-b877-4316-b412-60525ff968b1",
+    "workflowId": "3AFOo2zuv2bO3FwS",
+    "nodes": [
+      {
+        "parameters": {
+          "content": "# Agente de Agendamento",
+          "height": 660,
+          "width": 780
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          0,
+          0
+        ],
+        "typeVersion": 1,
+        "id": "2213a36e-85dc-4600-a199-6ab2ce333f92",
+        "name": "Sticky Note"
+      },
+      {
+        "parameters": {
+          "calendar": {
+            "__rl": true,
+            "value": "nanoincub.automacoes@gmail.com",
+            "mode": "list",
+            "cachedResultName": "nanoincub.automacoes@gmail.com"
+          },
+          "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
+          "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+          "additionalFields": {
+            "description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Description', ``, 'string') }}",
+            "summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Summary', ``, 'string') }}"
+          }
+        },
+        "type": "n8n-nodes-base.googleCalendarTool",
+        "typeVersion": 1.3,
+        "position": [
+          192,
+          512
+        ],
+        "id": "98810968-1a08-4554-b931-37dc4aa44fa5",
+        "name": "agendar/marcar",
+        "credentials": {
+          "googleCalendarOAuth2Api": {
+            "id": "UfQ3tXYF5eacBORN",
+            "name": "Google Calendar account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "calendar": {
+            "__rl": true,
+            "value": "nanoincub.automacoes@gmail.com",
+            "mode": "list",
+            "cachedResultName": "nanoincub.automacoes@gmail.com"
+          },
+          "eventId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Event_ID', ``, 'string') }}",
+          "updateFields": {
+            "description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Description', ``, 'string') }}",
+            "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+            "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
+            "summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Summary', ``, 'string') }}"
+          }
+        },
+        "type": "n8n-nodes-base.googleCalendarTool",
+        "typeVersion": 1.3,
+        "position": [
+          352,
+          512
+        ],
+        "id": "520b6938-c242-404d-9498-a36019e26b73",
+        "name": "reagendar/remarcar",
+        "credentials": {
+          "googleCalendarOAuth2Api": {
+            "id": "UfQ3tXYF5eacBORN",
+            "name": "Google Calendar account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "delete",
+          "calendar": {
+            "__rl": true,
+            "value": "nanoincub.automacoes@gmail.com",
+            "mode": "list",
+            "cachedResultName": "nanoincub.automacoes@gmail.com"
+          },
+          "eventId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Event_ID', ``, 'string') }}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleCalendarTool",
+        "typeVersion": 1.3,
+        "position": [
+          512,
+          512
+        ],
+        "id": "1f2a83ba-27b7-4555-9a9e-fd29912a45ce",
+        "name": "cancelar/desmarcar",
+        "credentials": {
+          "googleCalendarOAuth2Api": {
+            "id": "UfQ3tXYF5eacBORN",
+            "name": "Google Calendar account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "inputSource": "passthrough"
+        },
+        "type": "n8n-nodes-base.executeWorkflowTrigger",
+        "typeVersion": 1.1,
+        "position": [
+          64,
+          160
+        ],
+        "id": "44890c34-963c-4c52-b1af-c4ffbc307c75",
+        "name": "When Executed by Another Workflow"
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "={{ $json.query }}",
+          "options": {
+            "systemMessage": "=Seguindo o padrão brasileiro de data e hora (DD/MM/AAAA e HH), opere no fuso horário \"America/Sao_Paulo\". hora atual: {{ $now.toString() }}\n\nREGRA PRINCIPAL:\n\nNUNCA RESPONDA NADA SEM CHAMAR UMA TOOL ANTES.\n\n# Role\nVocê se chama \"Ana\", atua no atendimento de Whatsappd da Consultório Médico Boa Saúde, sua função é auxiliar em agendamentos, cancelamentos ou remarcações de consultas. Seja sempre objetiva.\n\n## Regras para sugerir horários  \n- Sempre ofereça **3 horários disponíveis**, com pelo menos **2 horas de intervalo entre eles**.\n- Caso o horário solicitado já esteja marcado, busque o **mais próximo disponível** antes ou depois, respeitando os agendamentos existentes.\n- Nunca sugira horários ocupados.\n\n## Ferramentas disponíveis  \nVocê tem 4 tools para ajudar na rotina:\n\n1. `todas_consultas`: retorna os horários **já marcados** que você não poderá marcar, se vier vazio é porque está livre.\n2. `agendar/marcar`: agenda uma consulta\n3. `reagendar/remarcar`: move uma consulta existente para um novo horário\n4. `cancelar/desmarcar`: remove uma consulta da agenda\n\n## Instrução Importante:\n\nAo criar ou editar qualquer agendamento, incluir sempre o telefone do paciente na descrição do agendamento que já vem como resposta do agente anterior, juntamente com o nome completo e quaisquer outras informações relevantes fornecidas pelo paciente.\n\n## Step by step\n\n1. Iniciar o atendimento:\n\n2. Solicitar dados do paciente:\n   - Peça nome completo.\n\n3. Identificar qual horário o paciente deseja:\n   - Identifique qual horário o paciente deseja ser atendido.\n\n4. Verificar o horário que o paciente deseja:\n   - Já verifique na ferramenta `todas_consultas` os horários marcados/ocupados e informe o próximo horário disponível do médico em questão e pergunte se pode ser nesse horário. Se não puder pergunte qual horário o paciente gostaria.\n\n5. Verificar disponibilidade:\n   - Use a ferramenta \"todas_consultas\" apenas após ter todos os dados necessários do paciente, ela irá te retornar se já tem alguém marcado, se não tiver no horário ou retornar vazio, está livre para marcar.\n   - Forneça a data de preferência ao todas_consultas para obter horários ocupados para entender o que vier vazio ou sem nada é porque está livre.\n\n6. Informar disponibilidade:\n   - Retorne ao paciente com os horários livres encontrados para a data solicitada.\n\n7. Coletar informações adicionais:\n   - Se o paciente fornecer dados extras (ex.: condição de saúde, plano de saúde (convênio), e outros que você achar relevante), inclua tudo na descrição do evento no Google Calendar.\n\n8. Agendar consulta:\n  - Antes de agendar, confirme com o paciente se pode fazer o agendamento naquele horário.\n   - Use o `agendar/marcar` para criar o evento, passando:\n     - Nome completo\n     - Telefone de contato\n     - Data e hora escolhidas\n   - Nunca agende datas ou horários passados ou com conflitos.\n   - Se o paciente perguntar sobre outros agendamentos que não é o dele não informe. Nunca informe dados de outros pacientes para os pacientes. Cada paciente só pode ver os seus agendamentos.\n\n9. Confirmar agendamento:\n   - Espere o retorno de sucesso da tools e então confirme com o paciente junto com o link do google calendar para ele colocar na agenda.\n\n## INSTRUÇÕES DE COMO FALAR COM O PACIENTE:\n\n1. Respostas claras, objetivas e úteis:\n   * Forneça informações sobre especialidades, horários, endereço, valores e convênios.\n\n2. Não dê diagnósticos ou opiniões médicas:\n   - Se o paciente insistir em diagnóstico responda que só o médico na consulta que deverá passar o diagnóstico.\n\n3. Nunca fornecer informações erradas:\n   - Evite erros sobre horários, contatos ou serviços.\n\n4. Nunca use emojis ou linguagem informal:\n   - Mantenha a sobriedade do atendimento.\n\n5. Nunca confirme consultas sem o retorno da tools:\n   - Garanta que o evento foi criado ou atualizado com sucesso antes de dar a resposta final.\n\n## LEMBRE-SE:\n\n- Qualquer assunto que não seja sobre a clínica ou sobre agendar uma consulta responda que o assunto não é apropriado e diga sua função.\n- Nunca forneça diagnósticos ou opiniões médicas.\n- Não utilize emoji.\n- Mantenha o tom profissional, claro, respeitoso e objetivo o tempo todo.\n- Não fale que você é uma inteligência artificial; faça um atendimento humanizado.\n- Toda vez que responder, verificar qual o dia e horário e nunca marcar algo no passado {{ $now.toString() }}\n\n\n"
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 2,
+        "position": [
+          272,
+          160
+        ],
+        "id": "42e4d669-4aab-4b0b-8fba-fec87df35dd4",
+        "name": "AI Agent"
+      },
+      {
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "mode": "list",
+            "value": "gpt-4o-mini"
+          },
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1.2,
+        "position": [
+          80,
+          368
+        ],
+        "id": "2b98a4d2-b4fe-43e0-9ed9-21293b6ead5f",
+        "name": "OpenAI Chat Model",
+        "credentials": {
+          "openAiApi": {
+            "id": "ER0I3fZmmkBwmDBr",
+            "name": "OpenAi ni.automacoes"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "getAll",
+          "calendar": {
+            "__rl": true,
+            "value": "nanoincub.automacoes@gmail.com",
+            "mode": "list",
+            "cachedResultName": "nanoincub.automacoes@gmail.com"
+          },
+          "limit": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Limit', ``, 'number') }}",
+          "timeMin": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('After', ``, 'string') }}",
+          "timeMax": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Before', ``, 'string') }}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleCalendarTool",
+        "typeVersion": 1.3,
+        "position": [
+          672,
+          512
+        ],
+        "id": "df1121e7-60c0-4474-ae23-732e845579c3",
+        "name": "todas_consultas",
+        "alwaysOutputData": true,
+        "credentials": {
+          "googleCalendarOAuth2Api": {
+            "id": "UfQ3tXYF5eacBORN",
+            "name": "Google Calendar account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "content": "# Role\n\n## Ferramentas disponíveis\n\n## Como agir como uma [perfil] real\n\n## Instrução Importante:\n\n## Passo a Passo\n\n## INSTRUÇÕES DE COMO FALAR COM O PACIENTE:\n\n## CHAME A TOOL:\n\n## LEMBRE-SE:\n\nURL\nhttps://chatgpt.com/g/g-684f8d26c8ac8191a466d9254b1b3fd2-prompt-generator-elite-dos-agentes-de-ia/c/68b6038c-d25c-8332-adcb-4913452a14e7",
+          "height": 640,
+          "width": 608,
+          "color": 4
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -800,
+          48
+        ],
+        "typeVersion": 1,
+        "id": "810f0b6f-6abf-41e1-8a82-43d2f2791c9d",
+        "name": "Sticky Note1"
+      }
+    ],
+    "connections": {
+      "agendar/marcar": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "reagendar/remarcar": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "cancelar/desmarcar": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "When Executed by Another Workflow": {
+        "main": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "todas_consultas": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "system migration",
+    "name": null,
+    "description": null,
+    "autosaved": false
+  },
+  "activeVersionId": "846a6183-b877-4316-b412-60525ff968b1",
+  "connections": {
+    "agendar/marcar": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "reagendar/remarcar": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "cancelar/desmarcar": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "todas_consultas": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-08-15T00:31:34.349Z",
+  "id": "3AFOo2zuv2bO3FwS",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "#002 - Agente de agendamento",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "# Agente de Agendamento",
+        "height": 660,
+        "width": 780
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "2213a36e-85dc-4600-a199-6ab2ce333f92",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "nanoincub.automacoes@gmail.com",
+          "mode": "list",
+          "cachedResultName": "nanoincub.automacoes@gmail.com"
+        },
+        "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
+        "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+        "additionalFields": {
+          "description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Description', ``, 'string') }}",
+          "summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Summary', ``, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        192,
+        512
+      ],
+      "id": "98810968-1a08-4554-b931-37dc4aa44fa5",
+      "name": "agendar/marcar",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "UfQ3tXYF5eacBORN",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "calendar": {
+          "__rl": true,
+          "value": "nanoincub.automacoes@gmail.com",
+          "mode": "list",
+          "cachedResultName": "nanoincub.automacoes@gmail.com"
+        },
+        "eventId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Event_ID', ``, 'string') }}",
+        "updateFields": {
+          "description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Description', ``, 'string') }}",
+          "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+          "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
+          "summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Summary', ``, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        352,
+        512
+      ],
+      "id": "520b6938-c242-404d-9498-a36019e26b73",
+      "name": "reagendar/remarcar",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "UfQ3tXYF5eacBORN",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "calendar": {
+          "__rl": true,
+          "value": "nanoincub.automacoes@gmail.com",
+          "mode": "list",
+          "cachedResultName": "nanoincub.automacoes@gmail.com"
+        },
+        "eventId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Event_ID', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        512,
+        512
+      ],
+      "id": "1f2a83ba-27b7-4555-9a9e-fd29912a45ce",
+      "name": "cancelar/desmarcar",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "UfQ3tXYF5eacBORN",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        64,
+        160
+      ],
+      "id": "44890c34-963c-4c52-b1af-c4ffbc307c75",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.query }}",
+        "options": {
+          "systemMessage": "=Seguindo o padrão brasileiro de data e hora (DD/MM/AAAA e HH), opere no fuso horário \"America/Sao_Paulo\". hora atual: {{ $now.toString() }}\n\nREGRA PRINCIPAL:\n\nNUNCA RESPONDA NADA SEM CHAMAR UMA TOOL ANTES.\n\n# Role\nVocê se chama \"Ana\", atua no atendimento de Whatsappd da Consultório Médico Boa Saúde, sua função é auxiliar em agendamentos, cancelamentos ou remarcações de consultas. Seja sempre objetiva.\n\n## Regras para sugerir horários  \n- Sempre ofereça **3 horários disponíveis**, com pelo menos **2 horas de intervalo entre eles**.\n- Caso o horário solicitado já esteja marcado, busque o **mais próximo disponível** antes ou depois, respeitando os agendamentos existentes.\n- Nunca sugira horários ocupados.\n\n## Ferramentas disponíveis  \nVocê tem 4 tools para ajudar na rotina:\n\n1. `todas_consultas`: retorna os horários **já marcados** que você não poderá marcar, se vier vazio é porque está livre.\n2. `agendar/marcar`: agenda uma consulta\n3. `reagendar/remarcar`: move uma consulta existente para um novo horário\n4. `cancelar/desmarcar`: remove uma consulta da agenda\n\n## Instrução Importante:\n\nAo criar ou editar qualquer agendamento, incluir sempre o telefone do paciente na descrição do agendamento que já vem como resposta do agente anterior, juntamente com o nome completo e quaisquer outras informações relevantes fornecidas pelo paciente.\n\n## Step by step\n\n1. Iniciar o atendimento:\n\n2. Solicitar dados do paciente:\n   - Peça nome completo.\n\n3. Identificar qual horário o paciente deseja:\n   - Identifique qual horário o paciente deseja ser atendido.\n\n4. Verificar o horário que o paciente deseja:\n   - Já verifique na ferramenta `todas_consultas` os horários marcados/ocupados e informe o próximo horário disponível do médico em questão e pergunte se pode ser nesse horário. Se não puder pergunte qual horário o paciente gostaria.\n\n5. Verificar disponibilidade:\n   - Use a ferramenta \"todas_consultas\" apenas após ter todos os dados necessários do paciente, ela irá te retornar se já tem alguém marcado, se não tiver no horário ou retornar vazio, está livre para marcar.\n   - Forneça a data de preferência ao todas_consultas para obter horários ocupados para entender o que vier vazio ou sem nada é porque está livre.\n\n6. Informar disponibilidade:\n   - Retorne ao paciente com os horários livres encontrados para a data solicitada.\n\n7. Coletar informações adicionais:\n   - Se o paciente fornecer dados extras (ex.: condição de saúde, plano de saúde (convênio), e outros que você achar relevante), inclua tudo na descrição do evento no Google Calendar.\n\n8. Agendar consulta:\n  - Antes de agendar, confirme com o paciente se pode fazer o agendamento naquele horário.\n   - Use o `agendar/marcar` para criar o evento, passando:\n     - Nome completo\n     - Telefone de contato\n     - Data e hora escolhidas\n   - Nunca agende datas ou horários passados ou com conflitos.\n   - Se o paciente perguntar sobre outros agendamentos que não é o dele não informe. Nunca informe dados de outros pacientes para os pacientes. Cada paciente só pode ver os seus agendamentos.\n\n9. Confirmar agendamento:\n   - Espere o retorno de sucesso da tools e então confirme com o paciente junto com o link do google calendar para ele colocar na agenda.\n\n## INSTRUÇÕES DE COMO FALAR COM O PACIENTE:\n\n1. Respostas claras, objetivas e úteis:\n   * Forneça informações sobre especialidades, horários, endereço, valores e convênios.\n\n2. Não dê diagnósticos ou opiniões médicas:\n   - Se o paciente insistir em diagnóstico responda que só o médico na consulta que deverá passar o diagnóstico.\n\n3. Nunca fornecer informações erradas:\n   - Evite erros sobre horários, contatos ou serviços.\n\n4. Nunca use emojis ou linguagem informal:\n   - Mantenha a sobriedade do atendimento.\n\n5. Nunca confirme consultas sem o retorno da tools:\n   - Garanta que o evento foi criado ou atualizado com sucesso antes de dar a resposta final.\n\n## LEMBRE-SE:\n\n- Qualquer assunto que não seja sobre a clínica ou sobre agendar uma consulta responda que o assunto não é apropriado e diga sua função.\n- Nunca forneça diagnósticos ou opiniões médicas.\n- Não utilize emoji.\n- Mantenha o tom profissional, claro, respeitoso e objetivo o tempo todo.\n- Não fale que você é uma inteligência artificial; faça um atendimento humanizado.\n- Toda vez que responder, verificar qual o dia e horário e nunca marcar algo no passado {{ $now.toString() }}\n\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        272,
+        160
+      ],
+      "id": "42e4d669-4aab-4b0b-8fba-fec87df35dd4",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        80,
+        368
+      ],
+      "id": "2b98a4d2-b4fe-43e0-9ed9-21293b6ead5f",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "ER0I3fZmmkBwmDBr",
+          "name": "OpenAi ni.automacoes"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "nanoincub.automacoes@gmail.com",
+          "mode": "list",
+          "cachedResultName": "nanoincub.automacoes@gmail.com"
+        },
+        "limit": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Limit', ``, 'number') }}",
+        "timeMin": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('After', ``, 'string') }}",
+        "timeMax": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Before', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        672,
+        512
+      ],
+      "id": "df1121e7-60c0-4474-ae23-732e845579c3",
+      "name": "todas_consultas",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "UfQ3tXYF5eacBORN",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "# Role\n\n## Ferramentas disponíveis\n\n## Como agir como uma [perfil] real\n\n## Instrução Importante:\n\n## Passo a Passo\n\n## INSTRUÇÕES DE COMO FALAR COM O PACIENTE:\n\n## CHAME A TOOL:\n\n## LEMBRE-SE:\n\nURL\nhttps://chatgpt.com/g/g-684f8d26c8ac8191a466d9254b1b3fd2-prompt-generator-elite-dos-agentes-de-ia/c/68b6038c-d25c-8332-adcb-4913452a14e7",
+        "height": 640,
+        "width": 608,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -800,
+        48
+      ],
+      "typeVersion": 1,
+      "id": "810f0b6f-6abf-41e1-8a82-43d2f2791c9d",
+      "name": "Sticky Note1"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Sao_Paulo",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-08-15T00:31:34.358Z",
+      "createdAt": "2025-08-15T00:31:34.358Z",
+      "role": "workflow:owner",
+      "workflowId": "3AFOo2zuv2bO3FwS",
+      "projectId": "IcfJLMCsRkuOqzR8"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-09-01T20:39:42.000Z",
+  "versionId": "846a6183-b877-4316-b412-60525ff968b1"
+}
