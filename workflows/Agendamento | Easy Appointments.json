@@ -1,0 +1,1565 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2026-01-12T19:58:16.393Z",
+    "createdAt": "2026-01-12T19:58:16.393Z",
+    "versionId": "d4a108eb-2724-493e-932b-b22f8916a8b4",
+    "workflowId": "vgSOin0VRrA7cx0p",
+    "nodes": [
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "5c20304d-bacc-4dd7-a54b-b26ec2f6243c",
+                "leftValue": "={{ $('POST agendamento easy_appointments').last().json.status }}",
+                "rightValue": "Agendado",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals",
+                  "name": "filter.operator.equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          1312,
+          -16
+        ],
+        "id": "c26d8f54-05af-40c1-8477-4acbcfa0605a",
+        "name": "If"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "f50f3acb-0fe0-4cfc-9257-bba4027d5cfa",
+                "name": "response",
+                "value": "Erro ao realizar o procedimento",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1632,
+          64
+        ],
+        "id": "a36fd87c-a311-4d93-ab96-20ccec2031e2",
+        "name": "erro agendamento"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "f50f3acb-0fe0-4cfc-9257-bba4027d5cfa",
+                "name": "response",
+                "value": "=Consulta agendada com sucesso, informar o usuário seguindo o exemplo:\n\n```\nO seu exame ficou agendado no dia {dia} às {horário} no seguinte endereço: {{ $('GET endereço').last().json.endereco }}\n▪️ No dia do exame favor apresentar a solicitação do dentista com documento.\n▪️ Caso seja pelo convênio odontológico, apresentar a carteirinha e a receita/pedido original.\n▪️ Caso agende uma documentação odontológica com moldagem das arcadas, indicado fazer jejum de pelo menos 1h e 30 minutos.\n\nObrigado por escolher a Ortho X\nQualquer dúvida, estamos à sua disposição 😊\n```",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          2432,
+          -96
+        ],
+        "id": "b6c7a114-17e2-4c73-b42d-d4be5e042322",
+        "name": "Resposta Agendamento Criado com sucesso"
+      },
+      {
+        "parameters": {
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "agendamentos_confirmados",
+            "mode": "list",
+            "cachedResultName": "agendamentos_confirmados"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "telefone": "={{ $('inicio_fluxo').last().json.telefone }}",
+              "id_agendamento": "={{ $('POST agendamento easy_appointments').last().json.id }}"
+            },
+            "matchingColumns": [
+              "id"
+            ],
+            "schema": [
+              {
+                "id": "id",
+                "displayName": "id",
+                "required": false,
+                "defaultMatch": true,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "telefone",
+                "displayName": "telefone",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "id_agendamento",
+                "displayName": "id_agendamento",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "created_at",
+                "displayName": "created_at",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "updated_at",
+                "displayName": "updated_at",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          1632,
+          -96
+        ],
+        "id": "3f032708-d533-47f1-b504-b9430fc6656d",
+        "name": "INSERT id_agendamento",
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "select",
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "sessao_agendamento",
+            "mode": "list",
+            "cachedResultName": "sessao_agendamento"
+          },
+          "limit": 10,
+          "where": {
+            "values": [
+              {
+                "column": "telefone",
+                "value": "={{ $('inicio_fluxo').last().json.telefone }}"
+              },
+              {
+                "column": "deletado",
+                "value": "={{ false }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          48,
+          0
+        ],
+        "id": "034dfe49-0d81-43fa-8e89-95c286bbc349",
+        "name": "SELECT `sessao_agendamento`",
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "workflowInputs": {
+            "values": [
+              {
+                "name": "hora"
+              },
+              {
+                "name": "id_usuario"
+              },
+              {
+                "name": "telefone"
+              },
+              {
+                "name": "nome_paciente"
+              },
+              {
+                "name": "session_id"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.executeWorkflowTrigger",
+        "typeVersion": 1.1,
+        "position": [
+          -368,
+          0
+        ],
+        "id": "25cd8885-a315-4f45-a2c9-f1344dd00248",
+        "name": "inicio_fluxo"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://orthox-easyappointments.reyhdo.easypanel.host/index.php/api/v1/appointments",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "accept",
+                "value": "application/json"
+              },
+              {
+                "name": "Authorization",
+                "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+              }
+            ]
+          },
+          "sendBody": true,
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "start",
+                "value": "={{ new Date($('SELECT `sessao_agendamento`').last().json.data_agendamento + \"T\" + $('inicio_fluxo').last().json.hora).toISOString().replace(\"T\",\" \").substring(0,19) }}"
+              },
+              {
+                "name": "end",
+                "value": "={{ new Date(new Date($('SELECT `sessao_agendamento`').last().json.data_agendamento + \"T\" + $('inicio_fluxo').last().json.hora).getTime() + $('GET duracao evento').last().json.duration * 60000).toISOString().replace(\"T\",\" \").substring(0,19) }}"
+              },
+              {
+                "name": "color",
+                "value": "#acbefb"
+              },
+              {
+                "name": "status",
+                "value": "Agendado"
+              },
+              {
+                "name": "customerId",
+                "value": "={{ $('inicio_fluxo').last().json.id_usuario }}"
+              },
+              {
+                "name": "providerId",
+                "value": "={{ $('SELECT `sessao_agendamento`').last().json.provider_id }}"
+              },
+              {
+                "name": "serviceId",
+                "value": "={{ $('SELECT `sessao_agendamento`').last().json.servico_id }}"
+              },
+              {
+                "name": "notes",
+                "value": "={{ $('inicio_fluxo').item.json.nome_paciente }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1056,
+          0
+        ],
+        "id": "eb163c0b-d1ac-4ec6-95be-cdebf6825966",
+        "name": "POST agendamento easy_appointments",
+        "notesInFlow": true,
+        "onError": "continueErrorOutput",
+        "notes": "Existe uma diferença de horario no start e end de inputs e do outputs por conta do fuso horário (UTC-3)"
+      },
+      {
+        "parameters": {
+          "url": "=https://orthox-easyappointments.reyhdo.easypanel.host/index.php/api/v1/services/{{ $('SELECT `sessao_agendamento`').last().json.servico_id }}",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Authorization",
+                "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+              },
+              {
+                "name": "accept",
+                "value": "application/json"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          784,
+          0
+        ],
+        "id": "98926cc3-4289-4ded-8f30-919ee06a0d51",
+        "name": "GET duracao evento"
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "UPDATE public.sessao_agendamento\nSET deletado = true\nWHERE telefone = '{{ $('inicio_fluxo').last().json.telefone }}'\n  AND deletado = false;",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          1824,
+          -96
+        ],
+        "id": "24feca20-d433-4032-a93c-ffd41257105e",
+        "name": "UPDATE deletado sessao_agendamento",
+        "notesInFlow": true,
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        },
+        "notes": "soft delete"
+      },
+      {
+        "parameters": {
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "ortho_x_chat_histories",
+            "mode": "list",
+            "cachedResultName": "ortho_x_chat_histories"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "session_id": "={{ $('inicio_fluxo').last().json.session_id }}",
+              "message": "{\n  \"type\": \"ai\",\n  \"content\": \"O usuário finalizou o agendamento da consulta. Deixe-me certificar que devo realizar a verificação dos horários disponíveis novamente. Não utilizarei os horários previamente recuperados.\",\n  \"tool_calls\": [],\n  \"additional_kwargs\": {},\n  \"response_metadata\": {},\n  \"invalid_tool_calls\": []\n}"
+            },
+            "matchingColumns": [
+              "id"
+            ],
+            "schema": [
+              {
+                "id": "id",
+                "displayName": "id",
+                "required": false,
+                "defaultMatch": true,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "session_id",
+                "displayName": "session_id",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "message",
+                "displayName": "message",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "object",
+                "canBeUsedToMatch": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          2016,
+          -96
+        ],
+        "id": "a1b081f5-7001-4071-a71b-94863cf788bf",
+        "name": "Atualiza chat_memory",
+        "notesInFlow": true,
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        },
+        "notes": "Mensagem salva no chat history para a IA ignorar as datas passadas"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "3c371fae-2aca-4441-98ac-40ab6bc4db4d",
+                "name": "response",
+                "value": "`sessao_agendamento` não encontrado. Certifique-se de ter executado a ferramenta `atualiza_dados` antes de prosseguir",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          576,
+          96
+        ],
+        "id": "367abd4c-ada0-439d-936f-c3cbbffaf614",
+        "name": "erro sessao_agendamento"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "cc941453-fd95-4a08-b96a-21697e1b9883",
+                "leftValue": "={{ $('SELECT `sessao_agendamento`').last().json }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "object",
+                  "operation": "exists",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          368,
+          0
+        ],
+        "id": "41d12537-e223-4e86-8d44-3a52e244de9a",
+        "name": "IF sessao_agendamento exists"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "f792b829-fd23-42fa-900f-924390a6b699",
+                "name": "response",
+                "value": "Ocorreu um erro ao tentar criar o agendamento. \n**provider_id está nulo, execute novamente a ferramente `verifica_disponibilidade_agenda`**",
+                "type": "string"
+              },
+              {
+                "id": "71efb3d9-1b28-427c-8986-65d767f8ea38",
+                "name": "message",
+                "value": "={{  $('POST agendamento easy_appointments') }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1312,
+          160
+        ],
+        "id": "83473673-1aab-48be-a853-8ce7c1ea5624",
+        "name": "Erro ao criar o agendamento"
+      },
+      {
+        "parameters": {
+          "amount": 7
+        },
+        "type": "n8n-nodes-base.wait",
+        "typeVersion": 1.1,
+        "position": [
+          -160,
+          0
+        ],
+        "id": "c0dd2cb9-ee81-47e0-bac8-f0e4b69be462",
+        "name": "Wait",
+        "webhookId": "8542dc8a-7118-4092-bc67-4016ecad8f7e"
+      },
+      {
+        "parameters": {
+          "operation": "select",
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "servico_categoria",
+            "mode": "list",
+            "cachedResultName": "servico_categoria"
+          },
+          "limit": 1,
+          "where": {
+            "values": [
+              {
+                "column": "id",
+                "value": "={{ $('SELECT `sessao_agendamento`').item.json.unidade_id }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          2224,
+          -96
+        ],
+        "id": "1fe6c29b-35e6-465d-a02c-2ca3a3c36330",
+        "name": "GET endereço",
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "dd667c64-56f6-4b63-8afe-e7d5508eafc4",
+                "name": "",
+                "value": "",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          2416,
+          112
+        ],
+        "id": "46439200-d4df-4bb3-92a8-86a7e83ab4ef",
+        "name": "Edit Fields"
+      }
+    ],
+    "connections": {
+      "If": {
+        "main": [
+          [
+            {
+              "node": "INSERT id_agendamento",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "erro agendamento",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Resposta Agendamento Criado com sucesso": {
+        "main": [
+          []
+        ]
+      },
+      "SELECT `sessao_agendamento`": {
+        "main": [
+          [
+            {
+              "node": "IF sessao_agendamento exists",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "inicio_fluxo": {
+        "main": [
+          [
+            {
+              "node": "Wait",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "POST agendamento easy_appointments": {
+        "main": [
+          [
+            {
+              "node": "If",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Erro ao criar o agendamento",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "INSERT id_agendamento": {
+        "main": [
+          [
+            {
+              "node": "UPDATE deletado sessao_agendamento",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "GET duracao evento": {
+        "main": [
+          [
+            {
+              "node": "POST agendamento easy_appointments",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "UPDATE deletado sessao_agendamento": {
+        "main": [
+          [
+            {
+              "node": "Atualiza chat_memory",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Atualiza chat_memory": {
+        "main": [
+          [
+            {
+              "node": "GET endereço",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF sessao_agendamento exists": {
+        "main": [
+          [
+            {
+              "node": "GET duracao evento",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "erro sessao_agendamento",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait": {
+        "main": [
+          [
+            {
+              "node": "SELECT `sessao_agendamento`",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "GET endereço": {
+        "main": [
+          [
+            {
+              "node": "Resposta Agendamento Criado com sucesso",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "system migration",
+    "name": null,
+    "description": null,
+    "autosaved": false
+  },
+  "activeVersionId": "d4a108eb-2724-493e-932b-b22f8916a8b4",
+  "connections": {
+    "If": {
+      "main": [
+        [
+          {
+            "node": "INSERT id_agendamento",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "erro agendamento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resposta Agendamento Criado com sucesso": {
+      "main": [
+        []
+      ]
+    },
+    "SELECT `sessao_agendamento`": {
+      "main": [
+        [
+          {
+            "node": "IF sessao_agendamento exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "inicio_fluxo": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "POST agendamento easy_appointments": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Erro ao criar o agendamento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "INSERT id_agendamento": {
+      "main": [
+        [
+          {
+            "node": "UPDATE deletado sessao_agendamento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET duracao evento": {
+      "main": [
+        [
+          {
+            "node": "POST agendamento easy_appointments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UPDATE deletado sessao_agendamento": {
+      "main": [
+        [
+          {
+            "node": "Atualiza chat_memory",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Atualiza chat_memory": {
+      "main": [
+        [
+          {
+            "node": "GET endereço",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF sessao_agendamento exists": {
+      "main": [
+        [
+          {
+            "node": "GET duracao evento",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "erro sessao_agendamento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "SELECT `sessao_agendamento`",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET endereço": {
+      "main": [
+        [
+          {
+            "node": "Resposta Agendamento Criado com sucesso",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-09-01T18:42:10.017Z",
+  "id": "vgSOin0VRrA7cx0p",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Agendamento | Easy Appointments",
+  "nodes": [
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5c20304d-bacc-4dd7-a54b-b26ec2f6243c",
+              "leftValue": "={{ $('POST agendamento easy_appointments').last().json.status }}",
+              "rightValue": "Agendado",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1312,
+        -16
+      ],
+      "id": "c26d8f54-05af-40c1-8477-4acbcfa0605a",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f50f3acb-0fe0-4cfc-9257-bba4027d5cfa",
+              "name": "response",
+              "value": "Erro ao realizar o procedimento",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1632,
+        64
+      ],
+      "id": "a36fd87c-a311-4d93-ab96-20ccec2031e2",
+      "name": "erro agendamento"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f50f3acb-0fe0-4cfc-9257-bba4027d5cfa",
+              "name": "response",
+              "value": "=Consulta agendada com sucesso, informar o usuário seguindo o exemplo:\n\n```\nO seu exame ficou agendado no dia {dia} às {horário} no seguinte endereço: {{ $('GET endereço').last().json.endereco }}\n▪️ No dia do exame favor apresentar a solicitação do dentista com documento.\n▪️ Caso seja pelo convênio odontológico, apresentar a carteirinha e a receita/pedido original.\n▪️ Caso agende uma documentação odontológica com moldagem das arcadas, indicado fazer jejum de pelo menos 1h e 30 minutos.\n\nObrigado por escolher a Ortho X\nQualquer dúvida, estamos à sua disposição 😊\n```",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2432,
+        -96
+      ],
+      "id": "b6c7a114-17e2-4c73-b42d-d4be5e042322",
+      "name": "Resposta Agendamento Criado com sucesso"
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "agendamentos_confirmados",
+          "mode": "list",
+          "cachedResultName": "agendamentos_confirmados"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "telefone": "={{ $('inicio_fluxo').last().json.telefone }}",
+            "id_agendamento": "={{ $('POST agendamento easy_appointments').last().json.id }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "telefone",
+              "displayName": "telefone",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "id_agendamento",
+              "displayName": "id_agendamento",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1632,
+        -96
+      ],
+      "id": "3f032708-d533-47f1-b504-b9430fc6656d",
+      "name": "INSERT id_agendamento",
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "sessao_agendamento",
+          "mode": "list",
+          "cachedResultName": "sessao_agendamento"
+        },
+        "limit": 10,
+        "where": {
+          "values": [
+            {
+              "column": "telefone",
+              "value": "={{ $('inicio_fluxo').last().json.telefone }}"
+            },
+            {
+              "column": "deletado",
+              "value": "={{ false }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        48,
+        0
+      ],
+      "id": "034dfe49-0d81-43fa-8e89-95c286bbc349",
+      "name": "SELECT `sessao_agendamento`",
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "hora"
+            },
+            {
+              "name": "id_usuario"
+            },
+            {
+              "name": "telefone"
+            },
+            {
+              "name": "nome_paciente"
+            },
+            {
+              "name": "session_id"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -368,
+        0
+      ],
+      "id": "25cd8885-a315-4f45-a2c9-f1344dd00248",
+      "name": "inicio_fluxo"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://orthox-easyappointments.reyhdo.easypanel.host/index.php/api/v1/appointments",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "start",
+              "value": "={{ new Date($('SELECT `sessao_agendamento`').last().json.data_agendamento + \"T\" + $('inicio_fluxo').last().json.hora).toISOString().replace(\"T\",\" \").substring(0,19) }}"
+            },
+            {
+              "name": "end",
+              "value": "={{ new Date(new Date($('SELECT `sessao_agendamento`').last().json.data_agendamento + \"T\" + $('inicio_fluxo').last().json.hora).getTime() + $('GET duracao evento').last().json.duration * 60000).toISOString().replace(\"T\",\" \").substring(0,19) }}"
+            },
+            {
+              "name": "color",
+              "value": "#acbefb"
+            },
+            {
+              "name": "status",
+              "value": "Agendado"
+            },
+            {
+              "name": "customerId",
+              "value": "={{ $('inicio_fluxo').last().json.id_usuario }}"
+            },
+            {
+              "name": "providerId",
+              "value": "={{ $('SELECT `sessao_agendamento`').last().json.provider_id }}"
+            },
+            {
+              "name": "serviceId",
+              "value": "={{ $('SELECT `sessao_agendamento`').last().json.servico_id }}"
+            },
+            {
+              "name": "notes",
+              "value": "={{ $('inicio_fluxo').item.json.nome_paciente }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1056,
+        0
+      ],
+      "id": "eb163c0b-d1ac-4ec6-95be-cdebf6825966",
+      "name": "POST agendamento easy_appointments",
+      "notesInFlow": true,
+      "onError": "continueErrorOutput",
+      "notes": "Existe uma diferença de horario no start e end de inputs e do outputs por conta do fuso horário (UTC-3)"
+    },
+    {
+      "parameters": {
+        "url": "=https://orthox-easyappointments.reyhdo.easypanel.host/index.php/api/v1/services/{{ $('SELECT `sessao_agendamento`').last().json.servico_id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+            },
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        784,
+        0
+      ],
+      "id": "98926cc3-4289-4ded-8f30-919ee06a0d51",
+      "name": "GET duracao evento"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE public.sessao_agendamento\nSET deletado = true\nWHERE telefone = '{{ $('inicio_fluxo').last().json.telefone }}'\n  AND deletado = false;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1824,
+        -96
+      ],
+      "id": "24feca20-d433-4032-a93c-ffd41257105e",
+      "name": "UPDATE deletado sessao_agendamento",
+      "notesInFlow": true,
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      },
+      "notes": "soft delete"
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "ortho_x_chat_histories",
+          "mode": "list",
+          "cachedResultName": "ortho_x_chat_histories"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "session_id": "={{ $('inicio_fluxo').last().json.session_id }}",
+            "message": "{\n  \"type\": \"ai\",\n  \"content\": \"O usuário finalizou o agendamento da consulta. Deixe-me certificar que devo realizar a verificação dos horários disponíveis novamente. Não utilizarei os horários previamente recuperados.\",\n  \"tool_calls\": [],\n  \"additional_kwargs\": {},\n  \"response_metadata\": {},\n  \"invalid_tool_calls\": []\n}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "session_id",
+              "displayName": "session_id",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2016,
+        -96
+      ],
+      "id": "a1b081f5-7001-4071-a71b-94863cf788bf",
+      "name": "Atualiza chat_memory",
+      "notesInFlow": true,
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      },
+      "notes": "Mensagem salva no chat history para a IA ignorar as datas passadas"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3c371fae-2aca-4441-98ac-40ab6bc4db4d",
+              "name": "response",
+              "value": "`sessao_agendamento` não encontrado. Certifique-se de ter executado a ferramenta `atualiza_dados` antes de prosseguir",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        576,
+        96
+      ],
+      "id": "367abd4c-ada0-439d-936f-c3cbbffaf614",
+      "name": "erro sessao_agendamento"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cc941453-fd95-4a08-b96a-21697e1b9883",
+              "leftValue": "={{ $('SELECT `sessao_agendamento`').last().json }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        368,
+        0
+      ],
+      "id": "41d12537-e223-4e86-8d44-3a52e244de9a",
+      "name": "IF sessao_agendamento exists"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f792b829-fd23-42fa-900f-924390a6b699",
+              "name": "response",
+              "value": "Ocorreu um erro ao tentar criar o agendamento. \n**provider_id está nulo, execute novamente a ferramente `verifica_disponibilidade_agenda`**",
+              "type": "string"
+            },
+            {
+              "id": "71efb3d9-1b28-427c-8986-65d767f8ea38",
+              "name": "message",
+              "value": "={{  $('POST agendamento easy_appointments') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1312,
+        160
+      ],
+      "id": "83473673-1aab-48be-a853-8ce7c1ea5624",
+      "name": "Erro ao criar o agendamento"
+    },
+    {
+      "parameters": {
+        "amount": 7
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -160,
+        0
+      ],
+      "id": "c0dd2cb9-ee81-47e0-bac8-f0e4b69be462",
+      "name": "Wait",
+      "webhookId": "8542dc8a-7118-4092-bc67-4016ecad8f7e"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "servico_categoria",
+          "mode": "list",
+          "cachedResultName": "servico_categoria"
+        },
+        "limit": 1,
+        "where": {
+          "values": [
+            {
+              "column": "id",
+              "value": "={{ $('SELECT `sessao_agendamento`').item.json.unidade_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2224,
+        -96
+      ],
+      "id": "1fe6c29b-35e6-465d-a02c-2ca3a3c36330",
+      "name": "GET endereço",
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "dd667c64-56f6-4b63-8afe-e7d5508eafc4",
+              "name": "",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2416,
+        112
+      ],
+      "id": "46439200-d4df-4bb3-92a8-86a7e83ab4ef",
+      "name": "Edit Fields"
+    }
+  ],
+  "pinData": {
+    "inicio_fluxo": [
+      {
+        "json": {
+          "hora": "10:00:00",
+          "id_usuario": 242,
+          "telefone": "5519998210119",
+          "nome_paciente": "Flavio",
+          "session_id": "c884a493-32ff-4fcc-a001-50ccf2855f18"
+        }
+      }
+    ]
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Sao_Paulo",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-09-01T18:42:10.022Z",
+      "createdAt": "2025-09-01T18:42:10.022Z",
+      "role": "workflow:owner",
+      "workflowId": "vgSOin0VRrA7cx0p",
+      "projectId": "IcfJLMCsRkuOqzR8"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-10-09T20:26:39.000Z",
+  "versionId": "d4a108eb-2724-493e-932b-b22f8916a8b4"
+}
