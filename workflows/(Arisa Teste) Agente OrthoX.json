@@ -1,0 +1,532 @@
+{
+  "active": false,
+  "activeVersion": null,
+  "activeVersionId": null,
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "webhook_whatsapp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET event": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "POST agendamento": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Think": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "atualiza_dados_paciente": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "webhook_whatsapp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "webhook_whatsapp": {
+      "main": [
+        [
+          {
+            "node": "SELECT or CREATE cliente & user_session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SELECT or CREATE cliente & user_session": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-09-03T17:55:45.969Z",
+  "id": "a4kxJ09aoJ4NlIhN",
+  "isArchived": true,
+  "meta": null,
+  "name": "(Arisa Teste) Agente OrthoX",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        160,
+        64
+      ],
+      "id": "031169ba-6389-44ab-9224-94f57c6b43e7",
+      "name": "When chat message received",
+      "webhookId": "079ed43d-00e6-4b2a-b695-7b79e3c05603"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Select rows from a table').item.json.telefone }}",
+        "tableName": "ortho_x_chat_histories",
+        "contextWindowLength": 15
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        1248,
+        320
+      ],
+      "id": "80ab5712-4086-48c6-9207-3295edcbef23",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1088,
+        320
+      ],
+      "id": "20e4f10b-8560-43c2-b026-a04c1c5b9040",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "ER0I3fZmmkBwmDBr",
+          "name": "OpenAi ni.automacoes"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "=Chame esta ferramenta para vefiricar os horários disponíveis após o usuário informar nome e data e horário do procedimento.\n\nSalve o id_sala, o tempo_consulta.",
+        "workflowId": {
+          "__rl": true,
+          "value": "XksVKWCaY68T9iGL",
+          "mode": "list",
+          "cachedResultName": "(Arisa Teste) Busca Disponibilidade"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id_unidade": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('id_unidade', `O id da unidade onde o usuário deseja ser consultado`, 'number') }}",
+            "data": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('data', `A data escolhida pelo usuário`, 'string') }}",
+            "initial": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('initial', `O horário inicial do procedimento`, 'string') }}",
+            "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('end', `O horário final de acordo com o tempo de procedimento`, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "initial",
+              "displayName": "initial",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "end",
+              "displayName": "end",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "data",
+              "displayName": "data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "id_unidade",
+              "displayName": "id_unidade",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        1808,
+        304
+      ],
+      "id": "614d61b1-9ddf-457a-9087-c2e4d8c399d3",
+      "name": "GET event"
+    },
+    {
+      "parameters": {
+        "description": "=Chame esta ferramenta após o usuário informar nome e data do agendamento. \n\nNa variável \"nome\", você vai preencher o nome do usuário e na variavel \"email\" você vai preencher com email do usuário\n\nA data do agendamento você vai transformar para seguinte formato, exemplo: 2024-10-18T14:30:00-03:00 e vai preencher a variavel \"start\"\n\nEm seguida você vai inserir uma hora a mais depois no horario de agendamento e na variavel \"end\" você vai prencher com o horario no mesmo formato da variavel start",
+        "workflowId": {
+          "__rl": true,
+          "value": "vgSOin0VRrA7cx0p",
+          "mode": "list",
+          "cachedResultName": "Agendamento | Easy Appointments"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "initial": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('initial', `O Horário solicitado pelo usuário.`, 'string') }}",
+            "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('end', `o horário final solicitado pelo usuário.`, 'string') }}",
+            "data": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('data', `A data solicitada pelo usuário`, 'string') }}",
+            "id_unidade": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('id_unidade', `O id_unidade que o usuário solicitou`, 'string') }}",
+            "id_usuario": "={{ $('Select rows from a table').last().json.id_usuario }}",
+            "id_procedimento": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('id_procedimento', `O id do procedimento`, 'string') }}",
+            "telefone": "={{ $('Select rows from a table').item.json.telefone }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "initial",
+              "displayName": "initial",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "end",
+              "displayName": "end",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "data",
+              "displayName": "data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "id_unidade",
+              "displayName": "id_unidade",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "id_usuario",
+              "displayName": "id_usuario",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "id_procedimento",
+              "displayName": "id_procedimento",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "telefone",
+              "displayName": "telefone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        1648,
+        304
+      ],
+      "id": "48639862-9446-4302-9c53-728b6070e49f",
+      "name": "POST agendamento"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1.1,
+      "position": [
+        1360,
+        320
+      ],
+      "id": "df050f9c-5409-4f10-bf04-90605e79f38d",
+      "name": "Think"
+    },
+    {
+      "parameters": {
+        "description": "=SEMPRE utilize essa ferramenta para atualizar os dados do paciente a cada resposta obtida para as perguntas:\n\n- Nome\n- Sobrenome\n- E-mail\n\n\nSEMPRE utilize o valor coletado sem formatação e NUNCA invente valores para os campos.",
+        "workflowId": {
+          "__rl": true,
+          "value": "hKUPQpCpQU6ejplX",
+          "mode": "list",
+          "cachedResultName": "(Arisa Teste) Atualizar dados"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "primeiro_nome": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('primeiro_nome', `O primeiro nome do paciente`, 'string') }}",
+            "Sobrenome": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Sobrenome', `O sobrenome do paciente`, 'string') }}",
+            "Email": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Email', `O email do paciente`, 'string') }}",
+            "telefone": "={{ $json.result.cliente.telefone }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "primeiro_nome",
+              "displayName": "primeiro_nome",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "Sobrenome",
+              "displayName": "Sobrenome",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "telefone",
+              "displayName": "telefone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        1488,
+        304
+      ],
+      "id": "1e621b0b-1621-4ae1-9622-52aed2039b94",
+      "name": "atualiza_dados_paciente"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        160,
+        272
+      ],
+      "id": "2ef3f8da-6dc4-483c-ad41-acea45baa758",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('webhook_whatsapp').last().json.chatInput }}",
+        "options": {
+          "systemMessage": "=<quem é você>\nVocê é um assistente de inteligência artificial chamado Carl, um agente especializado em realizar o agendamento de consultas para a clínica OrthoX. Sua missão é responder aos clientes pelo WhatsApp e guiá-los até o agendamento da consulta.\n</quem é você>\n\n<instruções>\n\n* Seja educado, amigável e objetivo.\n* Varie a linguagem para evitar soar robótico, mantendo clareza e eficiência.\n* Utilize a data de hoje para se orientar: {{ $now.toUTC(-180) }}\n* Você sempre receberá o dia e horário atuais; a partir daí, identifique datas como amanhã, depois de amanhã, semana que vem, mês que vem, ano que vem.\n* Responda de forma clara e objetiva.\n\n<objetivo>\n\nSeu objetivo é coletar inicialmente as seguintes informações:\n- Unidade onde o cliente será atendido: {{ $('SELECT or CREATE cliente & user_session').last().json.result.agendamento_session.unidade ? `Informação já obtida (${$('SELECT or CREATE cliente & user_session').last().json.result.agendamento_session.unidade})` : `### Primordial: Pergunte qual a unidade o cliente deseja ser atendido.` }}\n\n</objetivo>\n\n<uso_de_tools>\n\n1. Se o usuário quiser fazer um agendamento, colete a unidade onde o usuário gostaria de ser atendido e qual o procedimento a ser realizado. Em seguida o nome, email, data e hora.\n2. Chame a ferramenta **'GET event'** para verificar os horários disponíveis, o id da sala e o nome do procedimento. A ferramenta vai retornar \"sucesso\" se o horário tiver disponível ou \"horário não disponível\". Notifique o usuário.\n3. *SEMPRE* chame a ferramenta 'atualiza_dados_paciente' para atualizar o nome, sobrenome e email do paciente.\n4.Chame a ferramenta **'POST agendamento'** para agendar a consulta no horário desejado utilizando o id_sala e os horários de início e fim da sessão de acordo com o tempo_consulta.\n5.Após a confirmação do agendamento, informe o usuário sobre o dia e horário.\n6. Se o usuário quiser reagendar a reunião, chame a ferramenta **\"reagendamento\"**.\n7. Se o usuário quiser cancelar a reunião, chame a ferramenta **\"cancelamento\"**.\n   </uso_de_tools>\n\n## Progresso Parcial\n\nSe o lead fornecer apenas parte dos dados:\n\n- Reconheça o progresso\n- Continue a coleta normalmente, com o mesmo tom amigável\n\n## </instruções>\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "position": [
+        1264,
+        80
+      ],
+      "id": "c5f38f7a-fa20-4d76-820f-672cd0d12440",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b12249d9-c3b0-40dc-a332-cc509fae1922",
+              "name": "telefone",
+              "value": "19995443729",
+              "type": "string"
+            },
+            {
+              "id": "0069d741-de73-40c2-9947-38b742d0d8b9",
+              "name": "chatInput",
+              "value": "={{ $json.chatInput }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        560,
+        80
+      ],
+      "id": "74b95590-3e67-45ca-910c-ff30ca02687c",
+      "name": "webhook_whatsapp"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "WITH existing_cliente AS (\n    SELECT *\n    FROM public.cliente\n    WHERE telefone = '{{ $json.telefone }}'\n    LIMIT 1\n), inserted_cliente AS (\n    INSERT INTO public.cliente (telefone)\n    SELECT '{{ $json.telefone }}'\n    WHERE NOT EXISTS (SELECT 1 FROM existing_cliente)\n    RETURNING *\n), final_cliente AS (\n    SELECT * FROM existing_cliente\n    UNION ALL\n    SELECT * FROM inserted_cliente\n), cliente_with_session AS (\n    SELECT \n        f.*,\n        s.session_id,\n        s.precisa_saudar,\n        us.transferido_para_humano,\n        us.id_agente_humano\n    FROM final_cliente f\n    CROSS JOIN LATERAL get_or_create_session(f.telefone) s\n    LEFT JOIN public.user_session us\n    ON us.id = s.session_id\n), agendamento_session AS (\n  SELECT sa.*\n    FROM public.sessao_agendamento sa\n    WHERE sa.telefone = '{{ $json.telefone }}'\n    ORDER BY sa.criado_em DESC  -- or sa.id DESC if that's your \"latest\"\n    LIMIT 1\n)\nSELECT json_build_object(\n    'cliente', to_jsonb(f) - 'session_id' - 'precisa_saudar' - 'transferido_para_humano' - 'id_agente_humano',\n    'session', json_build_object(\n        'session_id', f.session_id,\n        'precisa_saudar', f.precisa_saudar,\n        'transferido_para_humano', f.transferido_para_humano,\n        'id_agente_humano', f.id_agente_humano\n    ),'agendamento_session', json_build_object(\n        'unidade', sa.unidade,\n        'servico', sa.servico\n    )\n) AS result\nFROM cliente_with_session f\nLEFT JOIN agendamento_session sa ON sa.telefone = f.telefone;\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        928,
+        80
+      ],
+      "id": "ad13d3b6-afa1-49c1-99e6-0f8931b2d5ae",
+      "name": "SELECT or CREATE cliente & user_session",
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-09-03T17:55:45.979Z",
+      "createdAt": "2025-09-03T17:55:45.979Z",
+      "role": "workflow:owner",
+      "workflowId": "a4kxJ09aoJ4NlIhN",
+      "projectId": "IcfJLMCsRkuOqzR8"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-09-05T12:23:39.000Z",
+  "versionId": "bf4ccb04-2c8a-40ee-85a9-abacde4cde3f"
+}
