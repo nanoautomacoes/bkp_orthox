@@ -1,0 +1,659 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2026-01-12T19:58:16.393Z",
+    "createdAt": "2026-01-12T19:58:16.393Z",
+    "versionId": "20545f55-96b4-4d70-a95f-d33f5d76f703",
+    "workflowId": "lDKIAPPZxKs173gl",
+    "nodes": [
+      {
+        "parameters": {
+          "workflowInputs": {
+            "values": [
+              {
+                "name": "telefone",
+                "type": "any"
+              },
+              {
+                "name": "id_usuario",
+                "type": "any"
+              },
+              {
+                "name": "cliente_solicita"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.executeWorkflowTrigger",
+        "typeVersion": 1.1,
+        "position": [
+          -16,
+          -32
+        ],
+        "id": "c796e1c7-3c32-4fc0-8884-17ec826c7ead",
+        "name": "When Executed by Another Workflow"
+      },
+      {
+        "parameters": {
+          "url": "=https://orthox-easyappointments.reyhdo.easypanel.host/index.php/api/v1/appointments?from={{ $now.format('yyyy-MM-dd') }}",
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "customerId",
+                "value": "={{ $json.id_usuario }}"
+              }
+            ]
+          },
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "accept",
+                "value": "application/json"
+              },
+              {
+                "name": "Authorization",
+                "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          480,
+          -16
+        ],
+        "id": "79227dd1-73c2-4b4b-9338-69674d439f48",
+        "name": "GET appointments",
+        "notesInFlow": true,
+        "alwaysOutputData": true,
+        "onError": "continueRegularOutput",
+        "notes": "Busca id_agendamento pelo id_usuario"
+      },
+      {
+        "parameters": {
+          "url": "=https://orthox-easyappointments.reyhdo.easypanel.host/index.php/api/v1/services/{{ $('IF não tem agendamento').item.json.serviceId }}",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "accept",
+                "value": "application/json"
+              },
+              {
+                "name": "Authorization",
+                "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1072,
+          0
+        ],
+        "id": "db3d47d1-1aa2-40f4-930c-8fd85436d651",
+        "name": "GET nome do serviço",
+        "notesInFlow": true,
+        "notes": "Busca id_agendamento pelo id_usuario"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "27b00112-e7ff-4ee6-8969-4e9b6a5264ee",
+                "leftValue": "={{ $('GET appointments').last().json.id }}",
+                "rightValue": "=0",
+                "operator": {
+                  "type": "number",
+                  "operation": "empty",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          720,
+          -16
+        ],
+        "id": "0465069c-ab35-481f-84a1-041ee4866a18",
+        "name": "IF não tem agendamento"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "cf900663-abb7-4459-a5e9-e2381b249ed8",
+                "name": "id_agendamento",
+                "value": "={{ $('GET appointments').item.json.id }}",
+                "type": "number"
+              },
+              {
+                "id": "a60847b3-7080-47da-98d7-15c89ccad85c",
+                "name": "data_agendada",
+                "value": "={{ $('GET appointments').item.json.start }}",
+                "type": "string"
+              },
+              {
+                "id": "cb43eb6f-e1fd-4bd4-b9bf-544f46a9d2e8",
+                "name": "paciente",
+                "value": "={{ $('GET appointments').item.json.notes }}",
+                "type": "string"
+              },
+              {
+                "id": "14c7de98-9117-4ec6-bf0d-883767646a81",
+                "name": "procedimento",
+                "value": "={{ $('GET nome do serviço').item.json.name }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1280,
+          0
+        ],
+        "id": "ca9f16ee-efda-4738-ac20-b4110c92dd8f",
+        "name": "Response agendamentos"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "dab86e46-9f04-4211-bb91-db1728c39be6",
+                "name": "response",
+                "value": "o cliente não tem nenhum horário agendado.",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          864,
+          -192
+        ],
+        "id": "21aa0279-ddf3-4206-81f8-49625fb8291d",
+        "name": "Response sem agendamentos"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "386ea416-9697-4559-95ec-c6561bcf7ba7",
+                "leftValue": "={{ $json.id_usuario }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "number",
+                  "operation": "notExists",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          192,
+          -32
+        ],
+        "id": "109cdb81-9a3a-499c-9466-3a61d28d272b",
+        "name": "IF não existe usuario"
+      }
+    ],
+    "connections": {
+      "When Executed by Another Workflow": {
+        "main": [
+          [
+            {
+              "node": "IF não existe usuario",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "GET appointments": {
+        "main": [
+          [
+            {
+              "node": "IF não tem agendamento",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "GET nome do serviço": {
+        "main": [
+          [
+            {
+              "node": "Response agendamentos",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF não tem agendamento": {
+        "main": [
+          [
+            {
+              "node": "Response sem agendamentos",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "GET nome do serviço",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Response agendamentos": {
+        "main": [
+          []
+        ]
+      },
+      "IF não existe usuario": {
+        "main": [
+          [
+            {
+              "node": "Response sem agendamentos",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "GET appointments",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "system migration",
+    "name": null,
+    "description": null,
+    "autosaved": false
+  },
+  "activeVersionId": "20545f55-96b4-4d70-a95f-d33f5d76f703",
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "IF não existe usuario",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET appointments": {
+      "main": [
+        [
+          {
+            "node": "IF não tem agendamento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET nome do serviço": {
+      "main": [
+        [
+          {
+            "node": "Response agendamentos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF não tem agendamento": {
+      "main": [
+        [
+          {
+            "node": "Response sem agendamentos",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "GET nome do serviço",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Response agendamentos": {
+      "main": [
+        []
+      ]
+    },
+    "IF não existe usuario": {
+      "main": [
+        [
+          {
+            "node": "Response sem agendamentos",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "GET appointments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-09-10T21:08:18.852Z",
+  "id": "lDKIAPPZxKs173gl",
+  "isArchived": false,
+  "meta": null,
+  "name": "EasyAppointments | Consulta Agendamento",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "telefone",
+              "type": "any"
+            },
+            {
+              "name": "id_usuario",
+              "type": "any"
+            },
+            {
+              "name": "cliente_solicita"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -16,
+        -32
+      ],
+      "id": "c796e1c7-3c32-4fc0-8884-17ec826c7ead",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "url": "=https://orthox-easyappointments.reyhdo.easypanel.host/index.php/api/v1/appointments?from={{ $now.format('yyyy-MM-dd') }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "customerId",
+              "value": "={{ $json.id_usuario }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        480,
+        -16
+      ],
+      "id": "79227dd1-73c2-4b4b-9338-69674d439f48",
+      "name": "GET appointments",
+      "notesInFlow": true,
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput",
+      "notes": "Busca id_agendamento pelo id_usuario"
+    },
+    {
+      "parameters": {
+        "url": "=https://orthox-easyappointments.reyhdo.easypanel.host/index.php/api/v1/services/{{ $('IF não tem agendamento').item.json.serviceId }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1072,
+        0
+      ],
+      "id": "db3d47d1-1aa2-40f4-930c-8fd85436d651",
+      "name": "GET nome do serviço",
+      "notesInFlow": true,
+      "notes": "Busca id_agendamento pelo id_usuario"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "27b00112-e7ff-4ee6-8969-4e9b6a5264ee",
+              "leftValue": "={{ $('GET appointments').last().json.id }}",
+              "rightValue": "=0",
+              "operator": {
+                "type": "number",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        720,
+        -16
+      ],
+      "id": "0465069c-ab35-481f-84a1-041ee4866a18",
+      "name": "IF não tem agendamento"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cf900663-abb7-4459-a5e9-e2381b249ed8",
+              "name": "id_agendamento",
+              "value": "={{ $('GET appointments').item.json.id }}",
+              "type": "number"
+            },
+            {
+              "id": "a60847b3-7080-47da-98d7-15c89ccad85c",
+              "name": "data_agendada",
+              "value": "={{ $('GET appointments').item.json.start }}",
+              "type": "string"
+            },
+            {
+              "id": "cb43eb6f-e1fd-4bd4-b9bf-544f46a9d2e8",
+              "name": "paciente",
+              "value": "={{ $('GET appointments').item.json.notes }}",
+              "type": "string"
+            },
+            {
+              "id": "14c7de98-9117-4ec6-bf0d-883767646a81",
+              "name": "procedimento",
+              "value": "={{ $('GET nome do serviço').item.json.name }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1280,
+        0
+      ],
+      "id": "ca9f16ee-efda-4738-ac20-b4110c92dd8f",
+      "name": "Response agendamentos"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "dab86e46-9f04-4211-bb91-db1728c39be6",
+              "name": "response",
+              "value": "o cliente não tem nenhum horário agendado.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        864,
+        -192
+      ],
+      "id": "21aa0279-ddf3-4206-81f8-49625fb8291d",
+      "name": "Response sem agendamentos"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "386ea416-9697-4559-95ec-c6561bcf7ba7",
+              "leftValue": "={{ $json.id_usuario }}",
+              "rightValue": "",
+              "operator": {
+                "type": "number",
+                "operation": "notExists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        192,
+        -32
+      ],
+      "id": "109cdb81-9a3a-499c-9466-3a61d28d272b",
+      "name": "IF não existe usuario"
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "telefone": null,
+          "id_usuario": 200,
+          "cliente_solicita": null
+        }
+      }
+    ]
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-09-10T21:08:18.861Z",
+      "createdAt": "2025-09-10T21:08:18.861Z",
+      "role": "workflow:owner",
+      "workflowId": "lDKIAPPZxKs173gl",
+      "projectId": "IcfJLMCsRkuOqzR8"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-09-23T15:19:39.000Z",
+  "versionId": "20545f55-96b4-4d70-a95f-d33f5d76f703"
+}
