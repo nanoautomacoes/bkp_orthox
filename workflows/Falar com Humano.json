@@ -1,0 +1,1764 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2026-01-12T19:58:16.393Z",
+    "createdAt": "2026-01-12T19:58:16.393Z",
+    "versionId": "c17b12d8-b7fc-48be-ab0f-80fb95089d05",
+    "workflowId": "I4PwOZXGMkOniWij",
+    "nodes": [
+      {
+        "parameters": {
+          "url": "={{ $('Base Info Chatwoot | OrthoX').last().json[\"urlchatwoot\"] }}/api/v1/accounts/{{ $('Base Info Chatwoot | OrthoX').last().json[\"idconta\"] }}/contacts/search",
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "q",
+                "value": "={{ $('Base Info Chatwoot | OrthoX').last().json[\"numerodeenvio\"] }}"
+              }
+            ]
+          },
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "api_access_token",
+                "value": "={{ $('Base Info Chatwoot | OrthoX').last().json[\"token\"] }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "9b498e0b-9374-448b-945b-fe6730fb3773",
+        "name": "GET Contato Chatwoot2",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 3,
+        "position": [
+          -1168,
+          176
+        ]
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "={{ $('Base Info Chatwoot | OrthoX').last().json.urlchatwoot }}/api/v1/accounts/{{ $('Base Info Chatwoot | OrthoX').last().json.idconta }}/conversations/157/assignments",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "name": "api_access_token",
+                "value": "={{ $('Base Info Chatwoot | OrthoX').last().json.token }}"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "{\n  \"team_id\": 5\n}",
+          "options": {
+            "redirect": {
+              "redirect": {}
+            }
+          }
+        },
+        "id": "abe7ba08-687d-459b-b6bd-daad94b18723",
+        "name": "ATRIBUI Equipe Triagem",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.1,
+        "position": [
+          -928,
+          176
+        ]
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "0c491140-8871-4895-b5a4-5ece9ecd7657",
+                "name": "output",
+                "value": "=Explique para o cliente que ele foi transferido para o time de atendimento e em breve um dos atendentes entrará em contato.",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          -1024,
+          448
+        ],
+        "id": "b77a3d71-3bf7-4c9d-950a-5026472139d6",
+        "name": "Retorno solicitação de dados para Agente Executor2"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "8ffc18d3-c201-4a1e-808d-4a37f7f2bb0e",
+                "leftValue": "={{ $('SELECT cliente & user_session').last().json.result.cliente.nome }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "string",
+                  "operation": "notEmpty",
+                  "singleValue": true
+                }
+              },
+              {
+                "id": "ed71f13a-7bf3-42ab-898c-37582401f713",
+                "leftValue": "={{ $('SELECT cliente & user_session').last().json.result.cliente.is_dentista }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "notEmpty",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          -1568,
+          592
+        ],
+        "id": "d1669690-f2d5-475c-aa57-4d3eb4e4e942",
+        "name": "IF dados_cadastrais_ok: true"
+      },
+      {
+        "parameters": {
+          "workflowInputs": {
+            "values": [
+              {
+                "name": "telefone"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.executeWorkflowTrigger",
+        "typeVersion": 1.1,
+        "position": [
+          -2096,
+          592
+        ],
+        "id": "c0f7a902-c139-424d-99ed-02d3ab43565c",
+        "name": "inicio_fluxo"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "0c491140-8871-4895-b5a4-5ece9ecd7657",
+                "name": "response",
+                "value": "=Explique para o usuário que para falar com um humano é necessário obter o nome e se o usuário é um dentista. Solicite esses dados seguindo o processo definido.\n\nCertifique-se de ter executado a ferramenta `atualiza_dados`, para ter certeza que salvou os dados do usuário.",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          -1280,
+          720
+        ],
+        "id": "847eef10-7341-4d49-a19c-3ca5b59902d7",
+        "name": "Retorno solicitação de dados para Agente Executor"
+      },
+      {
+        "parameters": {
+          "values": {
+            "string": [
+              {
+                "name": "token",
+                "value": "AYh2mVEjoNdxyJ1qr8sJVeFN"
+              },
+              {
+                "name": "urlchatwoot",
+                "value": "https://chatwoot.nanolab.com.br"
+              },
+              {
+                "name": "idconta",
+                "value": "1"
+              },
+              {
+                "name": "idcaixa",
+                "value": "=122"
+              },
+              {
+                "name": "numerodeenvio",
+                "value": "=+{{ $('inicio_fluxo').last().json.telefone }}"
+              },
+              {
+                "name": "NomeContato",
+                "value": "={{ $('SELECT cliente & user_session').last().json.result.cliente.nome }}"
+              },
+              {
+                "name": "MensagemEnvio",
+                "value": "Nova Mensagem Atribuída "
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "13f7e491-7ee6-4fc4-aba9-34442f82aff3",
+        "name": "Base Info Chatwoot | OrthoX",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 2,
+        "position": [
+          -1408,
+          176
+        ]
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "=https://evolutionapi.nanolab.com.br/message/sendText/celtim",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "apikey",
+                "value": "=E6D9B5966762-41EE-A15D-999153F177B0"
+              }
+            ]
+          },
+          "sendBody": true,
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "number",
+                "value": "=5519998210119"
+              },
+              {
+                "name": "text",
+                "value": "=Flavio, chegou lead no Chatwoot, o link para conversa é: https://chatwoot.nanolab.com.br/app/accounts/1/team/{{ $('Atribuir Comercial Prime').last().json.id }}/conversations/{{ $('GET info conversa').last().json.payload[0].messages[0].conversation_id }}\n\n"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          -704,
+          176
+        ],
+        "id": "c5fd3a11-4c6e-46b5-a883-a83bb419ee85",
+        "name": "POST mensagem Whatsapp"
+      },
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "5e93688b-2fc6-43d4-9236-5bfc1c2b25c1",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2,
+        "position": [
+          -2080,
+          1136
+        ],
+        "id": "2b372310-7167-469e-bbb9-4bc58870a837",
+        "name": "Webhook Atribui Agente Chatwoot",
+        "webhookId": "5e93688b-2fc6-43d4-9236-5bfc1c2b25c1",
+        "disabled": true
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "=https://evolutionapi.nanolab.com.br/message/sendText/celtim",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "apikey",
+                "value": "=E6D9B5966762-41EE-A15D-999153F177B0"
+              }
+            ]
+          },
+          "sendBody": true,
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "number",
+                "value": "={{ $('Webhook Atribui Agente Chatwoot').last().json.body.meta.sender.phone_number.replace('+', '') }}"
+              },
+              {
+                "name": "text",
+                "value": "={{ $('Webhook Atribui Agente Chatwoot').last().json.body.meta.sender.name.split(' ')[0] }}, agora quem vai continuar o atendimento com você é o {{ $('Webhook Atribui Agente Chatwoot').last().json.body.meta.assignee.name.split(' ')[0] }}, um de nossos atendentes. Pode enviar sua dúvida!"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          -1312,
+          1136
+        ],
+        "id": "b47cb24d-9346-4c73-98d3-3c787b32511a",
+        "name": "POST mensagem usuário"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "=https://evolutionapi.nanolab.com.br/chat/sendPresence/celtim",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "apikey",
+                "value": "=E6D9B5966762-41EE-A15D-999153F177B0"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"number\": \"{{ $('Webhook Atribui Agente Chatwoot').last().json.body.meta.sender.phone_number.replace('+', '') }}\",\n  \"delay\": 4000,\n  \"presence\": \"composing\"\n}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          -1568,
+          1136
+        ],
+        "id": "2e5a8fad-c18d-4885-ac07-a7bc16415b01",
+        "name": "Digitando1"
+      },
+      {
+        "parameters": {
+          "content": "## Triagem Atribui Comercial Interno",
+          "height": 280,
+          "width": 1000
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -2144,
+          1024
+        ],
+        "typeVersion": 1,
+        "id": "c2e6aebe-7a34-45eb-94b3-99d9d6ca0b16",
+        "name": "Sticky Note"
+      },
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "43682508-9457-42f1-96c6-54579e1abc88",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2,
+        "position": [
+          -2080,
+          1424
+        ],
+        "id": "9234c445-a17f-4a55-a23c-048ff2c29131",
+        "name": "Conversa Resolvida",
+        "webhookId": "43682508-9457-42f1-96c6-54579e1abc88",
+        "disabled": true
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "WITH latest_session AS (\n  SELECT id\n  FROM public.user_session\n  WHERE telefone = '{{ $('Webhook Atribui Agente Chatwoot').last().json.body.meta.sender.phone_number.replace('+', '') }}'\n  ORDER BY criado_em DESC\n  LIMIT 1\n)\nUPDATE public.user_session\nSET \n  transferido_para_humano = true,\n  id_agente_humano = '{{ $('Webhook Atribui Agente Chatwoot').last().json.body.meta.assignee.id }}',\n  atualizado_em = now()\nWHERE id IN (SELECT id FROM latest_session);\n",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          -1856,
+          1136
+        ],
+        "id": "31bc6a88-983c-405a-910d-34e6bef45ba6",
+        "name": "SELECT lead & UPDATE user_session",
+        "credentials": {
+          "postgres": {
+            "id": "ae3RFHgYvfFupxmE",
+            "name": "Postgres Supabase hugo.ferreira"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "content": "## Conversa Resolvida por Agente Humano",
+          "height": 280,
+          "width": 1000
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -2144,
+          1344
+        ],
+        "typeVersion": 1,
+        "id": "b9b1434c-0715-44de-b4cf-fda20dbcf9bc",
+        "name": "Sticky Note1"
+      },
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "47747c85-307e-4146-a1fe-f88b1bbfcdfe",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2,
+        "position": [
+          -2080,
+          1744
+        ],
+        "id": "82ef98b1-18e9-4ad9-a9dc-28ce5ae0c346",
+        "name": "Conversa Aberta pelo Agente",
+        "webhookId": "47747c85-307e-4146-a1fe-f88b1bbfcdfe",
+        "disabled": true
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "WITH latest_session AS (\n  SELECT id\n  FROM public.user_session\n  WHERE telefone = '{{ $('Conversa Resolvida').last().json.body.meta.sender.phone_number.replace('+', '') }}'\n  ORDER BY criado_em DESC\n  LIMIT 1\n)\nUPDATE public.user_session\nSET \n  transferido_para_humano = false,\n  atualizado_em = now()\nWHERE id IN (SELECT id FROM latest_session);\n",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          -1840,
+          1424
+        ],
+        "id": "4db2cccb-7d8b-4faf-b782-cbe038f2429a",
+        "name": "SELECT lead & UPDATE user_session1"
+      },
+      {
+        "parameters": {
+          "content": "## Conversa Aberta por Agente Humano",
+          "height": 280,
+          "width": 1000
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -2144,
+          1664
+        ],
+        "typeVersion": 1,
+        "id": "b4127bab-1baa-4129-8836-b6831a1c42d1",
+        "name": "Sticky Note2"
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "WITH latest_session AS (\n  SELECT id\n  FROM public.user_session\n  WHERE telefone = '{{ $('Conversa Aberta pelo Agente').last().json.body.meta.sender.phone_number.replace('+', '') }}'\n  ORDER BY criado_em DESC\n  LIMIT 1\n)\nUPDATE public.user_session\nSET \n  transferido_para_humano = true,\n  atualizado_em = now()\nWHERE id IN (SELECT id FROM latest_session);\n",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          -1856,
+          1744
+        ],
+        "id": "bd0ec0d9-2a4d-4e0b-b3e7-484590368837",
+        "name": "SELECT lead & UPDATE user_session2"
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "WITH cliente_with_session AS (\n    SELECT \n        f.*,\n        s.session_id,\n        us.transferido_para_humano,\n        us.id_agente_humano\n    FROM public.cliente f\n    CROSS JOIN LATERAL get_or_create_session(f.telefone) s\n    LEFT JOIN public.user_session us\n    ON us.id = s.session_id\n)\nSELECT json_build_object(\n    'cliente', to_jsonb(f) - 'session_id' - 'transferido_para_humano' - 'id_agente_humano',\n    'session', json_build_object(\n        'session_id', f.session_id,\n        'transferido_para_humano', f.transferido_para_humano,\n        'id_agente_humano', f.id_agente_humano\n    )\n) AS result\nFROM cliente_with_session f\nWHERE f.telefone = '{{ $('inicio_fluxo').last().json.telefone }}'\nLIMIT 1",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          -1760,
+          592
+        ],
+        "id": "7401ac08-c9b3-4540-8592-cb7772865884",
+        "name": "SELECT cliente & user_session",
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "WITH latest_session AS (\n  SELECT id\n  FROM public.user_session\n  WHERE telefone = '{{ $('inicio_fluxo').last().json.telefone }}'\n  ORDER BY criado_em DESC\n  LIMIT 1\n)\nUPDATE public.user_session\nSET \n  transferido_para_humano = true,\n  atualizado_em = now()\nWHERE id IN (SELECT id FROM latest_session);\n",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          -1264,
+          448
+        ],
+        "id": "f4e61aec-3b79-416c-99ba-dae36f90f811",
+        "name": "SELECT cliente & UPDATE user_session",
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "amount": 3
+        },
+        "type": "n8n-nodes-base.wait",
+        "typeVersion": 1.1,
+        "position": [
+          -1920,
+          592
+        ],
+        "id": "f6072bcd-b61e-4f30-8373-27a87bdf9e45",
+        "name": "Wait",
+        "webhookId": "c030fa2d-e7af-47fc-98b6-cb5e63e6ae53"
+      }
+    ],
+    "connections": {
+      "GET Contato Chatwoot2": {
+        "main": [
+          [
+            {
+              "node": "ATRIBUI Equipe Triagem",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "ATRIBUI Equipe Triagem": {
+        "main": [
+          []
+        ]
+      },
+      "IF dados_cadastrais_ok: true": {
+        "main": [
+          [
+            {
+              "node": "SELECT cliente & UPDATE user_session",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Retorno solicitação de dados para Agente Executor",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "inicio_fluxo": {
+        "main": [
+          [
+            {
+              "node": "Wait",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Base Info Chatwoot | OrthoX": {
+        "main": [
+          [
+            {
+              "node": "GET Contato Chatwoot2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "POST mensagem Whatsapp": {
+        "main": [
+          []
+        ]
+      },
+      "Webhook Atribui Agente Chatwoot": {
+        "main": [
+          [
+            {
+              "node": "SELECT lead & UPDATE user_session",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Digitando1": {
+        "main": [
+          [
+            {
+              "node": "POST mensagem usuário",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Conversa Resolvida": {
+        "main": [
+          [
+            {
+              "node": "SELECT lead & UPDATE user_session1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "SELECT lead & UPDATE user_session": {
+        "main": [
+          [
+            {
+              "node": "Digitando1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Conversa Aberta pelo Agente": {
+        "main": [
+          [
+            {
+              "node": "SELECT lead & UPDATE user_session2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "SELECT cliente & user_session": {
+        "main": [
+          [
+            {
+              "node": "IF dados_cadastrais_ok: true",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "SELECT cliente & UPDATE user_session": {
+        "main": [
+          [
+            {
+              "node": "Retorno solicitação de dados para Agente Executor2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait": {
+        "main": [
+          [
+            {
+              "node": "SELECT cliente & user_session",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "system migration",
+    "name": null,
+    "description": null,
+    "autosaved": false
+  },
+  "activeVersionId": "c17b12d8-b7fc-48be-ab0f-80fb95089d05",
+  "connections": {
+    "GET Contato Chatwoot2": {
+      "main": [
+        [
+          {
+            "node": "ATRIBUI Equipe Triagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ATRIBUI Equipe Triagem": {
+      "main": [
+        []
+      ]
+    },
+    "IF dados_cadastrais_ok: true": {
+      "main": [
+        [
+          {
+            "node": "SELECT cliente & UPDATE user_session",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Retorno solicitação de dados para Agente Executor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "inicio_fluxo": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Base Info Chatwoot | OrthoX": {
+      "main": [
+        [
+          {
+            "node": "GET Contato Chatwoot2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "POST mensagem Whatsapp": {
+      "main": [
+        []
+      ]
+    },
+    "Webhook Atribui Agente Chatwoot": {
+      "main": [
+        [
+          {
+            "node": "SELECT lead & UPDATE user_session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Digitando1": {
+      "main": [
+        [
+          {
+            "node": "POST mensagem usuário",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Conversa Resolvida": {
+      "main": [
+        [
+          {
+            "node": "SELECT lead & UPDATE user_session1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SELECT lead & UPDATE user_session": {
+      "main": [
+        [
+          {
+            "node": "Digitando1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Conversa Aberta pelo Agente": {
+      "main": [
+        [
+          {
+            "node": "SELECT lead & UPDATE user_session2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SELECT cliente & user_session": {
+      "main": [
+        [
+          {
+            "node": "IF dados_cadastrais_ok: true",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SELECT cliente & UPDATE user_session": {
+      "main": [
+        [
+          {
+            "node": "Retorno solicitação de dados para Agente Executor2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "SELECT cliente & user_session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-09-22T19:01:02.562Z",
+  "id": "I4PwOZXGMkOniWij",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Falar com Humano",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "={{ $('Base Info Chatwoot | OrthoX').last().json[\"urlchatwoot\"] }}/api/v1/accounts/{{ $('Base Info Chatwoot | OrthoX').last().json[\"idconta\"] }}/contacts/search",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{ $('Base Info Chatwoot | OrthoX').last().json[\"numerodeenvio\"] }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api_access_token",
+              "value": "={{ $('Base Info Chatwoot | OrthoX').last().json[\"token\"] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "9b498e0b-9374-448b-945b-fe6730fb3773",
+      "name": "GET Contato Chatwoot2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        -1168,
+        176
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Base Info Chatwoot | OrthoX').last().json.urlchatwoot }}/api/v1/accounts/{{ $('Base Info Chatwoot | OrthoX').last().json.idconta }}/conversations/157/assignments",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "api_access_token",
+              "value": "={{ $('Base Info Chatwoot | OrthoX').last().json.token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"team_id\": 5\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "id": "abe7ba08-687d-459b-b6bd-daad94b18723",
+      "name": "ATRIBUI Equipe Triagem",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        -928,
+        176
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0c491140-8871-4895-b5a4-5ece9ecd7657",
+              "name": "output",
+              "value": "=Explique para o cliente que ele foi transferido para o time de atendimento e em breve um dos atendentes entrará em contato.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1024,
+        448
+      ],
+      "id": "b77a3d71-3bf7-4c9d-950a-5026472139d6",
+      "name": "Retorno solicitação de dados para Agente Executor2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8ffc18d3-c201-4a1e-808d-4a37f7f2bb0e",
+              "leftValue": "={{ $('SELECT cliente & user_session').last().json.result.cliente.nome }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "ed71f13a-7bf3-42ab-898c-37582401f713",
+              "leftValue": "={{ $('SELECT cliente & user_session').last().json.result.cliente.is_dentista }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1568,
+        592
+      ],
+      "id": "d1669690-f2d5-475c-aa57-4d3eb4e4e942",
+      "name": "IF dados_cadastrais_ok: true"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "telefone"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -2096,
+        592
+      ],
+      "id": "c0f7a902-c139-424d-99ed-02d3ab43565c",
+      "name": "inicio_fluxo"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0c491140-8871-4895-b5a4-5ece9ecd7657",
+              "name": "response",
+              "value": "=Explique para o usuário que para falar com um humano é necessário obter o nome e se o usuário é um dentista. Solicite esses dados seguindo o processo definido.\n\nCertifique-se de ter executado a ferramenta `atualiza_dados`, para ter certeza que salvou os dados do usuário.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1280,
+        720
+      ],
+      "id": "847eef10-7341-4d49-a19c-3ca5b59902d7",
+      "name": "Retorno solicitação de dados para Agente Executor"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "token",
+              "value": "AYh2mVEjoNdxyJ1qr8sJVeFN"
+            },
+            {
+              "name": "urlchatwoot",
+              "value": "https://chatwoot.nanolab.com.br"
+            },
+            {
+              "name": "idconta",
+              "value": "1"
+            },
+            {
+              "name": "idcaixa",
+              "value": "=122"
+            },
+            {
+              "name": "numerodeenvio",
+              "value": "=+{{ $('inicio_fluxo').last().json.telefone }}"
+            },
+            {
+              "name": "NomeContato",
+              "value": "={{ $('SELECT cliente & user_session').last().json.result.cliente.nome }}"
+            },
+            {
+              "name": "MensagemEnvio",
+              "value": "Nova Mensagem Atribuída "
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "13f7e491-7ee6-4fc4-aba9-34442f82aff3",
+      "name": "Base Info Chatwoot | OrthoX",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        -1408,
+        176
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://evolutionapi.nanolab.com.br/message/sendText/celtim",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "=E6D9B5966762-41EE-A15D-999153F177B0"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "=5519998210119"
+            },
+            {
+              "name": "text",
+              "value": "=Flavio, chegou lead no Chatwoot, o link para conversa é: https://chatwoot.nanolab.com.br/app/accounts/1/team/{{ $('Atribuir Comercial Prime').last().json.id }}/conversations/{{ $('GET info conversa').last().json.payload[0].messages[0].conversation_id }}\n\n"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -704,
+        176
+      ],
+      "id": "c5fd3a11-4c6e-46b5-a883-a83bb419ee85",
+      "name": "POST mensagem Whatsapp"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "5e93688b-2fc6-43d4-9236-5bfc1c2b25c1",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -2080,
+        1136
+      ],
+      "id": "2b372310-7167-469e-bbb9-4bc58870a837",
+      "name": "Webhook Atribui Agente Chatwoot",
+      "webhookId": "5e93688b-2fc6-43d4-9236-5bfc1c2b25c1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://evolutionapi.nanolab.com.br/message/sendText/celtim",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "=E6D9B5966762-41EE-A15D-999153F177B0"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $('Webhook Atribui Agente Chatwoot').last().json.body.meta.sender.phone_number.replace('+', '') }}"
+            },
+            {
+              "name": "text",
+              "value": "={{ $('Webhook Atribui Agente Chatwoot').last().json.body.meta.sender.name.split(' ')[0] }}, agora quem vai continuar o atendimento com você é o {{ $('Webhook Atribui Agente Chatwoot').last().json.body.meta.assignee.name.split(' ')[0] }}, um de nossos atendentes. Pode enviar sua dúvida!"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1312,
+        1136
+      ],
+      "id": "b47cb24d-9346-4c73-98d3-3c787b32511a",
+      "name": "POST mensagem usuário"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://evolutionapi.nanolab.com.br/chat/sendPresence/celtim",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "=E6D9B5966762-41EE-A15D-999153F177B0"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"number\": \"{{ $('Webhook Atribui Agente Chatwoot').last().json.body.meta.sender.phone_number.replace('+', '') }}\",\n  \"delay\": 4000,\n  \"presence\": \"composing\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1568,
+        1136
+      ],
+      "id": "2e5a8fad-c18d-4885-ac07-a7bc16415b01",
+      "name": "Digitando1"
+    },
+    {
+      "parameters": {
+        "content": "## Triagem Atribui Comercial Interno",
+        "height": 280,
+        "width": 1000
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2144,
+        1024
+      ],
+      "typeVersion": 1,
+      "id": "c2e6aebe-7a34-45eb-94b3-99d9d6ca0b16",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "43682508-9457-42f1-96c6-54579e1abc88",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -2080,
+        1424
+      ],
+      "id": "9234c445-a17f-4a55-a23c-048ff2c29131",
+      "name": "Conversa Resolvida",
+      "webhookId": "43682508-9457-42f1-96c6-54579e1abc88",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "WITH latest_session AS (\n  SELECT id\n  FROM public.user_session\n  WHERE telefone = '{{ $('Webhook Atribui Agente Chatwoot').last().json.body.meta.sender.phone_number.replace('+', '') }}'\n  ORDER BY criado_em DESC\n  LIMIT 1\n)\nUPDATE public.user_session\nSET \n  transferido_para_humano = true,\n  id_agente_humano = '{{ $('Webhook Atribui Agente Chatwoot').last().json.body.meta.assignee.id }}',\n  atualizado_em = now()\nWHERE id IN (SELECT id FROM latest_session);\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -1856,
+        1136
+      ],
+      "id": "31bc6a88-983c-405a-910d-34e6bef45ba6",
+      "name": "SELECT lead & UPDATE user_session",
+      "credentials": {
+        "postgres": {
+          "id": "ae3RFHgYvfFupxmE",
+          "name": "Postgres Supabase hugo.ferreira"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Conversa Resolvida por Agente Humano",
+        "height": 280,
+        "width": 1000
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2144,
+        1344
+      ],
+      "typeVersion": 1,
+      "id": "b9b1434c-0715-44de-b4cf-fda20dbcf9bc",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "47747c85-307e-4146-a1fe-f88b1bbfcdfe",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -2080,
+        1744
+      ],
+      "id": "82ef98b1-18e9-4ad9-a9dc-28ce5ae0c346",
+      "name": "Conversa Aberta pelo Agente",
+      "webhookId": "47747c85-307e-4146-a1fe-f88b1bbfcdfe",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "WITH latest_session AS (\n  SELECT id\n  FROM public.user_session\n  WHERE telefone = '{{ $('Conversa Resolvida').last().json.body.meta.sender.phone_number.replace('+', '') }}'\n  ORDER BY criado_em DESC\n  LIMIT 1\n)\nUPDATE public.user_session\nSET \n  transferido_para_humano = false,\n  atualizado_em = now()\nWHERE id IN (SELECT id FROM latest_session);\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -1840,
+        1424
+      ],
+      "id": "4db2cccb-7d8b-4faf-b782-cbe038f2429a",
+      "name": "SELECT lead & UPDATE user_session1"
+    },
+    {
+      "parameters": {
+        "content": "## Conversa Aberta por Agente Humano",
+        "height": 280,
+        "width": 1000
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2144,
+        1664
+      ],
+      "typeVersion": 1,
+      "id": "b4127bab-1baa-4129-8836-b6831a1c42d1",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "WITH latest_session AS (\n  SELECT id\n  FROM public.user_session\n  WHERE telefone = '{{ $('Conversa Aberta pelo Agente').last().json.body.meta.sender.phone_number.replace('+', '') }}'\n  ORDER BY criado_em DESC\n  LIMIT 1\n)\nUPDATE public.user_session\nSET \n  transferido_para_humano = true,\n  atualizado_em = now()\nWHERE id IN (SELECT id FROM latest_session);\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -1856,
+        1744
+      ],
+      "id": "bd0ec0d9-2a4d-4e0b-b3e7-484590368837",
+      "name": "SELECT lead & UPDATE user_session2"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "WITH cliente_with_session AS (\n    SELECT \n        f.*,\n        s.session_id,\n        us.transferido_para_humano,\n        us.id_agente_humano\n    FROM public.cliente f\n    CROSS JOIN LATERAL get_or_create_session(f.telefone) s\n    LEFT JOIN public.user_session us\n    ON us.id = s.session_id\n)\nSELECT json_build_object(\n    'cliente', to_jsonb(f) - 'session_id' - 'transferido_para_humano' - 'id_agente_humano',\n    'session', json_build_object(\n        'session_id', f.session_id,\n        'transferido_para_humano', f.transferido_para_humano,\n        'id_agente_humano', f.id_agente_humano\n    )\n) AS result\nFROM cliente_with_session f\nWHERE f.telefone = '{{ $('inicio_fluxo').last().json.telefone }}'\nLIMIT 1",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -1760,
+        592
+      ],
+      "id": "7401ac08-c9b3-4540-8592-cb7772865884",
+      "name": "SELECT cliente & user_session",
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "WITH latest_session AS (\n  SELECT id\n  FROM public.user_session\n  WHERE telefone = '{{ $('inicio_fluxo').last().json.telefone }}'\n  ORDER BY criado_em DESC\n  LIMIT 1\n)\nUPDATE public.user_session\nSET \n  transferido_para_humano = true,\n  atualizado_em = now()\nWHERE id IN (SELECT id FROM latest_session);\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -1264,
+        448
+      ],
+      "id": "f4e61aec-3b79-416c-99ba-dae36f90f811",
+      "name": "SELECT cliente & UPDATE user_session",
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 3
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -1920,
+        592
+      ],
+      "id": "f6072bcd-b61e-4f30-8373-27a87bdf9e45",
+      "name": "Wait",
+      "webhookId": "c030fa2d-e7af-47fc-98b6-cb5e63e6ae53"
+    }
+  ],
+  "pinData": {
+    "inicio_fluxo": [
+      {
+        "json": {
+          "telefone": "5519998210119"
+        }
+      }
+    ],
+    "Webhook Atribui Agente Chatwoot": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.nanolab.com.br",
+            "x-forwarded-for": "3.81.72.212, 172.68.15.209",
+            "x-forwarded-proto": "https",
+            "accept": "application/json",
+            "accept-encoding": "gzip, br",
+            "content-type": "application/json",
+            "cf-ray": "96a780ea7c6bc562-IAD",
+            "user-agent": "rest-client/2.1.0 (linux-musl aarch64) ruby/3.3.3p89",
+            "cdn-loop": "cloudflare; loops=1",
+            "cf-connecting-ip": "3.81.72.212",
+            "cf-ipcountry": "US",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "x-forwarded-host": "n8n.nanolab.com.br",
+            "x-forwarded-server": "n8n.nanolab.com.br",
+            "content-length": "2426",
+            "connection": "Keep-Alive"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "additional_attributes": {},
+            "can_reply": true,
+            "channel": "Channel::Api",
+            "contact_inbox": {
+              "id": 303,
+              "contact_id": 169,
+              "inbox_id": 23,
+              "source_id": "b296dd7b-32d9-4cfa-9280-4fe4640e9e33",
+              "created_at": "2025-07-25T16:58:46.196Z",
+              "updated_at": "2025-07-25T16:58:46.196Z",
+              "hmac_verified": false,
+              "pubsub_token": "Ug5GZ9pfXAAkKvZF65oh3EFr"
+            },
+            "id": 153,
+            "inbox_id": 23,
+            "messages": [
+              {
+                "id": 5645,
+                "content": "Entendi que não deseja seguir por essa opção. Posso ajudar com outras informações sobre nossos produtos, condições para revenda ou formas de contato? Por favor, me diga qual é seu interesse específico para que eu possa orientar da melhor forma.",
+                "account_id": 1,
+                "inbox_id": 23,
+                "conversation_id": 153,
+                "message_type": 1,
+                "created_at": 1753463474,
+                "updated_at": "2025-07-25T17:11:14.030Z",
+                "private": false,
+                "status": "sent",
+                "source_id": "WAID:3EB07A6B0DF015F399E26649C0F8AFF34750AF74",
+                "content_type": "text",
+                "content_attributes": {},
+                "sender_type": "User",
+                "sender_id": 4,
+                "external_source_ids": {},
+                "additional_attributes": {},
+                "processed_message_content": "Entendi que não deseja seguir por essa opção. Posso ajudar com outras informações sobre nossos produtos, condições para revenda ou formas de contato? Por favor, me diga qual é seu interesse específico para que eu possa orientar da melhor forma.",
+                "sentiment": {},
+                "conversation": {
+                  "assignee_id": 6,
+                  "unread_count": 0,
+                  "last_activity_at": 1754337421,
+                  "contact_inbox": {
+                    "source_id": "b296dd7b-32d9-4cfa-9280-4fe4640e9e33"
+                  }
+                },
+                "sender": {
+                  "id": 4,
+                  "name": "Agente Automation",
+                  "available_name": "Agente Automation",
+                  "avatar_url": "",
+                  "type": "user",
+                  "availability_status": null,
+                  "thumbnail": ""
+                }
+              }
+            ],
+            "labels": [],
+            "meta": {
+              "sender": {
+                "additional_attributes": {},
+                "custom_attributes": {},
+                "email": null,
+                "id": 169,
+                "identifier": "5519984033451@s.whatsapp.net",
+                "name": "Paulo Silva",
+                "phone_number": "+5519984033451",
+                "thumbnail": "",
+                "blocked": false,
+                "type": "contact"
+              },
+              "assignee": {
+                "id": 6,
+                "name": "ai_agent",
+                "available_name": "ai_agent",
+                "avatar_url": "",
+                "type": "user",
+                "availability_status": null,
+                "thumbnail": ""
+              },
+              "team": {
+                "id": 3,
+                "name": "comercial interno"
+              },
+              "hmac_verified": false
+            },
+            "status": "open",
+            "custom_attributes": {},
+            "snoozed_until": null,
+            "unread_count": 0,
+            "first_reply_created_at": "2025-07-25T16:59:03.708Z",
+            "priority": "high",
+            "waiting_since": 0,
+            "agent_last_seen_at": 1754313040,
+            "contact_last_seen_at": 0,
+            "last_activity_at": 1754337421,
+            "timestamp": 1754337421,
+            "created_at": 1753462726,
+            "updated_at": 1754409585.918601,
+            "event": "automation_event.conversation_updated"
+          },
+          "webhookUrl": "https://n8n.nanolab.com.br/webhook/5e93688b-2fc6-43d4-9236-5bfc1c2b25c1",
+          "executionMode": "production"
+        }
+      }
+    ],
+    "Conversa Resolvida": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.nanolab.com.br",
+            "x-forwarded-proto": "https",
+            "accept": "application/json",
+            "accept-encoding": "gzip, br",
+            "content-type": "application/json",
+            "cf-ray": "96aecc859e0f286e-EWR",
+            "user-agent": "rest-client/2.1.0 (linux-musl aarch64) ruby/3.3.3p89",
+            "x-forwarded-for": "3.81.72.212, 162.158.62.184",
+            "cdn-loop": "cloudflare; loops=1",
+            "cf-connecting-ip": "3.81.72.212",
+            "cf-ipcountry": "US",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "x-forwarded-host": "n8n.nanolab.com.br",
+            "x-forwarded-server": "n8n.nanolab.com.br",
+            "content-length": "2474",
+            "connection": "Keep-Alive"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "additional_attributes": {},
+            "can_reply": true,
+            "channel": "Channel::Api",
+            "contact_inbox": {
+              "id": 311,
+              "contact_id": 153,
+              "inbox_id": 23,
+              "source_id": "b3955827-7f19-40dd-825b-9224d1f76bbd",
+              "created_at": "2025-08-05T18:09:56.456Z",
+              "updated_at": "2025-08-05T18:09:56.456Z",
+              "hmac_verified": false,
+              "pubsub_token": "D1g7NaQxn8t6X6SuKv55nAN6"
+            },
+            "id": 158,
+            "inbox_id": 23,
+            "messages": [
+              {
+                "id": 6530,
+                "content": "Flavio, agora quem vai continuar o atendimento com você é o Agente, um de nossos atendentes. Pode enviar sua dúvida!",
+                "account_id": 1,
+                "inbox_id": 23,
+                "conversation_id": 158,
+                "message_type": 1,
+                "created_at": 1754418913,
+                "updated_at": "2025-08-05T18:35:13.068Z",
+                "private": false,
+                "status": "sent",
+                "source_id": "WAID:3EB09AAFEDE50DC43CBE598408DD0A92540564A4",
+                "content_type": "text",
+                "content_attributes": {},
+                "sender_type": "User",
+                "sender_id": 4,
+                "external_source_ids": {},
+                "additional_attributes": {},
+                "processed_message_content": "Flavio, agora quem vai continuar o atendimento com você é o Agente, um de nossos atendentes. Pode enviar sua dúvida!",
+                "sentiment": {},
+                "conversation": {
+                  "assignee_id": null,
+                  "unread_count": 0,
+                  "last_activity_at": 1754486083,
+                  "contact_inbox": {
+                    "source_id": "b3955827-7f19-40dd-825b-9224d1f76bbd"
+                  }
+                },
+                "sender": {
+                  "id": 4,
+                  "name": "Agente Automation",
+                  "available_name": "Agente Automation",
+                  "avatar_url": "",
+                  "type": "user",
+                  "availability_status": null,
+                  "thumbnail": ""
+                }
+              }
+            ],
+            "labels": [],
+            "meta": {
+              "sender": {
+                "additional_attributes": {},
+                "custom_attributes": {},
+                "email": null,
+                "id": 153,
+                "identifier": "5519998210119@s.whatsapp.net",
+                "name": "Flavio",
+                "phone_number": "+5519998210119",
+                "thumbnail": "https://chatwoot.nanolab.com.br/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBcDBCIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--d9e13cd877e39a4cdb529269961ac5fb8b264366/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2RTNKbGMybDZaVjkwYjE5bWFXeHNXd2RwQWZvdyIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--6bdeb54d870251a6ec01a0b906bc17773b43702f/505130431_1809507839594472_1232985291457035897_n.jpg",
+                "blocked": false,
+                "type": "contact"
+              },
+              "assignee": null,
+              "team": {
+                "id": 5,
+                "name": "triagem"
+              },
+              "hmac_verified": false
+            },
+            "status": "resolved",
+            "custom_attributes": {},
+            "snoozed_until": null,
+            "unread_count": 0,
+            "first_reply_created_at": "2025-08-05T18:09:56.711Z",
+            "priority": null,
+            "waiting_since": 0,
+            "agent_last_seen_at": 1754486082,
+            "contact_last_seen_at": 0,
+            "last_activity_at": 1754486083,
+            "timestamp": 1754486083,
+            "created_at": 1754417396,
+            "updated_at": 1754486083.192497,
+            "event": "automation_event.conversation_updated"
+          },
+          "webhookUrl": "https://n8n.nanolab.com.br/webhook/43682508-9457-42f1-96c6-54579e1abc88",
+          "executionMode": "production"
+        }
+      }
+    ],
+    "Conversa Aberta pelo Agente": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.nanolab.com.br",
+            "x-forwarded-proto": "https",
+            "accept": "application/json",
+            "accept-encoding": "gzip, br",
+            "content-type": "application/json",
+            "cf-ray": "96aece768be6c814-EWR",
+            "user-agent": "rest-client/2.1.0 (linux-musl aarch64) ruby/3.3.3p89",
+            "x-forwarded-for": "3.81.72.212, 162.158.62.169",
+            "cdn-loop": "cloudflare; loops=1",
+            "cf-connecting-ip": "3.81.72.212",
+            "cf-ipcountry": "US",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "x-forwarded-host": "n8n.nanolab.com.br",
+            "x-forwarded-server": "n8n.nanolab.com.br",
+            "content-length": "2273",
+            "connection": "Keep-Alive"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "additional_attributes": {},
+            "can_reply": true,
+            "channel": "Channel::Api",
+            "contact_inbox": {
+              "id": 311,
+              "contact_id": 153,
+              "inbox_id": 23,
+              "source_id": "b3955827-7f19-40dd-825b-9224d1f76bbd",
+              "created_at": "2025-08-05T18:09:56.456Z",
+              "updated_at": "2025-08-05T18:09:56.456Z",
+              "hmac_verified": false,
+              "pubsub_token": "D1g7NaQxn8t6X6SuKv55nAN6"
+            },
+            "id": 158,
+            "inbox_id": 23,
+            "messages": [
+              {
+                "id": 6537,
+                "content": "Atendimento finalizado com sucesso. Se tiver novas dúvidas, estaremos à disposição. Até a próxima 👋",
+                "account_id": 1,
+                "inbox_id": 23,
+                "conversation_id": 158,
+                "message_type": 1,
+                "created_at": 1754486083,
+                "updated_at": "2025-08-06T13:14:43.468Z",
+                "private": false,
+                "status": "sent",
+                "source_id": null,
+                "content_type": "text",
+                "content_attributes": {
+                  "automation_rule_id": 3
+                },
+                "sender_type": null,
+                "sender_id": null,
+                "external_source_ids": {},
+                "additional_attributes": {},
+                "processed_message_content": "Atendimento finalizado com sucesso. Se tiver novas dúvidas, estaremos à disposição. Até a próxima 👋",
+                "sentiment": {},
+                "conversation": {
+                  "assignee_id": null,
+                  "unread_count": 0,
+                  "last_activity_at": 1754486083,
+                  "contact_inbox": {
+                    "source_id": "b3955827-7f19-40dd-825b-9224d1f76bbd"
+                  }
+                }
+              }
+            ],
+            "labels": [],
+            "meta": {
+              "sender": {
+                "additional_attributes": {},
+                "custom_attributes": {},
+                "email": null,
+                "id": 153,
+                "identifier": "5519998210119@s.whatsapp.net",
+                "name": "Flavio",
+                "phone_number": "+5519998210119",
+                "thumbnail": "https://chatwoot.nanolab.com.br/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBcDBCIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--d9e13cd877e39a4cdb529269961ac5fb8b264366/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2RTNKbGMybDZaVjkwYjE5bWFXeHNXd2RwQWZvdyIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--6bdeb54d870251a6ec01a0b906bc17773b43702f/505130431_1809507839594472_1232985291457035897_n.jpg",
+                "blocked": false,
+                "type": "contact"
+              },
+              "assignee": null,
+              "team": {
+                "id": 5,
+                "name": "triagem"
+              },
+              "hmac_verified": false
+            },
+            "status": "open",
+            "custom_attributes": {},
+            "snoozed_until": null,
+            "unread_count": 0,
+            "first_reply_created_at": "2025-08-05T18:09:56.711Z",
+            "priority": null,
+            "waiting_since": 0,
+            "agent_last_seen_at": 1754486084,
+            "contact_last_seen_at": 0,
+            "last_activity_at": 1754486083,
+            "timestamp": 1754486083,
+            "created_at": 1754417396,
+            "updated_at": 1754486162.820765,
+            "event": "automation_event.conversation_opened"
+          },
+          "webhookUrl": "https://n8n.nanolab.com.br/webhook/47747c85-307e-4146-a1fe-f88b1bbfcdfe",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-09-22T19:01:02.588Z",
+      "createdAt": "2025-09-22T19:01:02.588Z",
+      "role": "workflow:owner",
+      "workflowId": "I4PwOZXGMkOniWij",
+      "projectId": "IcfJLMCsRkuOqzR8"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-09-23T15:12:16.000Z",
+  "versionId": "c17b12d8-b7fc-48be-ab0f-80fb95089d05"
+}
