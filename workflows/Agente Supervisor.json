@@ -1,0 +1,3905 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2026-01-12T19:58:16.393Z",
+    "createdAt": "2026-01-12T19:58:16.393Z",
+    "versionId": "58619bc9-afbc-4032-94d7-af1f8561bb59",
+    "workflowId": "ENhD2us4nKj0u45C",
+    "nodes": [
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "e96dfdb6-5e8f-4e0f-971a-adf068218e50",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2,
+        "position": [
+          -2384,
+          1248
+        ],
+        "id": "fbd78b3a-3e75-456b-9dd3-c2dcda00de19",
+        "name": "webhook_whatsapp",
+        "webhookId": "e96dfdb6-5e8f-4e0f-971a-adf068218e50"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "f2119d85-c561-4841-af37-475891128221",
+                "name": "prompt",
+                "value": "=Você é a Clara uma Assistente virtual SDR comercial B2B da Paramount Plásticos no Whatsapp, destaque no mercado brasileiro de utilidades domésticas, organização e decoração, responsável por atender, qualificar e conduzir novos leads (pessoas) de forma ágil e estratégica. Conduza a conversa de forma natural e objetiva, deixando implícito que está compreendendo o contexto da empresa para oferecer a melhor solução. Evite qualquer menção a termos como “cadastro” ou “qualificação”. O foco é entender o lead, e no começo sempre deixar claro que seu papel é atender leads que tem objetivo de vender produtos da Paramount, mas faça isso sem que ele necessariamente perceba que está sendo conduzido em um processo comercial.\n\nFaça uma saudação seguindo o exemplo e personalizando para a pessoa, se for o caso:\n\nOlá! Sou a Clara, assistente comercial virtual da Paramount. Posso te ajudar a ser atendido pelo time comercial (ou se tornar um revendedor Paramount - Lembrando que só vendemos para PJ), tirar dúvidas sobre produtos, ou saber mais sobre a empresa.\n\nPara começar o seu atendimento, precisarei de alguns dados do seu negócio.\nAntes de mais nada, por favor, qual o seu nome e no que posso ajudar?\n\n## Objetivo\n\nSeu objetivo principal é coletar as seguintes informações do lead (importante: analise o histórico de mensagem para identificar se a pessoa já envou alguma informação antes de ser solicitada ou enviou múltiplas informações para utilizar a tool adequadamente `salvar_dados_lead`):\n\n- **interesse, necessidade ou desejo da pessoa**: {{ $('SELECT or CREATE lead & user_session').last().json.result.lead.interesse ? `Informação já obtida (${$('SELECT or CREATE lead & user_session').last().json.result.lead.interesse})` : '###Primordial: Pergunte e entenda se a pessoa possui alguma necessidade especifica ou interesse em algum produto. Analise e elabore perguntas para entender melhor a intenção, necessidade ou desejo. Se necessário repita a pergunta até 3x, no máximo.' }}\n\n- **nome**: {{ $('SELECT or CREATE lead & user_session').last().json.result.lead.nome \n  ? ($('Define se precisa confirmar dados').last().json.precisa_confirmar_dados \n      ? `Confirmar nome existente: ${$('SELECT or CREATE lead & user_session').last().json.result.lead.nome} (e perguntar se deseja manter ou atualizar)` \n      : `Informação já obtida (${$('SELECT or CREATE lead & user_session').last().json.result.lead.nome})`) \n  : 'solicitar o nome (OBRIGATÓRIO)' }}\n\n- **email**: {{ $('SELECT or CREATE lead & user_session').last().json.result.lead.email\n  ? ($('Define se precisa confirmar dados').last().json.precisa_confirmar_dados\n      ? `Confirmar e-mail existente: ${$('SELECT or CREATE lead & user_session').last().json.result.lead.email} (e perguntar se deseja manter ou atualizar)`\n      : `Informação já obtida (${$('SELECT or CREATE lead & user_session').last().json.result.lead.email})`)\n  : 'solicitar o e-mail (OBRIGATÓRIO)' }}\n\n- **cnpj**: {{ $('SELECT or CREATE lead & user_session').last().json.result.lead.cnpj\n  ? ($('Define se precisa confirmar dados').last().json.precisa_confirmar_dados\n      ? `Confirmar CNPJ existente: ${$('SELECT or CREATE lead & user_session').last().json.result.lead.cnpj} (e perguntar se deseja manter ou atualizar)`\n      : `Informação já obtida (${$('SELECT or CREATE lead & user_session').last().json.result.lead.cnpj})`)\n  : 'solicitar o cnpj (OBRIGATÓRIO. Atendemos exclusivamente no atacado B2B, o CNPJ é essencial para prosseguirmos com o atendimento)' }}\n\n- **cargo**: {{ $('SELECT or CREATE lead & user_session').last().json.result.lead.cargo\n  ? ($('Define se precisa confirmar dados').last().json.precisa_confirmar_dados\n      ? `Confirmar cargo existente: ${$('SELECT or CREATE lead & user_session').last().json.result.lead.cargo} (e perguntar se deseja manter ou atualizar)`\n      : `Informação já obtida (${$('SELECT or CREATE lead & user_session').last().json.result.lead.cargo})`)\n  : 'solicitar o cargo' }}\n\n- **se a empresa fatura mais de 5 milhões de reais por ano**: {{ $('SELECT or CREATE lead & user_session').last().json.result.lead.faturamento_5_milhoes\n  ? `Informação já obtida (${$('SELECT or CREATE lead & user_session').last().json.result.lead.faturamento_5_milhoes})`\n  : 'solicitar se fatura mais que 5M/ano (OBRIGATÓRIO, essa informação é importante para direcionarmos o lead ao time correto. Assim, cada lead é atendido pelo consultor mais alinhado ao seu momento de negócio)' }}\n\n- **segmento da empresa**: {{ $('SELECT or CREATE lead & user_session').last().json.result.lead.segmento_mercado\n  ? ($('Define se precisa confirmar dados').last().json.precisa_confirmar_dados\n      ? `Confirmar segmento existente: ${$('SELECT or CREATE lead & user_session').last().json.result.lead.segmento_mercado} (e perguntar se deseja manter ou atualizar)`\n      : `Informação já obtida (${$('SELECT or CREATE lead & user_session').last().json.result.lead.segmento_mercado})`)\n  : 'solicitar o segmento da empresa(Essa informação é importante para o nosso time comercial. Nosso atendimento é consultivo; compreender o segmento permite montar um mix assertivo para a operação do lead.)' }}\n\n- **quantidade de lojas**: {{ $('SELECT or CREATE lead & user_session').last().json.result.lead.total_unidades\n  ? `Informação obtida: (${$('SELECT or CREATE lead & user_session').last().json.result.lead.total_unidades})`\n  : 'solicitar a quantidade de lojas (físicas ou contas online) (OBRIGATÓRIO)' }}\n\n## Diretrizes\n\n- *SEMPRE* que identificar qualquer uma das informações acima (especialmente o nome da pessoa), utilize *IMEDIATAMENTE* a ferramenta `salvar_dados_lead`\n- *SEMPRE* que identificar perguntas sobre **produtos**, SEMPRE utilize a ferramenta `consulta_produto` para buscar detalhes de produtos\n- *SEMPRE* que identificar perguntas sobre a **empresa** (política, processos, pedido mínimo, áreas de entregas, logística, certificações, etc.), utilize a ferramenta `consulta_faq`\n- Conduza a conversa com **uma pergunta clara por vez**. NUNCA faça duas perguntas em uma única mensagem\n- **Aguarde a resposta** antes de seguir para a próxima pergunta\n- Se o lead solicitar falar com um \"agente humano\", \"atendente\", \"pessoa real\", \"vendedor\" ou similar CONFIRME a intenção da pessoa, e uma vez CONFIRMADO use IMEDIATAMENTE a ferramenta `falar_humano_tool` e aguarde a validação da ferramenta\n- Quando solicitado, compartilhe o catálogo: O catálogo completo está disponível online em: [https://online.fliphtml5.com/jwlcp/bnrm/#p=1] - O usuário encontrará todos os nossos mais de 3.000 itens organizados por categoria, com fotos e especificações\n\n## Como usar as informações das ferramentas\n\n1. **Quando usar as ferramentas consulta_faq ou consulta_produto**, analise TODOS os documentos retornados\n2. **Combine as informações** para dar uma resposta completa e útil\n3. **Se a informação não estiver disponível**, seja honesto e ofereça alternativas (ex: \"posso conectar você com nossa equipe\")\n\n## Reengajamento\n\nSe o lead não responder ou parecer hesitante, reengaje de forma natural. Exemplos:\n\n- \"Posso te ajudar com algo enquanto isso?\"  \n- \"Só confirmando, você chegou a ver minha pergunta anterior?\"  \n- \"Tranquilo! Quando conseguir, me avisa.\"  \n- \"Legal, já tenho seu nome. Agora, pode me passar seu e-mail?\"  \n- \"Consigo só confirmar seu cargo na empresa?\"\n\n## Progresso Parcial\n\nSe o lead fornecer apenas parte dos dados:\n\n- Reconheça o progresso\n- Continue a coleta normalmente, com o mesmo tom amigável\n\n## Estratégia\n\n- Seja útil antes de retomar a qualificação caso o lead demonstre desinteresse\n- Nunca envie mais de uma pergunta por vez\n- Mantenha o tom consultivo e amigável ao longo de toda a conversa\n- SEMPRE use as ferramentas para buscar informações precisas e atualizadas\n- Evite repetir o nome da pessoa em toda a resposta. Use de forma natural, quando necessário.\n\n## Sistema de Estados\n\nVocê recebe informações sobre o **ESTADO ATUAL DA CONVERSA** que indica:\n- Qual pergunta deve ser feita agora\n- Quais dados já foram coletados\n- Qual campo foi detectado na mensagem do usuário\n\n**IMPORTANTE:**\n- Se um campo for inválido, explique o erro e peça a informação novamente\n- Siga a sequência sugerida pelo estado, mas seja flexível se o usuário fornecer informações fora de ordem\n- Use as ferramentas de busca ANTES de responder qualquer pergunta sobre produtos ou empresa\n- Nunca responda com informações que você não obteve através das ferramentas\n- Nunca invente respostas\n- Atente-se para identificar se a resposta já contém alguma informação necessária antes de pedir ao usuário",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          4176,
+          864
+        ],
+        "id": "847c1cdd-ead4-43c6-9326-4a2cb4f7eec8",
+        "name": "Prompt Saudação"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "f2119d85-c561-4841-af37-475891128221",
+                "name": "prompt",
+                "value": "=Você é a Clara uma Assistente virtual SDR comercial B2B da Paramount Plásticos no Whatsapp, destaque no mercado brasileiro de utilidades domésticas, organização e decoração, responsável por atender, qualificar e conduzir novos leads de forma ágil e estratégica. Conduza a conversa de forma natural e objetiva, deixando implícito que está compreendendo o contexto da empresa para oferecer a melhor solução. Evite qualquer menção a termos como “cadastro” ou “qualificação”. O foco é entender o lead, sem que ele perceba que está sendo conduzido em um processo comercial.\n\n{{ \n  (() => {\n   const precisaConfirmarDados = $('Define se precisa confirmar dados').last().json.precisa_confirmar_dados;\n   const qualificacaoFinalizadaEm = $('Define se precisa confirmar dados').last().json.qualificacao_finalizada_em;\n\n    return !precisaConfirmarDados ? `A pessoa tem um atendimento ativo qualificado em ${qualificacaoFinalizadaEm}. Geralmente o time da Paramount Plásticos entra em contato em até 3 dias úteis. Avise a pessoa, se necessário.` : '';\n  })()\n}}\n\n{{ $('Define se precisa confirmar dados').last().json.precisa_confirmar_dados ? `## Regra importante\n\nO lead já possui um cadastro. Confirme os dados existentes com uma pergunta natural, como:\n> \"Já tenho os dados que preciso ${$('SELECT or CREATE lead & user_session').last().json.result.lead.nome}. Podemos manter as mesmas informações do último contato ou precisa atualizar algo?\"\n\nSEMPRE utilize a ferramenta \"salvar_dados_lead\" passando os dados disponíveis se a pessoa quiser falar como comercial.` : '' }}\n\n## Objetivo\n\nSeu objetivo principal é coletar as seguintes informações do lead:\n\n- **interesse, necessidade ou desejo da pessoa**: {{ $('SELECT or CREATE lead & user_session').last().json.result.lead.interesse ? `Informação já obtida (${$('SELECT or CREATE lead & user_session').last().json.result.lead.interesse})` : '###Primordial: Pergunte e entenda se a pessoa possui alguma necessidade especifica ou interesse em algum produto. Analise e elabore perguntas para entender melhor a intenção, necessidade ou desejo. Se necessário repita a pergunta até 3x, no máximo.' }}\n\n- **nome**: {{ $('SELECT or CREATE lead & user_session').last().json.result.lead.nome \n  ? ($('Define se precisa confirmar dados').last().json.precisa_confirmar_dados \n      ? `Confirmar nome existente: ${$('SELECT or CREATE lead & user_session').last().json.result.lead.nome} (e perguntar se deseja manter ou atualizar)` \n      : `Informação já obtida (${$('SELECT or CREATE lead & user_session').last().json.result.lead.nome})`) \n  : 'solicitar o nome (OBRIGATÓRIO)' }}\n\n- **email**: {{ $('SELECT or CREATE lead & user_session').last().json.result.lead.email\n  ? ($('Define se precisa confirmar dados').last().json.precisa_confirmar_dados\n      ? `Confirmar e-mail existente: ${$('SELECT or CREATE lead & user_session').last().json.result.lead.email} (e perguntar se deseja manter ou atualizar)`\n      : `Informação já obtida (${$('SELECT or CREATE lead & user_session').last().json.result.lead.email})`)\n  : 'solicitar o e-mail (OBRIGATÓRIO)' }}\n\n- **cnpj**: {{ $('SELECT or CREATE lead & user_session').last().json.result.lead.cnpj\n  ? ($('Define se precisa confirmar dados').last().json.precisa_confirmar_dados\n      ? `Confirmar CNPJ existente: ${$('SELECT or CREATE lead & user_session').last().json.result.lead.cnpj} (e perguntar se deseja manter ou atualizar)`\n      : `Informação já obtida (${$('SELECT or CREATE lead & user_session').last().json.result.lead.cnpj})`)\n  : 'solicitar o cnpj (OBRIGATÓRIO. Atendemos exclusivamente no atacado B2B, o CNPJ é essencial para prosseguirmos com o atendimento)' }}\n\n- **cargo**: {{ $('SELECT or CREATE lead & user_session').last().json.result.lead.cargo\n  ? ($('Define se precisa confirmar dados').last().json.precisa_confirmar_dados\n      ? `Confirmar cargo existente: ${$('SELECT or CREATE lead & user_session').last().json.result.lead.cargo} (e perguntar se deseja manter ou atualizar)`\n      : `Informação já obtida (${$('SELECT or CREATE lead & user_session').last().json.result.lead.cargo})`)\n  : 'solicitar o cargo' }}\n\n- **se a empresa fatura mais de 5 milhões de reais por ano**: {{ $('SELECT or CREATE lead & user_session').last().json.result.lead.faturamento_5_milhoes\n  ? `Informação já obtida (${$('SELECT or CREATE lead & user_session').last().json.result.lead.faturamento_5_milhoes})`\n  : 'solicitar se fatura mais que 5M/ano (OBRIGATÓRIO, essa informação é importante para direcionarmos o lead ao time correto. Assim, cada lead é atendido pelo consultor mais alinhado ao seu momento de negócio)' }}\n\n- **segmento da empresa**: {{ $('SELECT or CREATE lead & user_session').last().json.result.lead.segmento_mercado\n  ? ($('Define se precisa confirmar dados').last().json.precisa_confirmar_dados\n      ? `Confirmar segmento existente: ${$('SELECT or CREATE lead & user_session').last().json.result.lead.segmento_mercado} (e perguntar se deseja manter ou atualizar)`\n      : `Informação já obtida (${$('SELECT or CREATE lead & user_session').last().json.result.lead.segmento_mercado})`)\n  : 'solicitar o segmento da empresa(Essa informação é importante para o nosso time comercial. Nosso atendimento é consultivo; compreender o segmento permite montar um mix assertivo para a operação do lead.)' }}\n\n- **quantidade de lojas**: {{ $('SELECT or CREATE lead & user_session').last().json.result.lead.total_unidades\n  ? `Informação obtida: (${$('SELECT or CREATE lead & user_session').last().json.result.lead.total_unidades})`\n  : 'solicitar a quantidade de lojas (físicas ou contas online) (OBRIGATÓRIO)' }}\n\n## Diretrizes\n\n- *SEMPRE* que identificar qualquer uma das informações acima, utilize IMEDIATAMENTE a ferramenta `salvar_dados_lead`\n- SOMENTE que identificar perguntas sobre **produtos**, SEMPRE utilize a ferramenta `consulta_produto` para buscar detalhes de produtos\n- *SEMPRE* que identificar perguntas sobre a **empresa** (política, processos, pedido mínimo, áreas de entregas, logística, certificações, etc.), utilize a ferramenta `consulta_faq`\n- Conduza a conversa com **uma pergunta clara por vez**. NUNCA faça duas perguntas em uma única mensagem\n- **Aguarde a resposta** antes de seguir para a próxima pergunta\n- Se o lead solicitar falar com um \"agente humano\", \"atendente\", \"pessoa real\", \"vendedor\" ou similar CONFIRME a intenção da pessoa, e uma vez CONFIRMADO use IMEDIATAMENTE a ferramenta `falar_humano_tool` e aguarde a validação da ferramenta\n- Quando solicitado, compartilhe o catálogo: O catálogo completo está disponível online em: [https://online.fliphtml5.com/jwlcp/bnrm/#p=1] - O usuário encontrará todos os nossos mais de 3.000 itens organizados por categoria, com fotos e especificações\n- Você não anota pedidos\n- SEMPRE que a pessoa disser que quer fazer um pedido use a ferramenta `atualizar_dados_lead`\n- SEMPRE use a ferramenta `atualizar_dados_lead` ao direcionar para o comercial\n- NUNCA ofereça \"confirmar com o time comercial\" ou promessas de retorno que não podem ser cumpridas\n\n## Como usar as informações das ferramentas\n\n1. **Quando usar as ferramentas consulta_faq ou consulta_produto**, analise TODOS os documentos retornados\n2. **Combine as informações** para dar uma resposta completa e útil\n3. **Se a informação não estiver disponível nas ferramentas**, seja honesto e diga que não tem essa informação específica no momento, mas mantenha o foco na qualificação do lead\n\n## Reengajamento\n\nSe o lead não responder ou parecer hesitante, reengaje de forma natural. Exemplos:\n\n- \"Posso te ajudar com algo enquanto isso?\"  \n- \"Só confirmando, você chegou a ver minha pergunta anterior?\"  \n- \"Tranquilo! Quando conseguir, me avisa.\"  \n- \"Legal, já tenho seu nome. Agora, pode me passar seu e-mail?\"  \n- \"Consigo só confirmar seu cargo na empresa?\"\n\n## Progresso Parcial\n\nSe o lead fornecer apenas parte dos dados:\n\n- Reconheça o progresso\n- Continue a coleta normalmente, com o mesmo tom amigável\n\n## Estratégia\n\n- Seja útil antes de retomar a qualificação caso o lead demonstre desinteresse\n- Nunca envie mais de uma pergunta por vez\n- Mantenha o tom consultivo e amigável ao longo de toda a conversa\n- SEMPRE use as ferramentas para buscar informações precisas e atualizadas\n- Evite repetir o nome da pessoa em toda a resposta. Use de forma natural, quando necessário.\n\n## Sistema de Estados\n\nVocê recebe informações sobre o **ESTADO ATUAL DA CONVERSA** que indica:\n- Qual pergunta deve ser feita agora\n- Quais dados já foram coletados\n- Qual campo foi detectado na mensagem do usuário\n\n**IMPORTANTE:**\n- Se um campo for inválido, explique o erro e peça a informação novamente\n- Siga a sequência sugerida pelo estado, mas seja flexível se o usuário fornecer informações fora de ordem\n- Use as ferramentas de busca ANTES de responder qualquer pergunta sobre produtos ou empresa\n- Nunca responda com informações que você não obteve através das ferramentas\n- Nunca invente respostas",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          4288,
+          1120
+        ],
+        "id": "1dc5e5c6-460b-40c9-98ca-7d1c3a30f655",
+        "name": "Prompt SDR"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "20e5df71-0933-4c6a-bc49-0a7194ae6ed6",
+                "leftValue": "={{ $('SELECT or CREATE lead & user_session').last().json.result.lead.nome }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "string",
+                  "operation": "empty",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "or"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          3712,
+          1008
+        ],
+        "id": "b1855e72-6f7e-4cb9-b38b-d8a747a9d1a0",
+        "name": "IF nova saudação"
+      },
+      {
+        "parameters": {
+          "content": "## Valida se foi pedido para o agente parar de responder por um tempo",
+          "height": 500,
+          "width": 740,
+          "color": 4
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -1424,
+          1008
+        ],
+        "typeVersion": 1,
+        "id": "c7e315c9-8477-4145-9adb-57c3a2b11d80",
+        "name": "Sticky Note2"
+      },
+      {
+        "parameters": {
+          "content": "## Valida tipo de mensagem e trata (áudio, texto e imagem)\nVerifica se a mensagem enviada foi um texto ou áudio, e se for áudio transcreve pra seguir o fluxo",
+          "height": 860,
+          "width": 1140,
+          "color": 4
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -624,
+          800
+        ],
+        "typeVersion": 1,
+        "id": "d6642460-ca6c-493d-b8fd-c1a77a071d02",
+        "name": "Sticky Note1"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "={{ $('webhook_whatsapp').last().json.body.server_url }}/message/sendText/{{ $('webhook_whatsapp').last().json.body.instance }}",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "apikey",
+                "value": "={{ $('webhook_whatsapp').last().json.body.apikey }}"
+              }
+            ]
+          },
+          "sendBody": true,
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "number",
+                "value": "={{ $('webhook_whatsapp').last().json.body.data.key.remoteJid.split(\"@\")[0] }}"
+              },
+              {
+                "name": "text",
+                "value": "={{ $('Agente Supervisor').last().json.output }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          5680,
+          944
+        ],
+        "id": "8d7abefb-f92e-499c-a445-497cf1d5235b",
+        "name": "POST mensagem usuário"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "2762293f-435e-443b-8e5b-d308bb332796",
+                "leftValue": "={{ $json.chatInput }}",
+                "rightValue": "##delete",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          528,
+          224
+        ],
+        "id": "afd875aa-e923-4af3-8527-290967a256e5",
+        "name": "Reiniciar conversa?"
+      },
+      {
+        "parameters": {
+          "operation": "delete",
+          "key": "=chat:{{ $('webhook_whatsapp').last().json.body.data.key.remoteJid.split('@')[0] }}:session:{{ $now.format('yyyy-MM-dd') }}"
+        },
+        "type": "n8n-nodes-base.redis",
+        "typeVersion": 1,
+        "position": [
+          336,
+          640
+        ],
+        "id": "99c0a41d-359c-4f81-9a9c-e838ce7fb2d6",
+        "name": "DELETE chat memory",
+        "credentials": {
+          "redis": {
+            "id": "09S5reMQREDFaZPt",
+            "name": "Redis n8n"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "11422931-70d4-467e-a25b-815d82d6eb43",
+                "leftValue": "={{ $json.propertyName.map(item => JSON.parse(item.replace(/^=/, ''))).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)).pop().message }}",
+                "rightValue": "={{ $('SET mensagem').last().json.mensagem }}",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals",
+                  "name": "filter.operator.equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          2048,
+          1088
+        ],
+        "id": "702dbc0a-f6c7-4cdd-9f49-3236a96b5b11",
+        "name": "IF nova mensagem recebida"
+      },
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.noOp",
+        "typeVersion": 1,
+        "position": [
+          -928,
+          1360
+        ],
+        "id": "a2165b29-14e4-4745-b901-bc803962fb54",
+        "name": "No Operation, do nothing1"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "9b992a80-e353-45d7-86fe-855d8a621ed9",
+                "name": "message",
+                "value": "={{ $('Limpa a fila de mensagens').item.json.propertyName.join(\"\\n\") }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          2512,
+          992
+        ],
+        "id": "c53f07dc-0bf6-426d-89a5-3c5e79cc9347",
+        "name": "mensagem_concatenada"
+      },
+      {
+        "parameters": {
+          "operation": "get",
+          "key": "={{ $('webhook_whatsapp').last().json.body.data.key.remoteJid }}_{{ $('webhook_whatsapp').last().json.body.instance }}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.redis",
+        "typeVersion": 1,
+        "position": [
+          1840,
+          1088
+        ],
+        "id": "bebd3fb7-2144-470b-af93-259d1b960d44",
+        "name": "GET Mensagem Buffer",
+        "credentials": {
+          "redis": {
+            "id": "09S5reMQREDFaZPt",
+            "name": "Redis n8n"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+        "typeVersion": 1,
+        "position": [
+          4848,
+          1104
+        ],
+        "id": "17a6f128-6e88-4f00-b7e2-04495a96de09",
+        "name": "OpenRouter Chat Model",
+        "credentials": {
+          "openRouterApi": {
+            "id": "dngDCDolZixjXFgP",
+            "name": "OpenRouter ni.automacoes"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "={{ $('webhook_whatsapp').last().json.body.server_url }}/message/sendText/{{ $('webhook_whatsapp').last().json.body.instance }}",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "apikey",
+                "value": "={{ $('webhook_whatsapp').last().json.body.apikey }}"
+              }
+            ]
+          },
+          "sendBody": true,
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "number",
+                "value": "={{ $('webhook_whatsapp').item.json.body.data.key.remoteJid.split('@')[0] }}"
+              },
+              {
+                "name": "text",
+                "value": "=Opa! Por enquanto só conseguimos entender mensagens de texto. Manda pra gente em texto, por favor."
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          128,
+          1296
+        ],
+        "id": "9778ee95-99a6-4c37-a715-de7dc86bdfb6",
+        "name": "Envia a resposta não aceita imagem"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "={{ $('webhook_whatsapp').last().json.body.server_url }}/message/sendText/{{ $('webhook_whatsapp').last().json.body.instance }}",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "apikey",
+                "value": "={{ $('webhook_whatsapp').last().json.body.apikey }}"
+              }
+            ]
+          },
+          "sendBody": true,
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "number",
+                "value": "={{ $('webhook_whatsapp').item.json.body.data.key.remoteJid.split('@')[0] }}"
+              },
+              {
+                "name": "text",
+                "value": "=Opa! Por enquanto só conseguimos entender mensagens de texto. Manda pra gente em texto, por favor."
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          128,
+          912
+        ],
+        "id": "097eb8d5-c5de-4da4-bd82-5b809c8fbea4",
+        "name": "Envia a resposta não aceita áudio"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "e398d153-7e29-4b0e-93b1-3437081fb4c9",
+                "name": "message",
+                "value": "={{ $('When chat message received').last().json.chatInput }}",
+                "type": "string"
+              },
+              {
+                "id": "23a99036-8e5b-42cf-bb09-36c0aa03aabf",
+                "name": "=remoteJid",
+                "value": "19998210119",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          832,
+          528
+        ],
+        "id": "3b3c3af9-274c-45f1-9c71-b2d7f32fe274",
+        "name": "SET chat message"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "b06b399e-ee7a-4a50-99a8-463a0e70199f",
+                "name": "mensagem",
+                "value": "={{ $json.message }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1072,
+          1088
+        ],
+        "id": "98b65fc1-5972-4df4-845d-61e2b703b56b",
+        "name": "SET mensagem"
+      },
+      {
+        "parameters": {
+          "operation": "delete",
+          "key": "={{ $('webhook_whatsapp').last().json.body.data.key.remoteJid }}_{{ $('webhook_whatsapp').last().json.body.instance }}"
+        },
+        "type": "n8n-nodes-base.redis",
+        "typeVersion": 1,
+        "position": [
+          -1472,
+          640
+        ],
+        "id": "9f6169ba-a24c-4192-82af-3792f92457e9",
+        "name": "Limpa a fila de mensagens1",
+        "credentials": {
+          "redis": {
+            "id": "09S5reMQREDFaZPt",
+            "name": "Redis n8n"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "delete",
+          "key": "=cnpj_attempts_{{ $('webhook_whatsapp').last().json.body.data.key.remoteJid.split('@')[0] }}"
+        },
+        "type": "n8n-nodes-base.redis",
+        "typeVersion": 1,
+        "position": [
+          112,
+          640
+        ],
+        "id": "46197144-d85e-477a-9380-8463c0d36f2d",
+        "name": "DELETE +1 CNPJ",
+        "credentials": {
+          "redis": {
+            "id": "09S5reMQREDFaZPt",
+            "name": "Redis n8n"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "delete",
+          "key": "={{ $('webhook_whatsapp').last().json.body.data.key.remoteJid.split('@')[0] }}"
+        },
+        "type": "n8n-nodes-base.redis",
+        "typeVersion": 1,
+        "position": [
+          -992,
+          640
+        ],
+        "id": "c8ea9c2d-c9ed-49fd-9d20-4bdcdddb3707",
+        "name": "DELETE KEY: phone",
+        "credentials": {
+          "redis": {
+            "id": "09S5reMQREDFaZPt",
+            "name": "Redis n8n"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "delete",
+          "key": "=email_attempts_{{ $('webhook_whatsapp').last().json.body.data.key.remoteJid.split('@')[0] }}"
+        },
+        "type": "n8n-nodes-base.redis",
+        "typeVersion": 1,
+        "position": [
+          -112,
+          640
+        ],
+        "id": "91728782-5c64-4692-abd7-f0c7365a31e4",
+        "name": "DELETE KEY: email_attempts_",
+        "credentials": {
+          "redis": {
+            "id": "09S5reMQREDFaZPt",
+            "name": "Redis n8n"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "delete",
+          "key": "=eh_pergunta_bot{{ $('webhook_whatsapp').last().json.body.data.key.remoteJid.split('@')[0] }}_{{ $now.format('yyyy-MM-dd') }}"
+        },
+        "type": "n8n-nodes-base.redis",
+        "typeVersion": 1,
+        "position": [
+          -320,
+          640
+        ],
+        "id": "bdc841c4-5d3a-489c-b87d-acf326dcd716",
+        "name": "DELETE KEY: eh_pergunta_bot",
+        "credentials": {
+          "redis": {
+            "id": "09S5reMQREDFaZPt",
+            "name": "Redis n8n"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "delete",
+          "key": "=chat:{{ $(\"webhook_whatsapp\").last().json.body.data.key.remoteJid.split(\"@\")[0] }}:Session:{{ $now.format('yyyy-MM-dd') }}"
+        },
+        "type": "n8n-nodes-base.redis",
+        "typeVersion": 1,
+        "position": [
+          -544,
+          640
+        ],
+        "id": "7469a8fa-e571-4a06-b566-c19a14981c46",
+        "name": "DELETE KEY: chat",
+        "credentials": {
+          "redis": {
+            "id": "09S5reMQREDFaZPt",
+            "name": "Redis n8n"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "={{ $('webhook_whatsapp').item.json.body.server_url }}/message/sendText/{{ $('webhook_whatsapp').item.json.body.instance }}",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "apikey",
+                "value": "={{ $('webhook_whatsapp').item.json.body.apikey }}"
+              }
+            ]
+          },
+          "sendBody": true,
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "number",
+                "value": "={{ $('webhook_whatsapp').item.json.body.data.key.remoteJid.split(\"@\")[0] }}"
+              },
+              {
+                "name": "text",
+                "value": "=Seus dados foram excluídos com sucesso do BD!"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          512,
+          640
+        ],
+        "id": "5022c0fe-b98e-464e-ab93-dff446a78bce",
+        "name": "Envia Confirm. exclusão DB"
+      },
+      {
+        "parameters": {
+          "operation": "delete",
+          "key": "={{ $('webhook_whatsapp').last().json.body.data.key.remoteJid.split('@')[0] }}_memoria_persistente"
+        },
+        "type": "n8n-nodes-base.redis",
+        "typeVersion": 1,
+        "position": [
+          -768,
+          640
+        ],
+        "id": "c8815996-ca8e-4f06-9405-d40b5c65f1ed",
+        "name": "Deleta Memória Antiga1",
+        "credentials": {
+          "redis": {
+            "id": "09S5reMQREDFaZPt",
+            "name": "Redis n8n"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "DO $$\nDECLARE\n  target_phone text := '{{ $('webhook_whatsapp').last().json.body.data.key.remoteJid.split(\"@\")[0] }}';\nBEGIN\n  -- Step 1: Delete from user_session\n  DELETE FROM public.user_session\n  WHERE telefone = target_phone;\n\n  -- Step 2: Delete from cliente\n  DELETE FROM public.cliente\n  WHERE telefone = target_phone;\n\nEND $$;\n",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          -1200,
+          640
+        ],
+        "id": "ed4b2815-733c-46b4-942c-937b220afbe1",
+        "name": "DELETE user_session, conversation_state, leads",
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "c16971d5-b164-41b9-bacb-afb670e1c69f",
+                "name": "message",
+                "value": "={{ $('webhook_whatsapp').item.json.body.data.message.conversation }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          -128,
+          1296
+        ],
+        "id": "cbbf9de3-ae20-4256-b200-8bd2635eaec6",
+        "name": "Normaliza texto2"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "c16971d5-b164-41b9-bacb-afb670e1c69f",
+                "name": "message",
+                "value": "={{ $('webhook_whatsapp').item.json.body.data.message.conversation }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          -128,
+          912
+        ],
+        "id": "657484cf-843b-492d-a7f4-7923844b0427",
+        "name": "Normaliza texto1"
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+        "typeVersion": 1.1,
+        "position": [
+          208,
+          -32
+        ],
+        "id": "c6c37a68-617e-4a11-b225-aeb11ed6b199",
+        "name": "When chat message received",
+        "webhookId": "f7c8cf0a-6785-4f30-8bf2-a8546d9cb4ad"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "c16971d5-b164-41b9-bacb-afb670e1c69f",
+                "name": "message",
+                "value": "={{ $('webhook_whatsapp').item.json.body.data.message.conversation }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          -128,
+          1088
+        ],
+        "id": "c019d187-4bcc-47ac-8370-01b534c6bbb2",
+        "name": "Normaliza texto"
+      },
+      {
+        "parameters": {
+          "operation": "delete",
+          "key": "={{ $('webhook_whatsapp').last().json.body.data.key.remoteJid }}_{{ $('webhook_whatsapp').last().json.body.instance }}"
+        },
+        "type": "n8n-nodes-base.redis",
+        "typeVersion": 1,
+        "position": [
+          2272,
+          992
+        ],
+        "id": "a3a98e94-1bc2-4517-b18b-fb952842e899",
+        "name": "Limpa a fila de mensagens",
+        "credentials": {
+          "redis": {
+            "id": "09S5reMQREDFaZPt",
+            "name": "Redis n8n"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "push",
+          "list": "={{ $('webhook_whatsapp').last().json.body.data.key.remoteJid }}_{{ $('webhook_whatsapp').last().json.body.instance }}",
+          "messageData": "={{ JSON.stringify({\n      timestamp: new Date().toISOString(),\n      message: $('SET mensagem').last().json.mensagem \n    }) }}",
+          "tail": true
+        },
+        "type": "n8n-nodes-base.redis",
+        "typeVersion": 1,
+        "position": [
+          1360,
+          1088
+        ],
+        "id": "8a5ebb73-2c10-4bc1-bc58-4dfdf685d171",
+        "name": "Adiciona na fila",
+        "credentials": {
+          "redis": {
+            "id": "09S5reMQREDFaZPt",
+            "name": "Redis n8n"
+          }
+        }
+      },
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.noOp",
+        "typeVersion": 1,
+        "position": [
+          2272,
+          1200
+        ],
+        "id": "9c1d4811-adcb-4a2c-930c-b5427bbaf3d0",
+        "name": "No Operation, do nothing"
+      },
+      {
+        "parameters": {
+          "content": "## Unifica mensagens enviadas\nAguarda alguns segundos pra juntar as mensagens enviadas antes de responder algo, unifica e segue",
+          "height": 420,
+          "width": 1852,
+          "color": 4
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          800,
+          928
+        ],
+        "typeVersion": 1,
+        "id": "7ccbc42a-2967-4220-a062-71d4c6caab9e",
+        "name": "Sticky Note"
+      },
+      {
+        "parameters": {
+          "amount": 10
+        },
+        "type": "n8n-nodes-base.wait",
+        "typeVersion": 1.1,
+        "position": [
+          1616,
+          1088
+        ],
+        "id": "6904f56b-f6b4-460b-b194-0bb6f19023d8",
+        "name": "Wait",
+        "webhookId": "72c3bc82-8512-429a-a305-9409378ba6a9",
+        "disabled": true
+      },
+      {
+        "parameters": {
+          "rules": {
+            "values": [
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 2
+                  },
+                  "conditions": [
+                    {
+                      "leftValue": "={{ $('webhook_whatsapp').last().json.body.data.messageType }}{{ $('webhook_whatsapp').last().json.message.conversation }}",
+                      "rightValue": "audioMessage",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      },
+                      "id": "31aae67f-7046-4527-bd44-1f0bfe43c302"
+                    }
+                  ],
+                  "combinator": "and"
+                }
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 2
+                  },
+                  "conditions": [
+                    {
+                      "id": "332003b4-e2e1-4fc0-b68f-605d50951576",
+                      "leftValue": "={{ $('webhook_whatsapp').last().json.body.data.messageType }}",
+                      "rightValue": "conversation",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals",
+                        "name": "filter.operator.equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                }
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 2
+                  },
+                  "conditions": [
+                    {
+                      "id": "0a8cd12d-d24e-4146-b2e7-fa9dd2c4097d",
+                      "leftValue": "={{ $('webhook_whatsapp').last().json.body.data.messageType }}",
+                      "rightValue": "imageMessage",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals",
+                        "name": "filter.operator.equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                }
+              }
+            ]
+          },
+          "options": {
+            "fallbackOutput": "extra"
+          }
+        },
+        "type": "n8n-nodes-base.switch",
+        "typeVersion": 3.2,
+        "position": [
+          -704,
+          1120
+        ],
+        "id": "55751f73-bdd4-4a85-a574-92765f57f12f",
+        "name": "Valida tipo de mensagem"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "5a14ffe2-cf9b-499c-940c-d91e717e9c48",
+                "leftValue": "={{ $('webhook_whatsapp').item.json.body.data.key.fromMe }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "false",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          -1152,
+          1248
+        ],
+        "id": "425dc977-048b-4adc-b3b9-0b32086d9d7a",
+        "name": "Valida remetente"
+      },
+      {
+        "parameters": {
+          "errorMessage": "Tipo de mensagem não reconhecida."
+        },
+        "type": "n8n-nodes-base.stopAndError",
+        "typeVersion": 1,
+        "position": [
+          -128,
+          1488
+        ],
+        "id": "a289fe64-520e-40a3-8c9b-ada9333e6b8c",
+        "name": "Stop and Error"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "19dd615c-ffc6-43fd-a86e-9cbe54e2b179",
+                "name": "prompt",
+                "value": "={{ $json.prompt }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          4560,
+          944
+        ],
+        "id": "34c9fe7e-e72b-457c-910a-1c1bd0c7124b",
+        "name": "Define Prompt Agente Executor"
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "WITH existing_cliente AS (\n    SELECT *\n    FROM public.cliente\n    WHERE telefone = '{{ $('webhook_whatsapp').last().json.body.data.key.remoteJid.split('@')[0] }}'\n    LIMIT 1\n), inserted_cliente AS (\n    INSERT INTO public.cliente (telefone)\n    SELECT '{{ $('webhook_whatsapp').last().json.body.data.key.remoteJid.split('@')[0] }}'\n    WHERE NOT EXISTS (SELECT 1 FROM existing_cliente)\n    RETURNING *\n), final_cliente AS (\n    SELECT * FROM existing_cliente\n    UNION ALL\n    SELECT * FROM inserted_cliente\n), cliente_with_session AS (\n    SELECT \n        f.*,\n        s.session_id,\n        s.precisa_saudar,\n        us.transferido_para_humano,\n        us.id_agente_humano\n    FROM final_cliente f\n    CROSS JOIN LATERAL get_or_create_session(f.telefone) s\n    LEFT JOIN public.user_session us\n    ON us.id = s.session_id\n)\nSELECT json_build_object(\n    'cliente', to_jsonb(f) - 'session_id' - 'precisa_saudar' - 'transferido_para_humano' - 'id_agente_humano',\n    'session', json_build_object(\n        'session_id', f.session_id,\n        'precisa_saudar', f.precisa_saudar,\n        'transferido_para_humano', f.transferido_para_humano,\n        'id_agente_humano', f.id_agente_humano\n    )\n) AS result\nFROM cliente_with_session f;\n",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          2848,
+          992
+        ],
+        "id": "3b1a8643-4a76-42d5-bad6-4832a1ecf795",
+        "name": "SELECT or CREATE lead & user_session",
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "const lead = $('SELECT or CREATE lead & user_session').last().json.result.lead;\nconst diasLimite = 3; // número de dias considerado como \"recente\"\nconst agora = new Date();\n\nlet precisaConfirmar = false;\n\nif (lead.qualificacao_concluida_em) {\n  const qualificadoEm = new Date(lead.qualificacao_concluida_em);\n  if (!isNaN(qualificadoEm.getTime())) {\n    const diffEmMs = agora.getTime() - qualificadoEm.getTime();\n    precisaConfirmar = diffEmMs > diasLimite * 24 * 60 * 60 * 1000;\n  }\n}\n\nreturn {\n  qualificacao_finalizada_em: new Date(lead.qualificacao_concluida_em),\n  precisa_confirmar_dados: precisaConfirmar\n};"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          4080,
+          1120
+        ],
+        "id": "b2e26873-dd2a-4bfe-8b4a-4cfd30b5ef71",
+        "name": "Define se precisa confirmar dados"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "fb44445d-7744-4b7e-9026-be8fd2ff6934",
+                "leftValue": "={{ $json.result.session.transferido_para_humano }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          3360,
+          992
+        ],
+        "id": "dc3b635e-b82c-4621-81dd-e4aa8ce25637",
+        "name": "IF transferido_para_humano"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "2762293f-435e-443b-8e5b-d308bb332796",
+                "leftValue": "={{ $('webhook_whatsapp').item.json.body.data.message.conversation }}",
+                "rightValue": "##delete",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          -1760,
+          1232
+        ],
+        "id": "2f78876a-eee3-459a-b551-20759841b9fe",
+        "name": "Reiniciar conversa?2"
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "INSERT INTO public.conversation_state (\n  msg_usuario, \n  msg_agente, \n  session_id,\n  nome_usuario,\n  telefone\n) VALUES (\n  '{{ JSON.parse($('mensagem_concatenada').last().json.message).message }}', \n  '{{ $('Agente Supervisor').last().json.output }}', \n  '{{ $('SELECT or CREATE lead & user_session').last().json.result.session.session_id }}',\n  '{{ $('SELECT or CREATE lead & user_session').last().json.result.cliente.nome_completo }}',\n  '{{ $('webhook_whatsapp').last().json.body.data.key.remoteJid.split('@')[0] }}'\n);\n\nUPDATE public.user_session\nSET ultima_msg_em = NOW()\nWHERE id = '{{ $('SELECT or CREATE lead & user_session').last().json.result.session.session_id }}';\n",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          5920,
+          944
+        ],
+        "id": "ca42b1b0-901a-4bfc-80d5-dde6cebff432",
+        "name": "INSERT user & agent message",
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "0a1d201d-61f8-4197-9690-d2d22c8414cc",
+                "leftValue": "={{ $json.body.data.key.remoteJid }}",
+                "rightValue": "5519998210119@s.whatsapp.net",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals",
+                  "name": "filter.operator.equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          -2400,
+          1600
+        ],
+        "id": "d89106e6-7fd8-4e1f-8840-a3f90455f489",
+        "name": "If"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "={{ $('webhook_whatsapp').last().json.body.server_url }}/message/sendText/{{ $('webhook_whatsapp').last().json.body.instance }}",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "apikey",
+                "value": "={{ $('webhook_whatsapp').last().json.body.apikey }}"
+              }
+            ]
+          },
+          "sendBody": true,
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "number",
+                "value": "={{ $('webhook_whatsapp').item.json.body.data.key.remoteJid.split('@')[0] }}"
+              },
+              {
+                "name": "text",
+                "value": "=⚠️ Estamos fazendo uma pausa para melhorias na automação.\nRetornaremos às 12h com tudo funcionando normalmente.\nQualquer dúvida, estamos à disposição no nosso grupo do WhatsApp. 🤖"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          -2032,
+          1808
+        ],
+        "id": "125d8abf-b073-4b23-a168-32777395757f",
+        "name": "Envia a resposta não aceita imagem1"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "={{ $('webhook_whatsapp').last().json.body.server_url }}/chat/sendPresence/{{ $('webhook_whatsapp').last().json.body.instance }}",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "apikey",
+                "value": "={{ $('webhook_whatsapp').last().json.body.apikey }}"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"number\": \"{{ $('webhook_whatsapp').last().json.body.data.key.remoteJid.split('@')[0] }}\",\n  \"delay\": 5000,\n  \"presence\": \"composing\"\n}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          5680,
+          816
+        ],
+        "id": "1f70a969-c74e-45d3-953f-db49020529bc",
+        "name": "Digitando"
+      },
+      {
+        "parameters": {
+          "sessionIdType": "customKey",
+          "sessionKey": "={{ $('SELECT or CREATE lead & user_session').last().json.result.lead.telefone }}_{{ $('SELECT or CREATE lead & user_session').last()\n.json.result.session.session_id }}",
+          "tableName": "ortho_x_chat_histories",
+          "contextWindowLength": 20
+        },
+        "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+        "typeVersion": 1.3,
+        "position": [
+          4976,
+          1104
+        ],
+        "id": "e503c765-2936-44da-bf33-15f1a1289e5b",
+        "name": "Postgres Chat Memory",
+        "credentials": {
+          "postgres": {
+            "id": "ae3RFHgYvfFupxmE",
+            "name": "Postgres Supabase hugo.ferreira"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT contador_mensagens\nFROM user_session\nWHERE id = '{{ $('SELECT or CREATE lead & user_session').last().json.result.session.session_id }}' \n  AND criado_em >= NOW() - INTERVAL '5 minutes';\n",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          3088,
+          784
+        ],
+        "id": "9bc1bd83-f81e-46b3-b7f2-74c7ef3266ed",
+        "name": "SELECT contador_mensagens",
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "d4abe4ed-3fb4-4041-a66f-8b1ce0988b3e",
+                "leftValue": "={{ $json.contador_mensagens }}",
+                "rightValue": 20,
+                "operator": {
+                  "type": "number",
+                  "operation": "gte"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          3280,
+          784
+        ],
+        "id": "b37e8367-72a5-498a-acc7-31d47cb44fa8",
+        "name": "IF contador_mensagens >=25"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "={{ $('webhook_whatsapp').last().json.body.server_url }}/message/sendText/{{ $('webhook_whatsapp').last().json.body.instance }}",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "apikey",
+                "value": "={{ $('webhook_whatsapp').last().json.body.apikey }}"
+              }
+            ]
+          },
+          "sendBody": true,
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "number",
+                "value": "={{ $('webhook_whatsapp').last().json.body.data.key.remoteJid.split(\"@\")[0] }}"
+              },
+              {
+                "name": "text",
+                "value": "=Estamos transferindo a sua conversa para um dos nossos atendentes."
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          3728,
+          768
+        ],
+        "id": "f53ef079-a6ad-462e-8eb9-1310c15088a2",
+        "name": "POST mensagem usuário1"
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "WITH latest_session AS (\n  SELECT id\n  FROM public.user_session\n  WHERE telefone = '{{ $('webhook_whatsapp').last().json.body.data.key.remoteJid.split('@')[0] }}'\n  ORDER BY criado_em DESC\n  LIMIT 1\n)\nUPDATE public.user_session\nSET \n  transferido_para_humano = true,\n  atualizado_em = now()\nWHERE id IN (SELECT id FROM latest_session);\n",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          3536,
+          768
+        ],
+        "id": "6a63c42e-b807-4f3b-b6f3-98e07f45308e",
+        "name": "UPDATE transferido_para_humano",
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "content": "## Transferir para Enterness"
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          3568,
+          640
+        ],
+        "typeVersion": 1,
+        "id": "74d38123-8978-4032-908a-2a7d8a2580f1",
+        "name": "Sticky Note8"
+      },
+      {
+        "parameters": {
+          "content": "## Lógica Anti looping",
+          "width": 352
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          3056,
+          688
+        ],
+        "typeVersion": 1,
+        "id": "aa35f3b2-adb9-4f1b-bd14-aaeae572844f",
+        "name": "Sticky Note9"
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "={{ (() => { try { return $('mensagem_concatenada').last().json.message } catch(e) { return $('mensagem_concatenada1').item.json.question } })() }}",
+          "options": {
+            "systemMessage": "={{ $('Define Prompt Agente Executor').last().json.prompt }}",
+            "returnIntermediateSteps": true
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 2,
+        "position": [
+          5040,
+          944
+        ],
+        "id": "52f7641a-b77c-4794-aafd-85c2e76b08a4",
+        "name": "Agente Supervisor"
+      }
+    ],
+    "connections": {
+      "webhook_whatsapp": {
+        "main": [
+          [
+            {
+              "node": "Reiniciar conversa?2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Prompt Saudação": {
+        "main": [
+          [
+            {
+              "node": "Define Prompt Agente Executor",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Prompt SDR": {
+        "main": [
+          [
+            {
+              "node": "Define Prompt Agente Executor",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF nova saudação": {
+        "main": [
+          [
+            {
+              "node": "Prompt Saudação",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Define se precisa confirmar dados",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "POST mensagem usuário": {
+        "main": [
+          [
+            {
+              "node": "INSERT user & agent message",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Reiniciar conversa?": {
+        "main": [
+          [
+            {
+              "node": "Limpa a fila de mensagens1",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "SET chat message",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "DELETE chat memory": {
+        "main": [
+          [
+            {
+              "node": "Envia Confirm. exclusão DB",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF nova mensagem recebida": {
+        "main": [
+          [
+            {
+              "node": "Limpa a fila de mensagens",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "No Operation, do nothing",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "mensagem_concatenada": {
+        "main": [
+          [
+            {
+              "node": "SELECT or CREATE lead & user_session",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "GET Mensagem Buffer": {
+        "main": [
+          [
+            {
+              "node": "IF nova mensagem recebida",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenRouter Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Agente Supervisor",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "SET chat message": {
+        "main": [
+          [
+            {
+              "node": "SET mensagem",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "SET mensagem": {
+        "main": [
+          [
+            {
+              "node": "Adiciona na fila",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Limpa a fila de mensagens1": {
+        "main": [
+          [
+            {
+              "node": "DELETE user_session, conversation_state, leads",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "DELETE +1 CNPJ": {
+        "main": [
+          [
+            {
+              "node": "DELETE chat memory",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "DELETE KEY: phone": {
+        "main": [
+          [
+            {
+              "node": "Deleta Memória Antiga1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "DELETE KEY: email_attempts_": {
+        "main": [
+          [
+            {
+              "node": "DELETE +1 CNPJ",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "DELETE KEY: eh_pergunta_bot": {
+        "main": [
+          [
+            {
+              "node": "DELETE KEY: email_attempts_",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "DELETE KEY: chat": {
+        "main": [
+          [
+            {
+              "node": "DELETE KEY: eh_pergunta_bot",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Deleta Memória Antiga1": {
+        "main": [
+          [
+            {
+              "node": "DELETE KEY: chat",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "DELETE user_session, conversation_state, leads": {
+        "main": [
+          [
+            {
+              "node": "DELETE KEY: phone",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Normaliza texto2": {
+        "main": [
+          [
+            {
+              "node": "Envia a resposta não aceita imagem",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Normaliza texto1": {
+        "main": [
+          [
+            {
+              "node": "Envia a resposta não aceita áudio",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "When chat message received": {
+        "main": [
+          [
+            {
+              "node": "Reiniciar conversa?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Normaliza texto": {
+        "main": [
+          [
+            {
+              "node": "SET mensagem",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Limpa a fila de mensagens": {
+        "main": [
+          [
+            {
+              "node": "mensagem_concatenada",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Adiciona na fila": {
+        "main": [
+          [
+            {
+              "node": "Wait",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait": {
+        "main": [
+          [
+            {
+              "node": "GET Mensagem Buffer",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Valida tipo de mensagem": {
+        "main": [
+          [
+            {
+              "node": "Normaliza texto1",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Normaliza texto",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Normaliza texto2",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Stop and Error",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Valida remetente": {
+        "main": [
+          [
+            {
+              "node": "Valida tipo de mensagem",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "No Operation, do nothing1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Define Prompt Agente Executor": {
+        "main": [
+          [
+            {
+              "node": "Agente Supervisor",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "SELECT or CREATE lead & user_session": {
+        "main": [
+          [
+            {
+              "node": "SELECT contador_mensagens",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "IF transferido_para_humano",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Define se precisa confirmar dados": {
+        "main": [
+          [
+            {
+              "node": "Prompt SDR",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF transferido_para_humano": {
+        "main": [
+          [],
+          [
+            {
+              "node": "IF nova saudação",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Reiniciar conversa?2": {
+        "main": [
+          [
+            {
+              "node": "Limpa a fila de mensagens1",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Valida remetente",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "If": {
+        "main": [
+          [
+            {
+              "node": "Reiniciar conversa?2",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Envia a resposta não aceita imagem1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Postgres Chat Memory": {
+        "ai_memory": [
+          [
+            {
+              "node": "Agente Supervisor",
+              "type": "ai_memory",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "SELECT contador_mensagens": {
+        "main": [
+          [
+            {
+              "node": "IF contador_mensagens >=25",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF contador_mensagens >=25": {
+        "main": [
+          [
+            {
+              "node": "UPDATE transferido_para_humano",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "UPDATE transferido_para_humano": {
+        "main": [
+          [
+            {
+              "node": "POST mensagem usuário1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Agente Supervisor": {
+        "main": [
+          [
+            {
+              "node": "POST mensagem usuário",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "system migration",
+    "name": null,
+    "description": null,
+    "autosaved": false
+  },
+  "activeVersionId": "58619bc9-afbc-4032-94d7-af1f8561bb59",
+  "connections": {
+    "webhook_whatsapp": {
+      "main": [
+        [
+          {
+            "node": "Reiniciar conversa?2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prompt Saudação": {
+      "main": [
+        [
+          {
+            "node": "Define Prompt Agente Executor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prompt SDR": {
+      "main": [
+        [
+          {
+            "node": "Define Prompt Agente Executor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF nova saudação": {
+      "main": [
+        [
+          {
+            "node": "Prompt Saudação",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Define se precisa confirmar dados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "POST mensagem usuário": {
+      "main": [
+        [
+          {
+            "node": "INSERT user & agent message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reiniciar conversa?": {
+      "main": [
+        [
+          {
+            "node": "Limpa a fila de mensagens1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "SET chat message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DELETE chat memory": {
+      "main": [
+        [
+          {
+            "node": "Envia Confirm. exclusão DB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF nova mensagem recebida": {
+      "main": [
+        [
+          {
+            "node": "Limpa a fila de mensagens",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "mensagem_concatenada": {
+      "main": [
+        [
+          {
+            "node": "SELECT or CREATE lead & user_session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Mensagem Buffer": {
+      "main": [
+        [
+          {
+            "node": "IF nova mensagem recebida",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agente Supervisor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SET chat message": {
+      "main": [
+        [
+          {
+            "node": "SET mensagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SET mensagem": {
+      "main": [
+        [
+          {
+            "node": "Adiciona na fila",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limpa a fila de mensagens1": {
+      "main": [
+        [
+          {
+            "node": "DELETE user_session, conversation_state, leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DELETE +1 CNPJ": {
+      "main": [
+        [
+          {
+            "node": "DELETE chat memory",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DELETE KEY: phone": {
+      "main": [
+        [
+          {
+            "node": "Deleta Memória Antiga1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DELETE KEY: email_attempts_": {
+      "main": [
+        [
+          {
+            "node": "DELETE +1 CNPJ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DELETE KEY: eh_pergunta_bot": {
+      "main": [
+        [
+          {
+            "node": "DELETE KEY: email_attempts_",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DELETE KEY: chat": {
+      "main": [
+        [
+          {
+            "node": "DELETE KEY: eh_pergunta_bot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deleta Memória Antiga1": {
+      "main": [
+        [
+          {
+            "node": "DELETE KEY: chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DELETE user_session, conversation_state, leads": {
+      "main": [
+        [
+          {
+            "node": "DELETE KEY: phone",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normaliza texto2": {
+      "main": [
+        [
+          {
+            "node": "Envia a resposta não aceita imagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normaliza texto1": {
+      "main": [
+        [
+          {
+            "node": "Envia a resposta não aceita áudio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Reiniciar conversa?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normaliza texto": {
+      "main": [
+        [
+          {
+            "node": "SET mensagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limpa a fila de mensagens": {
+      "main": [
+        [
+          {
+            "node": "mensagem_concatenada",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Adiciona na fila": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "GET Mensagem Buffer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Valida tipo de mensagem": {
+      "main": [
+        [
+          {
+            "node": "Normaliza texto1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Normaliza texto",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Normaliza texto2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop and Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Valida remetente": {
+      "main": [
+        [
+          {
+            "node": "Valida tipo de mensagem",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Define Prompt Agente Executor": {
+      "main": [
+        [
+          {
+            "node": "Agente Supervisor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SELECT or CREATE lead & user_session": {
+      "main": [
+        [
+          {
+            "node": "SELECT contador_mensagens",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "IF transferido_para_humano",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Define se precisa confirmar dados": {
+      "main": [
+        [
+          {
+            "node": "Prompt SDR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF transferido_para_humano": {
+      "main": [
+        [],
+        [
+          {
+            "node": "IF nova saudação",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reiniciar conversa?2": {
+      "main": [
+        [
+          {
+            "node": "Limpa a fila de mensagens1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Valida remetente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Reiniciar conversa?2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Envia a resposta não aceita imagem1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Agente Supervisor",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SELECT contador_mensagens": {
+      "main": [
+        [
+          {
+            "node": "IF contador_mensagens >=25",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF contador_mensagens >=25": {
+      "main": [
+        [
+          {
+            "node": "UPDATE transferido_para_humano",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UPDATE transferido_para_humano": {
+      "main": [
+        [
+          {
+            "node": "POST mensagem usuário1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agente Supervisor": {
+      "main": [
+        [
+          {
+            "node": "POST mensagem usuário",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-08-28T15:16:03.234Z",
+  "id": "ENhD2us4nKj0u45C",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Agente Supervisor",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "e96dfdb6-5e8f-4e0f-971a-adf068218e50",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -2384,
+        1248
+      ],
+      "id": "fbd78b3a-3e75-456b-9dd3-c2dcda00de19",
+      "name": "webhook_whatsapp",
+      "webhookId": "e96dfdb6-5e8f-4e0f-971a-adf068218e50"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f2119d85-c561-4841-af37-475891128221",
+              "name": "prompt",
+              "value": "=Você é a Clara uma Assistente virtual SDR comercial B2B da Paramount Plásticos no Whatsapp, destaque no mercado brasileiro de utilidades domésticas, organização e decoração, responsável por atender, qualificar e conduzir novos leads (pessoas) de forma ágil e estratégica. Conduza a conversa de forma natural e objetiva, deixando implícito que está compreendendo o contexto da empresa para oferecer a melhor solução. Evite qualquer menção a termos como “cadastro” ou “qualificação”. O foco é entender o lead, e no começo sempre deixar claro que seu papel é atender leads que tem objetivo de vender produtos da Paramount, mas faça isso sem que ele necessariamente perceba que está sendo conduzido em um processo comercial.\n\nFaça uma saudação seguindo o exemplo e personalizando para a pessoa, se for o caso:\n\nOlá! Sou a Clara, assistente comercial virtual da Paramount. Posso te ajudar a ser atendido pelo time comercial (ou se tornar um revendedor Paramount - Lembrando que só vendemos para PJ), tirar dúvidas sobre produtos, ou saber mais sobre a empresa.\n\nPara começar o seu atendimento, precisarei de alguns dados do seu negócio.\nAntes de mais nada, por favor, qual o seu nome e no que posso ajudar?\n\n## Objetivo\n\nSeu objetivo principal é coletar as seguintes informações do lead (importante: analise o histórico de mensagem para identificar se a pessoa já envou alguma informação antes de ser solicitada ou enviou múltiplas informações para utilizar a tool adequadamente `salvar_dados_lead`):\n\n- **interesse, necessidade ou desejo da pessoa**: {{ $('SELECT or CREATE lead & user_session').last().json.result.lead.interesse ? `Informação já obtida (${$('SELECT or CREATE lead & user_session').last().json.result.lead.interesse})` : '###Primordial: Pergunte e entenda se a pessoa possui alguma necessidade especifica ou interesse em algum produto. Analise e elabore perguntas para entender melhor a intenção, necessidade ou desejo. Se necessário repita a pergunta até 3x, no máximo.' }}\n\n- **nome**: {{ $('SELECT or CREATE lead & user_session').last().json.result.lead.nome \n  ? ($('Define se precisa confirmar dados').last().json.precisa_confirmar_dados \n      ? `Confirmar nome existente: ${$('SELECT or CREATE lead & user_session').last().json.result.lead.nome} (e perguntar se deseja manter ou atualizar)` \n      : `Informação já obtida (${$('SELECT or CREATE lead & user_session').last().json.result.lead.nome})`) \n  : 'solicitar o nome (OBRIGATÓRIO)' }}\n\n- **email**: {{ $('SELECT or CREATE lead & user_session').last().json.result.lead.email\n  ? ($('Define se precisa confirmar dados').last().json.precisa_confirmar_dados\n      ? `Confirmar e-mail existente: ${$('SELECT or CREATE lead & user_session').last().json.result.lead.email} (e perguntar se deseja manter ou atualizar)`\n      : `Informação já obtida (${$('SELECT or CREATE lead & user_session').last().json.result.lead.email})`)\n  : 'solicitar o e-mail (OBRIGATÓRIO)' }}\n\n- **cnpj**: {{ $('SELECT or CREATE lead & user_session').last().json.result.lead.cnpj\n  ? ($('Define se precisa confirmar dados').last().json.precisa_confirmar_dados\n      ? `Confirmar CNPJ existente: ${$('SELECT or CREATE lead & user_session').last().json.result.lead.cnpj} (e perguntar se deseja manter ou atualizar)`\n      : `Informação já obtida (${$('SELECT or CREATE lead & user_session').last().json.result.lead.cnpj})`)\n  : 'solicitar o cnpj (OBRIGATÓRIO. Atendemos exclusivamente no atacado B2B, o CNPJ é essencial para prosseguirmos com o atendimento)' }}\n\n- **cargo**: {{ $('SELECT or CREATE lead & user_session').last().json.result.lead.cargo\n  ? ($('Define se precisa confirmar dados').last().json.precisa_confirmar_dados\n      ? `Confirmar cargo existente: ${$('SELECT or CREATE lead & user_session').last().json.result.lead.cargo} (e perguntar se deseja manter ou atualizar)`\n      : `Informação já obtida (${$('SELECT or CREATE lead & user_session').last().json.result.lead.cargo})`)\n  : 'solicitar o cargo' }}\n\n- **se a empresa fatura mais de 5 milhões de reais por ano**: {{ $('SELECT or CREATE lead & user_session').last().json.result.lead.faturamento_5_milhoes\n  ? `Informação já obtida (${$('SELECT or CREATE lead & user_session').last().json.result.lead.faturamento_5_milhoes})`\n  : 'solicitar se fatura mais que 5M/ano (OBRIGATÓRIO, essa informação é importante para direcionarmos o lead ao time correto. Assim, cada lead é atendido pelo consultor mais alinhado ao seu momento de negócio)' }}\n\n- **segmento da empresa**: {{ $('SELECT or CREATE lead & user_session').last().json.result.lead.segmento_mercado\n  ? ($('Define se precisa confirmar dados').last().json.precisa_confirmar_dados\n      ? `Confirmar segmento existente: ${$('SELECT or CREATE lead & user_session').last().json.result.lead.segmento_mercado} (e perguntar se deseja manter ou atualizar)`\n      : `Informação já obtida (${$('SELECT or CREATE lead & user_session').last().json.result.lead.segmento_mercado})`)\n  : 'solicitar o segmento da empresa(Essa informação é importante para o nosso time comercial. Nosso atendimento é consultivo; compreender o segmento permite montar um mix assertivo para a operação do lead.)' }}\n\n- **quantidade de lojas**: {{ $('SELECT or CREATE lead & user_session').last().json.result.lead.total_unidades\n  ? `Informação obtida: (${$('SELECT or CREATE lead & user_session').last().json.result.lead.total_unidades})`\n  : 'solicitar a quantidade de lojas (físicas ou contas online) (OBRIGATÓRIO)' }}\n\n## Diretrizes\n\n- *SEMPRE* que identificar qualquer uma das informações acima (especialmente o nome da pessoa), utilize *IMEDIATAMENTE* a ferramenta `salvar_dados_lead`\n- *SEMPRE* que identificar perguntas sobre **produtos**, SEMPRE utilize a ferramenta `consulta_produto` para buscar detalhes de produtos\n- *SEMPRE* que identificar perguntas sobre a **empresa** (política, processos, pedido mínimo, áreas de entregas, logística, certificações, etc.), utilize a ferramenta `consulta_faq`\n- Conduza a conversa com **uma pergunta clara por vez**. NUNCA faça duas perguntas em uma única mensagem\n- **Aguarde a resposta** antes de seguir para a próxima pergunta\n- Se o lead solicitar falar com um \"agente humano\", \"atendente\", \"pessoa real\", \"vendedor\" ou similar CONFIRME a intenção da pessoa, e uma vez CONFIRMADO use IMEDIATAMENTE a ferramenta `falar_humano_tool` e aguarde a validação da ferramenta\n- Quando solicitado, compartilhe o catálogo: O catálogo completo está disponível online em: [https://online.fliphtml5.com/jwlcp/bnrm/#p=1] - O usuário encontrará todos os nossos mais de 3.000 itens organizados por categoria, com fotos e especificações\n\n## Como usar as informações das ferramentas\n\n1. **Quando usar as ferramentas consulta_faq ou consulta_produto**, analise TODOS os documentos retornados\n2. **Combine as informações** para dar uma resposta completa e útil\n3. **Se a informação não estiver disponível**, seja honesto e ofereça alternativas (ex: \"posso conectar você com nossa equipe\")\n\n## Reengajamento\n\nSe o lead não responder ou parecer hesitante, reengaje de forma natural. Exemplos:\n\n- \"Posso te ajudar com algo enquanto isso?\"  \n- \"Só confirmando, você chegou a ver minha pergunta anterior?\"  \n- \"Tranquilo! Quando conseguir, me avisa.\"  \n- \"Legal, já tenho seu nome. Agora, pode me passar seu e-mail?\"  \n- \"Consigo só confirmar seu cargo na empresa?\"\n\n## Progresso Parcial\n\nSe o lead fornecer apenas parte dos dados:\n\n- Reconheça o progresso\n- Continue a coleta normalmente, com o mesmo tom amigável\n\n## Estratégia\n\n- Seja útil antes de retomar a qualificação caso o lead demonstre desinteresse\n- Nunca envie mais de uma pergunta por vez\n- Mantenha o tom consultivo e amigável ao longo de toda a conversa\n- SEMPRE use as ferramentas para buscar informações precisas e atualizadas\n- Evite repetir o nome da pessoa em toda a resposta. Use de forma natural, quando necessário.\n\n## Sistema de Estados\n\nVocê recebe informações sobre o **ESTADO ATUAL DA CONVERSA** que indica:\n- Qual pergunta deve ser feita agora\n- Quais dados já foram coletados\n- Qual campo foi detectado na mensagem do usuário\n\n**IMPORTANTE:**\n- Se um campo for inválido, explique o erro e peça a informação novamente\n- Siga a sequência sugerida pelo estado, mas seja flexível se o usuário fornecer informações fora de ordem\n- Use as ferramentas de busca ANTES de responder qualquer pergunta sobre produtos ou empresa\n- Nunca responda com informações que você não obteve através das ferramentas\n- Nunca invente respostas\n- Atente-se para identificar se a resposta já contém alguma informação necessária antes de pedir ao usuário",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4176,
+        864
+      ],
+      "id": "847c1cdd-ead4-43c6-9326-4a2cb4f7eec8",
+      "name": "Prompt Saudação"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f2119d85-c561-4841-af37-475891128221",
+              "name": "prompt",
+              "value": "=Você é a Clara uma Assistente virtual SDR comercial B2B da Paramount Plásticos no Whatsapp, destaque no mercado brasileiro de utilidades domésticas, organização e decoração, responsável por atender, qualificar e conduzir novos leads de forma ágil e estratégica. Conduza a conversa de forma natural e objetiva, deixando implícito que está compreendendo o contexto da empresa para oferecer a melhor solução. Evite qualquer menção a termos como “cadastro” ou “qualificação”. O foco é entender o lead, sem que ele perceba que está sendo conduzido em um processo comercial.\n\n{{ \n  (() => {\n   const precisaConfirmarDados = $('Define se precisa confirmar dados').last().json.precisa_confirmar_dados;\n   const qualificacaoFinalizadaEm = $('Define se precisa confirmar dados').last().json.qualificacao_finalizada_em;\n\n    return !precisaConfirmarDados ? `A pessoa tem um atendimento ativo qualificado em ${qualificacaoFinalizadaEm}. Geralmente o time da Paramount Plásticos entra em contato em até 3 dias úteis. Avise a pessoa, se necessário.` : '';\n  })()\n}}\n\n{{ $('Define se precisa confirmar dados').last().json.precisa_confirmar_dados ? `## Regra importante\n\nO lead já possui um cadastro. Confirme os dados existentes com uma pergunta natural, como:\n> \"Já tenho os dados que preciso ${$('SELECT or CREATE lead & user_session').last().json.result.lead.nome}. Podemos manter as mesmas informações do último contato ou precisa atualizar algo?\"\n\nSEMPRE utilize a ferramenta \"salvar_dados_lead\" passando os dados disponíveis se a pessoa quiser falar como comercial.` : '' }}\n\n## Objetivo\n\nSeu objetivo principal é coletar as seguintes informações do lead:\n\n- **interesse, necessidade ou desejo da pessoa**: {{ $('SELECT or CREATE lead & user_session').last().json.result.lead.interesse ? `Informação já obtida (${$('SELECT or CREATE lead & user_session').last().json.result.lead.interesse})` : '###Primordial: Pergunte e entenda se a pessoa possui alguma necessidade especifica ou interesse em algum produto. Analise e elabore perguntas para entender melhor a intenção, necessidade ou desejo. Se necessário repita a pergunta até 3x, no máximo.' }}\n\n- **nome**: {{ $('SELECT or CREATE lead & user_session').last().json.result.lead.nome \n  ? ($('Define se precisa confirmar dados').last().json.precisa_confirmar_dados \n      ? `Confirmar nome existente: ${$('SELECT or CREATE lead & user_session').last().json.result.lead.nome} (e perguntar se deseja manter ou atualizar)` \n      : `Informação já obtida (${$('SELECT or CREATE lead & user_session').last().json.result.lead.nome})`) \n  : 'solicitar o nome (OBRIGATÓRIO)' }}\n\n- **email**: {{ $('SELECT or CREATE lead & user_session').last().json.result.lead.email\n  ? ($('Define se precisa confirmar dados').last().json.precisa_confirmar_dados\n      ? `Confirmar e-mail existente: ${$('SELECT or CREATE lead & user_session').last().json.result.lead.email} (e perguntar se deseja manter ou atualizar)`\n      : `Informação já obtida (${$('SELECT or CREATE lead & user_session').last().json.result.lead.email})`)\n  : 'solicitar o e-mail (OBRIGATÓRIO)' }}\n\n- **cnpj**: {{ $('SELECT or CREATE lead & user_session').last().json.result.lead.cnpj\n  ? ($('Define se precisa confirmar dados').last().json.precisa_confirmar_dados\n      ? `Confirmar CNPJ existente: ${$('SELECT or CREATE lead & user_session').last().json.result.lead.cnpj} (e perguntar se deseja manter ou atualizar)`\n      : `Informação já obtida (${$('SELECT or CREATE lead & user_session').last().json.result.lead.cnpj})`)\n  : 'solicitar o cnpj (OBRIGATÓRIO. Atendemos exclusivamente no atacado B2B, o CNPJ é essencial para prosseguirmos com o atendimento)' }}\n\n- **cargo**: {{ $('SELECT or CREATE lead & user_session').last().json.result.lead.cargo\n  ? ($('Define se precisa confirmar dados').last().json.precisa_confirmar_dados\n      ? `Confirmar cargo existente: ${$('SELECT or CREATE lead & user_session').last().json.result.lead.cargo} (e perguntar se deseja manter ou atualizar)`\n      : `Informação já obtida (${$('SELECT or CREATE lead & user_session').last().json.result.lead.cargo})`)\n  : 'solicitar o cargo' }}\n\n- **se a empresa fatura mais de 5 milhões de reais por ano**: {{ $('SELECT or CREATE lead & user_session').last().json.result.lead.faturamento_5_milhoes\n  ? `Informação já obtida (${$('SELECT or CREATE lead & user_session').last().json.result.lead.faturamento_5_milhoes})`\n  : 'solicitar se fatura mais que 5M/ano (OBRIGATÓRIO, essa informação é importante para direcionarmos o lead ao time correto. Assim, cada lead é atendido pelo consultor mais alinhado ao seu momento de negócio)' }}\n\n- **segmento da empresa**: {{ $('SELECT or CREATE lead & user_session').last().json.result.lead.segmento_mercado\n  ? ($('Define se precisa confirmar dados').last().json.precisa_confirmar_dados\n      ? `Confirmar segmento existente: ${$('SELECT or CREATE lead & user_session').last().json.result.lead.segmento_mercado} (e perguntar se deseja manter ou atualizar)`\n      : `Informação já obtida (${$('SELECT or CREATE lead & user_session').last().json.result.lead.segmento_mercado})`)\n  : 'solicitar o segmento da empresa(Essa informação é importante para o nosso time comercial. Nosso atendimento é consultivo; compreender o segmento permite montar um mix assertivo para a operação do lead.)' }}\n\n- **quantidade de lojas**: {{ $('SELECT or CREATE lead & user_session').last().json.result.lead.total_unidades\n  ? `Informação obtida: (${$('SELECT or CREATE lead & user_session').last().json.result.lead.total_unidades})`\n  : 'solicitar a quantidade de lojas (físicas ou contas online) (OBRIGATÓRIO)' }}\n\n## Diretrizes\n\n- *SEMPRE* que identificar qualquer uma das informações acima, utilize IMEDIATAMENTE a ferramenta `salvar_dados_lead`\n- SOMENTE que identificar perguntas sobre **produtos**, SEMPRE utilize a ferramenta `consulta_produto` para buscar detalhes de produtos\n- *SEMPRE* que identificar perguntas sobre a **empresa** (política, processos, pedido mínimo, áreas de entregas, logística, certificações, etc.), utilize a ferramenta `consulta_faq`\n- Conduza a conversa com **uma pergunta clara por vez**. NUNCA faça duas perguntas em uma única mensagem\n- **Aguarde a resposta** antes de seguir para a próxima pergunta\n- Se o lead solicitar falar com um \"agente humano\", \"atendente\", \"pessoa real\", \"vendedor\" ou similar CONFIRME a intenção da pessoa, e uma vez CONFIRMADO use IMEDIATAMENTE a ferramenta `falar_humano_tool` e aguarde a validação da ferramenta\n- Quando solicitado, compartilhe o catálogo: O catálogo completo está disponível online em: [https://online.fliphtml5.com/jwlcp/bnrm/#p=1] - O usuário encontrará todos os nossos mais de 3.000 itens organizados por categoria, com fotos e especificações\n- Você não anota pedidos\n- SEMPRE que a pessoa disser que quer fazer um pedido use a ferramenta `atualizar_dados_lead`\n- SEMPRE use a ferramenta `atualizar_dados_lead` ao direcionar para o comercial\n- NUNCA ofereça \"confirmar com o time comercial\" ou promessas de retorno que não podem ser cumpridas\n\n## Como usar as informações das ferramentas\n\n1. **Quando usar as ferramentas consulta_faq ou consulta_produto**, analise TODOS os documentos retornados\n2. **Combine as informações** para dar uma resposta completa e útil\n3. **Se a informação não estiver disponível nas ferramentas**, seja honesto e diga que não tem essa informação específica no momento, mas mantenha o foco na qualificação do lead\n\n## Reengajamento\n\nSe o lead não responder ou parecer hesitante, reengaje de forma natural. Exemplos:\n\n- \"Posso te ajudar com algo enquanto isso?\"  \n- \"Só confirmando, você chegou a ver minha pergunta anterior?\"  \n- \"Tranquilo! Quando conseguir, me avisa.\"  \n- \"Legal, já tenho seu nome. Agora, pode me passar seu e-mail?\"  \n- \"Consigo só confirmar seu cargo na empresa?\"\n\n## Progresso Parcial\n\nSe o lead fornecer apenas parte dos dados:\n\n- Reconheça o progresso\n- Continue a coleta normalmente, com o mesmo tom amigável\n\n## Estratégia\n\n- Seja útil antes de retomar a qualificação caso o lead demonstre desinteresse\n- Nunca envie mais de uma pergunta por vez\n- Mantenha o tom consultivo e amigável ao longo de toda a conversa\n- SEMPRE use as ferramentas para buscar informações precisas e atualizadas\n- Evite repetir o nome da pessoa em toda a resposta. Use de forma natural, quando necessário.\n\n## Sistema de Estados\n\nVocê recebe informações sobre o **ESTADO ATUAL DA CONVERSA** que indica:\n- Qual pergunta deve ser feita agora\n- Quais dados já foram coletados\n- Qual campo foi detectado na mensagem do usuário\n\n**IMPORTANTE:**\n- Se um campo for inválido, explique o erro e peça a informação novamente\n- Siga a sequência sugerida pelo estado, mas seja flexível se o usuário fornecer informações fora de ordem\n- Use as ferramentas de busca ANTES de responder qualquer pergunta sobre produtos ou empresa\n- Nunca responda com informações que você não obteve através das ferramentas\n- Nunca invente respostas",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4288,
+        1120
+      ],
+      "id": "1dc5e5c6-460b-40c9-98ca-7d1c3a30f655",
+      "name": "Prompt SDR"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "20e5df71-0933-4c6a-bc49-0a7194ae6ed6",
+              "leftValue": "={{ $('SELECT or CREATE lead & user_session').last().json.result.lead.nome }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3712,
+        1008
+      ],
+      "id": "b1855e72-6f7e-4cb9-b38b-d8a747a9d1a0",
+      "name": "IF nova saudação"
+    },
+    {
+      "parameters": {
+        "content": "## Valida se foi pedido para o agente parar de responder por um tempo",
+        "height": 500,
+        "width": 740,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1424,
+        1008
+      ],
+      "typeVersion": 1,
+      "id": "c7e315c9-8477-4145-9adb-57c3a2b11d80",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## Valida tipo de mensagem e trata (áudio, texto e imagem)\nVerifica se a mensagem enviada foi um texto ou áudio, e se for áudio transcreve pra seguir o fluxo",
+        "height": 860,
+        "width": 1140,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -624,
+        800
+      ],
+      "typeVersion": 1,
+      "id": "d6642460-ca6c-493d-b8fd-c1a77a071d02",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('webhook_whatsapp').last().json.body.server_url }}/message/sendText/{{ $('webhook_whatsapp').last().json.body.instance }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $('webhook_whatsapp').last().json.body.apikey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $('webhook_whatsapp').last().json.body.data.key.remoteJid.split(\"@\")[0] }}"
+            },
+            {
+              "name": "text",
+              "value": "={{ $('Agente Supervisor').last().json.output }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        5680,
+        944
+      ],
+      "id": "8d7abefb-f92e-499c-a445-497cf1d5235b",
+      "name": "POST mensagem usuário"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "2762293f-435e-443b-8e5b-d308bb332796",
+              "leftValue": "={{ $json.chatInput }}",
+              "rightValue": "##delete",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        528,
+        224
+      ],
+      "id": "afd875aa-e923-4af3-8527-290967a256e5",
+      "name": "Reiniciar conversa?"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "key": "=chat:{{ $('webhook_whatsapp').last().json.body.data.key.remoteJid.split('@')[0] }}:session:{{ $now.format('yyyy-MM-dd') }}"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        336,
+        640
+      ],
+      "id": "99c0a41d-359c-4f81-9a9c-e838ce7fb2d6",
+      "name": "DELETE chat memory",
+      "credentials": {
+        "redis": {
+          "id": "09S5reMQREDFaZPt",
+          "name": "Redis n8n"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "11422931-70d4-467e-a25b-815d82d6eb43",
+              "leftValue": "={{ $json.propertyName.map(item => JSON.parse(item.replace(/^=/, ''))).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)).pop().message }}",
+              "rightValue": "={{ $('SET mensagem').last().json.mensagem }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2048,
+        1088
+      ],
+      "id": "702dbc0a-f6c7-4cdd-9f49-3236a96b5b11",
+      "name": "IF nova mensagem recebida"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -928,
+        1360
+      ],
+      "id": "a2165b29-14e4-4745-b901-bc803962fb54",
+      "name": "No Operation, do nothing1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9b992a80-e353-45d7-86fe-855d8a621ed9",
+              "name": "message",
+              "value": "={{ $('Limpa a fila de mensagens').item.json.propertyName.join(\"\\n\") }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2512,
+        992
+      ],
+      "id": "c53f07dc-0bf6-426d-89a5-3c5e79cc9347",
+      "name": "mensagem_concatenada"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "key": "={{ $('webhook_whatsapp').last().json.body.data.key.remoteJid }}_{{ $('webhook_whatsapp').last().json.body.instance }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        1840,
+        1088
+      ],
+      "id": "bebd3fb7-2144-470b-af93-259d1b960d44",
+      "name": "GET Mensagem Buffer",
+      "credentials": {
+        "redis": {
+          "id": "09S5reMQREDFaZPt",
+          "name": "Redis n8n"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        4848,
+        1104
+      ],
+      "id": "17a6f128-6e88-4f00-b7e2-04495a96de09",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "dngDCDolZixjXFgP",
+          "name": "OpenRouter ni.automacoes"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('webhook_whatsapp').last().json.body.server_url }}/message/sendText/{{ $('webhook_whatsapp').last().json.body.instance }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $('webhook_whatsapp').last().json.body.apikey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $('webhook_whatsapp').item.json.body.data.key.remoteJid.split('@')[0] }}"
+            },
+            {
+              "name": "text",
+              "value": "=Opa! Por enquanto só conseguimos entender mensagens de texto. Manda pra gente em texto, por favor."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        128,
+        1296
+      ],
+      "id": "9778ee95-99a6-4c37-a715-de7dc86bdfb6",
+      "name": "Envia a resposta não aceita imagem"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('webhook_whatsapp').last().json.body.server_url }}/message/sendText/{{ $('webhook_whatsapp').last().json.body.instance }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $('webhook_whatsapp').last().json.body.apikey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $('webhook_whatsapp').item.json.body.data.key.remoteJid.split('@')[0] }}"
+            },
+            {
+              "name": "text",
+              "value": "=Opa! Por enquanto só conseguimos entender mensagens de texto. Manda pra gente em texto, por favor."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        128,
+        912
+      ],
+      "id": "097eb8d5-c5de-4da4-bd82-5b809c8fbea4",
+      "name": "Envia a resposta não aceita áudio"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e398d153-7e29-4b0e-93b1-3437081fb4c9",
+              "name": "message",
+              "value": "={{ $('When chat message received').last().json.chatInput }}",
+              "type": "string"
+            },
+            {
+              "id": "23a99036-8e5b-42cf-bb09-36c0aa03aabf",
+              "name": "=remoteJid",
+              "value": "19998210119",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        832,
+        528
+      ],
+      "id": "3b3c3af9-274c-45f1-9c71-b2d7f32fe274",
+      "name": "SET chat message"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b06b399e-ee7a-4a50-99a8-463a0e70199f",
+              "name": "mensagem",
+              "value": "={{ $json.message }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1072,
+        1088
+      ],
+      "id": "98b65fc1-5972-4df4-845d-61e2b703b56b",
+      "name": "SET mensagem"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "key": "={{ $('webhook_whatsapp').last().json.body.data.key.remoteJid }}_{{ $('webhook_whatsapp').last().json.body.instance }}"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -1472,
+        640
+      ],
+      "id": "9f6169ba-a24c-4192-82af-3792f92457e9",
+      "name": "Limpa a fila de mensagens1",
+      "credentials": {
+        "redis": {
+          "id": "09S5reMQREDFaZPt",
+          "name": "Redis n8n"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "key": "=cnpj_attempts_{{ $('webhook_whatsapp').last().json.body.data.key.remoteJid.split('@')[0] }}"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        112,
+        640
+      ],
+      "id": "46197144-d85e-477a-9380-8463c0d36f2d",
+      "name": "DELETE +1 CNPJ",
+      "credentials": {
+        "redis": {
+          "id": "09S5reMQREDFaZPt",
+          "name": "Redis n8n"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "key": "={{ $('webhook_whatsapp').last().json.body.data.key.remoteJid.split('@')[0] }}"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -992,
+        640
+      ],
+      "id": "c8ea9c2d-c9ed-49fd-9d20-4bdcdddb3707",
+      "name": "DELETE KEY: phone",
+      "credentials": {
+        "redis": {
+          "id": "09S5reMQREDFaZPt",
+          "name": "Redis n8n"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "key": "=email_attempts_{{ $('webhook_whatsapp').last().json.body.data.key.remoteJid.split('@')[0] }}"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -112,
+        640
+      ],
+      "id": "91728782-5c64-4692-abd7-f0c7365a31e4",
+      "name": "DELETE KEY: email_attempts_",
+      "credentials": {
+        "redis": {
+          "id": "09S5reMQREDFaZPt",
+          "name": "Redis n8n"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "key": "=eh_pergunta_bot{{ $('webhook_whatsapp').last().json.body.data.key.remoteJid.split('@')[0] }}_{{ $now.format('yyyy-MM-dd') }}"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -320,
+        640
+      ],
+      "id": "bdc841c4-5d3a-489c-b87d-acf326dcd716",
+      "name": "DELETE KEY: eh_pergunta_bot",
+      "credentials": {
+        "redis": {
+          "id": "09S5reMQREDFaZPt",
+          "name": "Redis n8n"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "key": "=chat:{{ $(\"webhook_whatsapp\").last().json.body.data.key.remoteJid.split(\"@\")[0] }}:Session:{{ $now.format('yyyy-MM-dd') }}"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -544,
+        640
+      ],
+      "id": "7469a8fa-e571-4a06-b566-c19a14981c46",
+      "name": "DELETE KEY: chat",
+      "credentials": {
+        "redis": {
+          "id": "09S5reMQREDFaZPt",
+          "name": "Redis n8n"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('webhook_whatsapp').item.json.body.server_url }}/message/sendText/{{ $('webhook_whatsapp').item.json.body.instance }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $('webhook_whatsapp').item.json.body.apikey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $('webhook_whatsapp').item.json.body.data.key.remoteJid.split(\"@\")[0] }}"
+            },
+            {
+              "name": "text",
+              "value": "=Seus dados foram excluídos com sucesso do BD!"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        512,
+        640
+      ],
+      "id": "5022c0fe-b98e-464e-ab93-dff446a78bce",
+      "name": "Envia Confirm. exclusão DB"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "key": "={{ $('webhook_whatsapp').last().json.body.data.key.remoteJid.split('@')[0] }}_memoria_persistente"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -768,
+        640
+      ],
+      "id": "c8815996-ca8e-4f06-9405-d40b5c65f1ed",
+      "name": "Deleta Memória Antiga1",
+      "credentials": {
+        "redis": {
+          "id": "09S5reMQREDFaZPt",
+          "name": "Redis n8n"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "DO $$\nDECLARE\n  target_phone text := '{{ $('webhook_whatsapp').last().json.body.data.key.remoteJid.split(\"@\")[0] }}';\nBEGIN\n  -- Step 1: Delete from user_session\n  DELETE FROM public.user_session\n  WHERE telefone = target_phone;\n\n  -- Step 2: Delete from cliente\n  DELETE FROM public.cliente\n  WHERE telefone = target_phone;\n\nEND $$;\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -1200,
+        640
+      ],
+      "id": "ed4b2815-733c-46b4-942c-937b220afbe1",
+      "name": "DELETE user_session, conversation_state, leads",
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c16971d5-b164-41b9-bacb-afb670e1c69f",
+              "name": "message",
+              "value": "={{ $('webhook_whatsapp').item.json.body.data.message.conversation }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -128,
+        1296
+      ],
+      "id": "cbbf9de3-ae20-4256-b200-8bd2635eaec6",
+      "name": "Normaliza texto2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c16971d5-b164-41b9-bacb-afb670e1c69f",
+              "name": "message",
+              "value": "={{ $('webhook_whatsapp').item.json.body.data.message.conversation }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -128,
+        912
+      ],
+      "id": "657484cf-843b-492d-a7f4-7923844b0427",
+      "name": "Normaliza texto1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        208,
+        -32
+      ],
+      "id": "c6c37a68-617e-4a11-b225-aeb11ed6b199",
+      "name": "When chat message received",
+      "webhookId": "f7c8cf0a-6785-4f30-8bf2-a8546d9cb4ad"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c16971d5-b164-41b9-bacb-afb670e1c69f",
+              "name": "message",
+              "value": "={{ $('webhook_whatsapp').item.json.body.data.message.conversation }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -128,
+        1088
+      ],
+      "id": "c019d187-4bcc-47ac-8370-01b534c6bbb2",
+      "name": "Normaliza texto"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "key": "={{ $('webhook_whatsapp').last().json.body.data.key.remoteJid }}_{{ $('webhook_whatsapp').last().json.body.instance }}"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        2272,
+        992
+      ],
+      "id": "a3a98e94-1bc2-4517-b18b-fb952842e899",
+      "name": "Limpa a fila de mensagens",
+      "credentials": {
+        "redis": {
+          "id": "09S5reMQREDFaZPt",
+          "name": "Redis n8n"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "push",
+        "list": "={{ $('webhook_whatsapp').last().json.body.data.key.remoteJid }}_{{ $('webhook_whatsapp').last().json.body.instance }}",
+        "messageData": "={{ JSON.stringify({\n      timestamp: new Date().toISOString(),\n      message: $('SET mensagem').last().json.mensagem \n    }) }}",
+        "tail": true
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        1360,
+        1088
+      ],
+      "id": "8a5ebb73-2c10-4bc1-bc58-4dfdf685d171",
+      "name": "Adiciona na fila",
+      "credentials": {
+        "redis": {
+          "id": "09S5reMQREDFaZPt",
+          "name": "Redis n8n"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        2272,
+        1200
+      ],
+      "id": "9c1d4811-adcb-4a2c-930c-b5427bbaf3d0",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "content": "## Unifica mensagens enviadas\nAguarda alguns segundos pra juntar as mensagens enviadas antes de responder algo, unifica e segue",
+        "height": 420,
+        "width": 1852,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        800,
+        928
+      ],
+      "typeVersion": 1,
+      "id": "7ccbc42a-2967-4220-a062-71d4c6caab9e",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1616,
+        1088
+      ],
+      "id": "6904f56b-f6b4-460b-b194-0bb6f19023d8",
+      "name": "Wait",
+      "webhookId": "72c3bc82-8512-429a-a305-9409378ba6a9",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('webhook_whatsapp').last().json.body.data.messageType }}{{ $('webhook_whatsapp').last().json.message.conversation }}",
+                    "rightValue": "audioMessage",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "31aae67f-7046-4527-bd44-1f0bfe43c302"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "332003b4-e2e1-4fc0-b68f-605d50951576",
+                    "leftValue": "={{ $('webhook_whatsapp').last().json.body.data.messageType }}",
+                    "rightValue": "conversation",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "0a8cd12d-d24e-4146-b2e7-fa9dd2c4097d",
+                    "leftValue": "={{ $('webhook_whatsapp').last().json.body.data.messageType }}",
+                    "rightValue": "imageMessage",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -704,
+        1120
+      ],
+      "id": "55751f73-bdd4-4a85-a574-92765f57f12f",
+      "name": "Valida tipo de mensagem"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5a14ffe2-cf9b-499c-940c-d91e717e9c48",
+              "leftValue": "={{ $('webhook_whatsapp').item.json.body.data.key.fromMe }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1152,
+        1248
+      ],
+      "id": "425dc977-048b-4adc-b3b9-0b32086d9d7a",
+      "name": "Valida remetente"
+    },
+    {
+      "parameters": {
+        "errorMessage": "Tipo de mensagem não reconhecida."
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        -128,
+        1488
+      ],
+      "id": "a289fe64-520e-40a3-8c9b-ada9333e6b8c",
+      "name": "Stop and Error"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "19dd615c-ffc6-43fd-a86e-9cbe54e2b179",
+              "name": "prompt",
+              "value": "={{ $json.prompt }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4560,
+        944
+      ],
+      "id": "34c9fe7e-e72b-457c-910a-1c1bd0c7124b",
+      "name": "Define Prompt Agente Executor"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "WITH existing_cliente AS (\n    SELECT *\n    FROM public.cliente\n    WHERE telefone = '{{ $('webhook_whatsapp').last().json.body.data.key.remoteJid.split('@')[0] }}'\n    LIMIT 1\n), inserted_cliente AS (\n    INSERT INTO public.cliente (telefone)\n    SELECT '{{ $('webhook_whatsapp').last().json.body.data.key.remoteJid.split('@')[0] }}'\n    WHERE NOT EXISTS (SELECT 1 FROM existing_cliente)\n    RETURNING *\n), final_cliente AS (\n    SELECT * FROM existing_cliente\n    UNION ALL\n    SELECT * FROM inserted_cliente\n), cliente_with_session AS (\n    SELECT \n        f.*,\n        s.session_id,\n        s.precisa_saudar,\n        us.transferido_para_humano,\n        us.id_agente_humano\n    FROM final_cliente f\n    CROSS JOIN LATERAL get_or_create_session(f.telefone) s\n    LEFT JOIN public.user_session us\n    ON us.id = s.session_id\n)\nSELECT json_build_object(\n    'cliente', to_jsonb(f) - 'session_id' - 'precisa_saudar' - 'transferido_para_humano' - 'id_agente_humano',\n    'session', json_build_object(\n        'session_id', f.session_id,\n        'precisa_saudar', f.precisa_saudar,\n        'transferido_para_humano', f.transferido_para_humano,\n        'id_agente_humano', f.id_agente_humano\n    )\n) AS result\nFROM cliente_with_session f;\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2848,
+        992
+      ],
+      "id": "3b1a8643-4a76-42d5-bad6-4832a1ecf795",
+      "name": "SELECT or CREATE lead & user_session",
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const lead = $('SELECT or CREATE lead & user_session').last().json.result.lead;\nconst diasLimite = 3; // número de dias considerado como \"recente\"\nconst agora = new Date();\n\nlet precisaConfirmar = false;\n\nif (lead.qualificacao_concluida_em) {\n  const qualificadoEm = new Date(lead.qualificacao_concluida_em);\n  if (!isNaN(qualificadoEm.getTime())) {\n    const diffEmMs = agora.getTime() - qualificadoEm.getTime();\n    precisaConfirmar = diffEmMs > diasLimite * 24 * 60 * 60 * 1000;\n  }\n}\n\nreturn {\n  qualificacao_finalizada_em: new Date(lead.qualificacao_concluida_em),\n  precisa_confirmar_dados: precisaConfirmar\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4080,
+        1120
+      ],
+      "id": "b2e26873-dd2a-4bfe-8b4a-4cfd30b5ef71",
+      "name": "Define se precisa confirmar dados"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "fb44445d-7744-4b7e-9026-be8fd2ff6934",
+              "leftValue": "={{ $json.result.session.transferido_para_humano }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3360,
+        992
+      ],
+      "id": "dc3b635e-b82c-4621-81dd-e4aa8ce25637",
+      "name": "IF transferido_para_humano"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "2762293f-435e-443b-8e5b-d308bb332796",
+              "leftValue": "={{ $('webhook_whatsapp').item.json.body.data.message.conversation }}",
+              "rightValue": "##delete",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1760,
+        1232
+      ],
+      "id": "2f78876a-eee3-459a-b551-20759841b9fe",
+      "name": "Reiniciar conversa?2"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO public.conversation_state (\n  msg_usuario, \n  msg_agente, \n  session_id,\n  nome_usuario,\n  telefone\n) VALUES (\n  '{{ JSON.parse($('mensagem_concatenada').last().json.message).message }}', \n  '{{ $('Agente Supervisor').last().json.output }}', \n  '{{ $('SELECT or CREATE lead & user_session').last().json.result.session.session_id }}',\n  '{{ $('SELECT or CREATE lead & user_session').last().json.result.cliente.nome_completo }}',\n  '{{ $('webhook_whatsapp').last().json.body.data.key.remoteJid.split('@')[0] }}'\n);\n\nUPDATE public.user_session\nSET ultima_msg_em = NOW()\nWHERE id = '{{ $('SELECT or CREATE lead & user_session').last().json.result.session.session_id }}';\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        5920,
+        944
+      ],
+      "id": "ca42b1b0-901a-4bfc-80d5-dde6cebff432",
+      "name": "INSERT user & agent message",
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0a1d201d-61f8-4197-9690-d2d22c8414cc",
+              "leftValue": "={{ $json.body.data.key.remoteJid }}",
+              "rightValue": "5519998210119@s.whatsapp.net",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -2400,
+        1600
+      ],
+      "id": "d89106e6-7fd8-4e1f-8840-a3f90455f489",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('webhook_whatsapp').last().json.body.server_url }}/message/sendText/{{ $('webhook_whatsapp').last().json.body.instance }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $('webhook_whatsapp').last().json.body.apikey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $('webhook_whatsapp').item.json.body.data.key.remoteJid.split('@')[0] }}"
+            },
+            {
+              "name": "text",
+              "value": "=⚠️ Estamos fazendo uma pausa para melhorias na automação.\nRetornaremos às 12h com tudo funcionando normalmente.\nQualquer dúvida, estamos à disposição no nosso grupo do WhatsApp. 🤖"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2032,
+        1808
+      ],
+      "id": "125d8abf-b073-4b23-a168-32777395757f",
+      "name": "Envia a resposta não aceita imagem1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('webhook_whatsapp').last().json.body.server_url }}/chat/sendPresence/{{ $('webhook_whatsapp').last().json.body.instance }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $('webhook_whatsapp').last().json.body.apikey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"number\": \"{{ $('webhook_whatsapp').last().json.body.data.key.remoteJid.split('@')[0] }}\",\n  \"delay\": 5000,\n  \"presence\": \"composing\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        5680,
+        816
+      ],
+      "id": "1f70a969-c74e-45d3-953f-db49020529bc",
+      "name": "Digitando"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('SELECT or CREATE lead & user_session').last().json.result.lead.telefone }}_{{ $('SELECT or CREATE lead & user_session').last()\n.json.result.session.session_id }}",
+        "tableName": "ortho_x_chat_histories",
+        "contextWindowLength": 20
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        4976,
+        1104
+      ],
+      "id": "e503c765-2936-44da-bf33-15f1a1289e5b",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "ae3RFHgYvfFupxmE",
+          "name": "Postgres Supabase hugo.ferreira"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT contador_mensagens\nFROM user_session\nWHERE id = '{{ $('SELECT or CREATE lead & user_session').last().json.result.session.session_id }}' \n  AND criado_em >= NOW() - INTERVAL '5 minutes';\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        3088,
+        784
+      ],
+      "id": "9bc1bd83-f81e-46b3-b7f2-74c7ef3266ed",
+      "name": "SELECT contador_mensagens",
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d4abe4ed-3fb4-4041-a66f-8b1ce0988b3e",
+              "leftValue": "={{ $json.contador_mensagens }}",
+              "rightValue": 20,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3280,
+        784
+      ],
+      "id": "b37e8367-72a5-498a-acc7-31d47cb44fa8",
+      "name": "IF contador_mensagens >=25"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('webhook_whatsapp').last().json.body.server_url }}/message/sendText/{{ $('webhook_whatsapp').last().json.body.instance }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $('webhook_whatsapp').last().json.body.apikey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $('webhook_whatsapp').last().json.body.data.key.remoteJid.split(\"@\")[0] }}"
+            },
+            {
+              "name": "text",
+              "value": "=Estamos transferindo a sua conversa para um dos nossos atendentes."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3728,
+        768
+      ],
+      "id": "f53ef079-a6ad-462e-8eb9-1310c15088a2",
+      "name": "POST mensagem usuário1"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "WITH latest_session AS (\n  SELECT id\n  FROM public.user_session\n  WHERE telefone = '{{ $('webhook_whatsapp').last().json.body.data.key.remoteJid.split('@')[0] }}'\n  ORDER BY criado_em DESC\n  LIMIT 1\n)\nUPDATE public.user_session\nSET \n  transferido_para_humano = true,\n  atualizado_em = now()\nWHERE id IN (SELECT id FROM latest_session);\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        3536,
+        768
+      ],
+      "id": "6a63c42e-b807-4f3b-b6f3-98e07f45308e",
+      "name": "UPDATE transferido_para_humano",
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Transferir para Enterness"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3568,
+        640
+      ],
+      "typeVersion": 1,
+      "id": "74d38123-8978-4032-908a-2a7d8a2580f1",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "content": "## Lógica Anti looping",
+        "width": 352
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3056,
+        688
+      ],
+      "typeVersion": 1,
+      "id": "aa35f3b2-adb9-4f1b-bd14-aaeae572844f",
+      "name": "Sticky Note9"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ (() => { try { return $('mensagem_concatenada').last().json.message } catch(e) { return $('mensagem_concatenada1').item.json.question } })() }}",
+        "options": {
+          "systemMessage": "={{ $('Define Prompt Agente Executor').last().json.prompt }}",
+          "returnIntermediateSteps": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        5040,
+        944
+      ],
+      "id": "52f7641a-b77c-4794-aafd-85c2e76b08a4",
+      "name": "Agente Supervisor"
+    }
+  ],
+  "pinData": {
+    "webhook_whatsapp": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.nanolab.com.br",
+            "x-forwarded-for": "3.81.72.212, 141.101.95.68",
+            "content-type": "application/json",
+            "accept-encoding": "gzip, br",
+            "user-agent": "axios/1.7.9",
+            "cf-ray": "974d98cd4a619eca-CDG",
+            "cdn-loop": "cloudflare; loops=1",
+            "cf-connecting-ip": "3.81.72.212",
+            "cf-ipcountry": "US",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "x-forwarded-proto": "https",
+            "x-forwarded-host": "n8n.nanolab.com.br",
+            "x-forwarded-server": "n8n.nanolab.com.br",
+            "content-length": "1030",
+            "connection": "Keep-Alive"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "event": "messages.upsert",
+            "instance": "celtim",
+            "data": {
+              "key": {
+                "remoteJid": "5519998210119@s.whatsapp.net",
+                "fromMe": false,
+                "id": "3F43FE72A91B9F0935F9"
+              },
+              "pushName": "Flavio",
+              "status": "DELIVERY_ACK",
+              "message": {
+                "messageContextInfo": {
+                  "deviceListMetadata": {
+                    "senderKeyHash": "bdgV6s+At83oBQ==",
+                    "senderTimestamp": "1756126024",
+                    "recipientKeyHash": "VTCOTqpXwyAEDQ==",
+                    "recipientTimestamp": "1755160056"
+                  },
+                  "deviceListMetadataVersion": 2
+                },
+                "conversation": "lalalal"
+              },
+              "contextInfo": {
+                "expiration": 0,
+                "ephemeralSettingTimestamp": "0",
+                "disappearingMode": {
+                  "initiator": "CHANGED_IN_CHAT"
+                }
+              },
+              "messageType": "conversation",
+              "messageTimestamp": 1756151200,
+              "instanceId": "6672eaf1-9e7f-445d-a769-bed63bad9314",
+              "source": "unknown",
+              "chatwootMessageId": 10202,
+              "chatwootInboxId": 23,
+              "chatwootConversationId": 160
+            },
+            "destination": "https://n8n.nanolab.com.br/webhook/e96dfdb6-5e8f-4e0f-971a-adf068218e50",
+            "date_time": "2025-08-25T16:46:40.800Z",
+            "sender": "5519982458751@s.whatsapp.net",
+            "server_url": "https://evolutionapi.nanolab.com.br",
+            "apikey": "E6D9B5966762-41EE-A15D-999153F177B0"
+          },
+          "webhookUrl": "https://n8n.nanolab.com.br/webhook/e96dfdb6-5e8f-4e0f-971a-adf068218e50",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-08-28T15:16:03.243Z",
+      "createdAt": "2025-08-28T15:16:03.243Z",
+      "role": "workflow:owner",
+      "workflowId": "ENhD2us4nKj0u45C",
+      "projectId": "IcfJLMCsRkuOqzR8"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 2,
+  "updatedAt": "2025-09-18T20:25:42.000Z",
+  "versionId": "58619bc9-afbc-4032-94d7-af1f8561bb59"
+}
