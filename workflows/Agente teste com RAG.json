@@ -1,0 +1,353 @@
+{
+  "active": false,
+  "activeVersion": null,
+  "activeVersionId": null,
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "PGVector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "RAG Ortho X",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PGVector Store": {
+      "ai_vectorStore": [
+        [
+          {
+            "node": "RAG Ortho X",
+            "type": "ai_vectorStore",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RAG Ortho X": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consultar horario": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server - Gestor de agenda",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criar evento": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server - Gestor de agenda",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deletar evento": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server - Gestor de agenda",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-08-13T21:41:06.749Z",
+  "id": "lomchcg3YZQhStKJ",
+  "isArchived": true,
+  "meta": null,
+  "name": "Agente teste com RAG",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        224,
+        -32
+      ],
+      "id": "cd758efd-68f8-460c-875c-ecc3d0ca22eb",
+      "name": "When chat message received",
+      "webhookId": "cc66d104-5776-482c-8db4-b590c2abe14f"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "=Você é um agente virtual da Ortho X e sua principal função é agendar exames, tirar dúvidas de pacientes sobre os exames e sobre a empresa.\n\nQuando alguém perguntar especificamente sobre um produto, use a ferramenta 'base de produtos' pra tentar encontrar os dados daquele produto.\n\nSe não encontrar, busque na 'base de conhecimento' algo relacionado aquele item e se encontrar, retorne a informação.\n\n## Importante\nToda vez que for feita uma pergunta e você não encontrar a resposta, salve ela na base de dados utilizando a ferramenta 'lista de perguntas não respondidas' para que seja possível consultar essa base posteriormente, e informe pro usuário que infelizmente não encontrou uma resposta sobre o que foi solicitado."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        448,
+        -32
+      ],
+      "id": "61376beb-82bf-4629-85b8-640a82a41042",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-4o-mini",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        304,
+        192
+      ],
+      "id": "b656825f-1510-4556-a11a-b068d066e870",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "dngDCDolZixjXFgP",
+          "name": "OpenRouter ni.automacoes"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        512,
+        192
+      ],
+      "id": "8d6a0b1c-bae8-4201-aff3-c58c921f2145",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        848,
+        496
+      ],
+      "id": "04a87604-afe9-4f59-ba97-d425ec4db7a0",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "ER0I3fZmmkBwmDBr",
+          "name": "OpenAi ni.automacoes"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-4o-mini",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        1232,
+        352
+      ],
+      "id": "f77c178a-c080-4831-8367-faf0be0d3959",
+      "name": "OpenRouter Chat Model1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "dngDCDolZixjXFgP",
+          "name": "OpenRouter ni.automacoes"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableName": "n8n_vectors_orthox",
+        "options": {
+          "distanceStrategy": "cosine",
+          "collection": {
+            "values": {
+              "useCollection": true,
+              "collectionName": "n8n_orthox",
+              "collectionTableName": "n8n_orthox_vector_collections"
+            }
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
+      "typeVersion": 1.3,
+      "position": [
+        912,
+        352
+      ],
+      "id": "70731247-fccc-41bc-8401-d841649c0c3d",
+      "name": "PGVector Store",
+      "credentials": {
+        "postgres": {
+          "id": "uguYjEHFVI0StZBL",
+          "name": "Postgres n8n"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Ferramenta de consulta da base de conhecimento da Ortho X"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
+      "typeVersion": 1.1,
+      "position": [
+        1024,
+        192
+      ],
+      "id": "815a6899-ac4d-4ad7-927a-73f4cee2f4e1",
+      "name": "RAG Ortho X"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        1888,
+        240
+      ],
+      "id": "524f1639-3d1b-46b0-917e-26b289f2a5d7",
+      "name": "Consultar horario"
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        1552,
+        240
+      ],
+      "id": "7091c0bf-ef72-4826-bce1-beacf01f8b7c",
+      "name": "Criar evento"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "calendar": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        1712,
+        240
+      ],
+      "id": "f33889ca-5204-419c-954c-b3f3f20f7ee9",
+      "name": "Deletar evento"
+    },
+    {
+      "parameters": {
+        "path": "b8ecbbf9-5ab6-4a1e-87d6-77ba85528054"
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "typeVersion": 2,
+      "position": [
+        1648,
+        48
+      ],
+      "id": "025e2d07-3780-4dbf-aed6-020f486f4f89",
+      "name": "MCP Server - Gestor de agenda",
+      "webhookId": "b8ecbbf9-5ab6-4a1e-87d6-77ba85528054"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-08-13T21:41:06.752Z",
+      "createdAt": "2025-08-13T21:41:06.752Z",
+      "role": "workflow:owner",
+      "workflowId": "lomchcg3YZQhStKJ",
+      "projectId": "IcfJLMCsRkuOqzR8"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-08-22T11:52:25.000Z",
+  "versionId": "8eac99ae-3fe9-4e24-8e42-b1df5782c7d9"
+}
