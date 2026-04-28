@@ -1,0 +1,75 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2026-01-12T19:58:16.393Z",
+    "createdAt": "2026-01-12T19:58:16.393Z",
+    "versionId": "8951ca88-8ca4-4a55-84dd-f576a0635f40",
+    "workflowId": "ebQ5lGr7LGDDExOI",
+    "nodes": [
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "b3eb57c3-ef4d-49d9-ab67-6244b4a1ea1e",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          0,
+          0
+        ],
+        "id": "66dc0f6d-0351-4525-bbb6-2997f1dd6d5e",
+        "name": "Webhook",
+        "webhookId": "b3eb57c3-ef4d-49d9-ab67-6244b4a1ea1e"
+      }
+    ],
+    "connections": {},
+    "authors": "system migration",
+    "name": null,
+    "description": null,
+    "autosaved": false
+  },
+  "activeVersionId": "8951ca88-8ca4-4a55-84dd-f576a0635f40",
+  "connections": {},
+  "createdAt": "2025-10-22T15:43:54.270Z",
+  "id": "ebQ5lGr7LGDDExOI",
+  "isArchived": false,
+  "meta": null,
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "b3eb57c3-ef4d-49d9-ab67-6244b4a1ea1e",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "66dc0f6d-0351-4525-bbb6-2997f1dd6d5e",
+      "name": "Webhook",
+      "webhookId": "b3eb57c3-ef4d-49d9-ab67-6244b4a1ea1e"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-10-22T15:43:54.273Z",
+      "createdAt": "2025-10-22T15:43:54.273Z",
+      "role": "workflow:owner",
+      "workflowId": "ebQ5lGr7LGDDExOI",
+      "projectId": "IcfJLMCsRkuOqzR8"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2025-10-22T15:43:56.000Z",
+  "versionId": "8951ca88-8ca4-4a55-84dd-f576a0635f40"
+}
