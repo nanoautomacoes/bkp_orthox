@@ -1,0 +1,1368 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2026-01-12T19:58:16.393Z",
+    "createdAt": "2026-01-12T19:58:16.393Z",
+    "versionId": "38ffeed3-cb84-4e2b-ba93-c54415735932",
+    "workflowId": "t6ds4kP8JAt72hIz",
+    "nodes": [
+      {
+        "parameters": {
+          "workflowInputs": {
+            "values": [
+              {
+                "name": "telefone"
+              },
+              {
+                "name": "nome_exame"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.executeWorkflowTrigger",
+        "typeVersion": 1.1,
+        "position": [
+          -240,
+          -16
+        ],
+        "id": "1b679edc-3418-4a58-b7fa-fcc10892a85d",
+        "name": "inicio_fluxo"
+      },
+      {
+        "parameters": {
+          "operation": "select",
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "sessao_agendamento",
+            "mode": "list",
+            "cachedResultName": "sessao_agendamento"
+          },
+          "limit": 1,
+          "where": {
+            "values": [
+              {
+                "column": "telefone",
+                "value": "={{ $('inicio_fluxo').last().json.telefone }}"
+              },
+              {
+                "column": "deletado",
+                "value": "false"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          0,
+          -16
+        ],
+        "id": "fa82830f-f3d8-4fc4-ac76-a99127695842",
+        "name": "SELECT sessao_agendamento",
+        "alwaysOutputData": true,
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT EXISTS (\n    SELECT 1\n    FROM planos_exames pe\n    JOIN exames e ON pe.exame_id = e.id\n    JOIN planos p ON pe.plano_id = p.id\n    WHERE LOWER(p.nome) = LOWER('{{$('Retorna plano').last().json.output}}')\n      AND e.nome_normalizado ILIKE '%{{$('inicio_fluxo').last().json.nome_exame}}%'\n) AS cobertura_convenio;",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          2352,
+          -240
+        ],
+        "id": "13fdc329-c1d3-47bf-a6d3-337fddb4077e",
+        "name": "GET Convênio existe",
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "const convenios = $('GET Convenios').all().map(item => item.json);\n\nconst formattedList = convenios.map((e, i) => `${i + 1}. ${e.nome}`);\n\nreturn [\n  {\n    json: {\n      convenios: formattedList.join(\"\\n\")\n    }\n  }\n];"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          400,
+          -16
+        ],
+        "id": "00b6df89-d1f1-42de-af88-75a9d37324ad",
+        "name": "Converte JSON para texto"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "231f3ce4-9565-4f2a-8068-7ebf0ead9fff",
+                "name": "response",
+                "value": "={{ $('GET Convênio existe').last().json.cobertura_convenio }}",
+                "type": "boolean"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          2576,
+          -240
+        ],
+        "id": "09cfb831-6d78-4c12-b54b-8f575f56dfcf",
+        "name": "Response convênio cobre exame"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "95295653-7185-463a-8f9a-d10474aedb4f",
+                "leftValue": "={{ $('Retorna convenio').last().json.output }}",
+                "rightValue": "=DESCONHECIDO",
+                "operator": {
+                  "type": "string",
+                  "operation": "notEquals"
+                }
+              },
+              {
+                "id": "be45ab2f-7a7d-407d-94f9-0a902b692269",
+                "leftValue": "={{ $('Retorna plano').last().json.output }}",
+                "rightValue": "DESCONHECIDO",
+                "operator": {
+                  "type": "string",
+                  "operation": "notEquals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          2112,
+          -128
+        ],
+        "id": "800e4f10-4eac-4e65-a2b0-c204c7e06965",
+        "name": "IF Convênio não encontrado"
+      },
+      {
+        "parameters": {
+          "operation": "select",
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "convenio",
+            "mode": "list",
+            "cachedResultName": "convenio"
+          },
+          "returnAll": true,
+          "where": {
+            "values": [
+              {
+                "column": "convenio_ativo",
+                "value": "true"
+              }
+            ]
+          },
+          "options": {
+            "outputColumns": [
+              "nome"
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          208,
+          -16
+        ],
+        "id": "6f2c4795-380c-451d-ad25-ec3013d400a6",
+        "name": "GET Convenios",
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT p.*\nFROM planos p\nJOIN convenio c ON p.convenio_id = c.id\nWHERE c.nome ILIKE '%{{ $('Retorna convenio').last().json.output }}%';\n",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          1168,
+          -144
+        ],
+        "id": "38ea9d49-bb84-42be-97cd-0f774badee52",
+        "name": "GET Planos",
+        "alwaysOutputData": true,
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=Você é um assistente responsável por identificar convênios médicos.\n\nAqui está a lista oficial de convênios disponíveis:\n\n{{ $json.convenios }}\n\nO paciente informou o convênio: \"{{ $('SELECT sessao_agendamento').last().json.convenio }}\"\n\nSua tarefa é:\n- Encontrar o convênio da lista que mais se aproxima ao informado.\n- Caso não exista nenhum convênio parecido, responda apenas \"DESCONHECIDO\".\n- Responda SOMENTE com o nome exato do convênio da lista ou \"DESCONHECIDO\".\n",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 2.2,
+        "position": [
+          608,
+          -16
+        ],
+        "id": "5abb9df1-07cb-4ac4-bd40-155eb66408eb",
+        "name": "Retorna convenio"
+      },
+      {
+        "parameters": {
+          "jsCode": "const planos = $('GET Planos').all().map(item => item.json);\n\nconst formattedList = planos.map((e, i) => `${i + 1}. ${e.nome}`);\n\nreturn [\n  {\n    json: {\n      planos: formattedList.join(\"\\n\")\n    }\n  }\n];"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1632,
+          -128
+        ],
+        "id": "ef3296e9-a76f-4ce8-b83f-c65fcd99d374",
+        "name": "Converte JSON para texto1"
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=Você é um assistente responsável por identificar qual dos planos médicos o usuário possui.\n\nAqui está a lista oficial de planos médicos disponíveis:\n\n{{ $json.planos }}\n\nO paciente informou o plano: \"{{ $('SELECT sessao_agendamento').last().json.plano }}\"\n\nSua tarefa é:\n- Encontrar o plano médico da lista que mais se aproxima ao informado.\n- Caso não exista nenhum plano médico parecido, responda apenas \"DESCONHECIDO\".\n- Responda SOMENTE com o nome exato do plano médico da lista ou \"DESCONHECIDO\".\n",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 2.2,
+        "position": [
+          1808,
+          -128
+        ],
+        "id": "26990687-9bbc-4bee-aa5c-bc3eda8b7eec",
+        "name": "Retorna plano"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "95295653-7185-463a-8f9a-d10474aedb4f",
+                "leftValue": "={{ $('Retorna convenio').last().json.output }}",
+                "rightValue": "=DESCONHECIDO",
+                "operator": {
+                  "type": "string",
+                  "operation": "notEquals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          928,
+          -16
+        ],
+        "id": "19d62abe-c024-4eb4-954a-e3f494c16b79",
+        "name": "IF Convênio não encontrado1"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "231f3ce4-9565-4f2a-8068-7ebf0ead9fff",
+                "name": "response",
+                "value": "={{ false }}",
+                "type": "boolean"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1168,
+          96
+        ],
+        "id": "dc4ae083-c7ee-4cc7-a270-a5a3f7cecc10",
+        "name": "Response convênio não cobre"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "231f3ce4-9565-4f2a-8068-7ebf0ead9fff",
+                "name": "response",
+                "value": "=false",
+                "type": "boolean"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          2576,
+          -48
+        ],
+        "id": "63da55ce-3b40-4e2c-be86-2988ef4e4248",
+        "name": "Response convênio não encontrado"
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+        "typeVersion": 1,
+        "position": [
+          608,
+          160
+        ],
+        "id": "5c58024f-3bf5-49aa-80d8-1a042ba9d7b1",
+        "name": "OpenRouter Chat Model",
+        "credentials": {
+          "openRouterApi": {
+            "id": "qEMgoAYyLwMTsoVL",
+            "name": "OpenRouter NANO - Automações N8N"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+        "typeVersion": 1,
+        "position": [
+          1808,
+          64
+        ],
+        "id": "aa79dc68-adf6-4400-82cd-d79d1f8eb242",
+        "name": "OpenRouter Chat Model1",
+        "credentials": {
+          "openRouterApi": {
+            "id": "qEMgoAYyLwMTsoVL",
+            "name": "OpenRouter NANO - Automações N8N"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "95295653-7185-463a-8f9a-d10474aedb4f",
+                "leftValue": "={{ $('GET Planos').last().json.nome }}",
+                "rightValue": "=ATENDE TODOS OS PLANOS",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          1376,
+          -144
+        ],
+        "id": "9acfe84e-ad2b-4193-a1c5-08c6940bff3c",
+        "name": "IF Convênio não encontrado2"
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT EXISTS (\n    SELECT 1\n    FROM planos_exames pe\n    JOIN exames e ON pe.exame_id = e.id\n    JOIN planos p ON pe.plano_id = p.id\n    WHERE LOWER(p.nome) = LOWER('ATENDE TODOS OS PLANOS')\n      AND e.nome_normalizado = '{{$('inicio_fluxo').last().json.nome_exame}}'\n) AS cobertura_convenio;",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          1632,
+          -304
+        ],
+        "id": "994b1981-b20f-4020-9e1d-86af702842aa",
+        "name": "GET Convênio existe1",
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "231f3ce4-9565-4f2a-8068-7ebf0ead9fff",
+                "name": "response",
+                "value": "={{ $('GET Convênio existe1').last().json.cobertura_convenio }}",
+                "type": "boolean"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1856,
+          -304
+        ],
+        "id": "352120a5-bab5-4aa0-b9fd-0ca3abac5eb8",
+        "name": "Response convênio cobre exame1"
+      }
+    ],
+    "connections": {
+      "inicio_fluxo": {
+        "main": [
+          [
+            {
+              "node": "SELECT sessao_agendamento",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "SELECT sessao_agendamento": {
+        "main": [
+          [
+            {
+              "node": "GET Convenios",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "GET Convênio existe": {
+        "main": [
+          [
+            {
+              "node": "Response convênio cobre exame",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Converte JSON para texto": {
+        "main": [
+          [
+            {
+              "node": "Retorna convenio",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF Convênio não encontrado": {
+        "main": [
+          [
+            {
+              "node": "GET Convênio existe",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Response convênio não encontrado",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "GET Convenios": {
+        "main": [
+          [
+            {
+              "node": "Converte JSON para texto",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "GET Planos": {
+        "main": [
+          [
+            {
+              "node": "IF Convênio não encontrado2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Retorna convenio": {
+        "main": [
+          [
+            {
+              "node": "IF Convênio não encontrado1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Converte JSON para texto1": {
+        "main": [
+          [
+            {
+              "node": "Retorna plano",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Retorna plano": {
+        "main": [
+          [
+            {
+              "node": "IF Convênio não encontrado",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF Convênio não encontrado1": {
+        "main": [
+          [
+            {
+              "node": "GET Planos",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Response convênio não cobre",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenRouter Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Retorna convenio",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenRouter Chat Model1": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Retorna plano",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF Convênio não encontrado2": {
+        "main": [
+          [
+            {
+              "node": "GET Convênio existe1",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Converte JSON para texto1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "GET Convênio existe1": {
+        "main": [
+          [
+            {
+              "node": "Response convênio cobre exame1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "system migration",
+    "name": null,
+    "description": null,
+    "autosaved": false
+  },
+  "activeVersionId": "38ffeed3-cb84-4e2b-ba93-c54415735932",
+  "connections": {
+    "inicio_fluxo": {
+      "main": [
+        [
+          {
+            "node": "SELECT sessao_agendamento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SELECT sessao_agendamento": {
+      "main": [
+        [
+          {
+            "node": "GET Convenios",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Convênio existe": {
+      "main": [
+        [
+          {
+            "node": "Response convênio cobre exame",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Converte JSON para texto": {
+      "main": [
+        [
+          {
+            "node": "Retorna convenio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Convênio não encontrado": {
+      "main": [
+        [
+          {
+            "node": "GET Convênio existe",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Response convênio não encontrado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Convenios": {
+      "main": [
+        [
+          {
+            "node": "Converte JSON para texto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Planos": {
+      "main": [
+        [
+          {
+            "node": "IF Convênio não encontrado2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retorna convenio": {
+      "main": [
+        [
+          {
+            "node": "IF Convênio não encontrado1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Converte JSON para texto1": {
+      "main": [
+        [
+          {
+            "node": "Retorna plano",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retorna plano": {
+      "main": [
+        [
+          {
+            "node": "IF Convênio não encontrado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Convênio não encontrado1": {
+      "main": [
+        [
+          {
+            "node": "GET Planos",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Response convênio não cobre",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Retorna convenio",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Retorna plano",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Convênio não encontrado2": {
+      "main": [
+        [
+          {
+            "node": "GET Convênio existe1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Converte JSON para texto1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Convênio existe1": {
+      "main": [
+        [
+          {
+            "node": "Response convênio cobre exame1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-09-23T21:03:44.053Z",
+  "id": "t6ds4kP8JAt72hIz",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Cobertura Convênios",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "telefone"
+            },
+            {
+              "name": "nome_exame"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -240,
+        -16
+      ],
+      "id": "1b679edc-3418-4a58-b7fa-fcc10892a85d",
+      "name": "inicio_fluxo"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "sessao_agendamento",
+          "mode": "list",
+          "cachedResultName": "sessao_agendamento"
+        },
+        "limit": 1,
+        "where": {
+          "values": [
+            {
+              "column": "telefone",
+              "value": "={{ $('inicio_fluxo').last().json.telefone }}"
+            },
+            {
+              "column": "deletado",
+              "value": "false"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        0,
+        -16
+      ],
+      "id": "fa82830f-f3d8-4fc4-ac76-a99127695842",
+      "name": "SELECT sessao_agendamento",
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT EXISTS (\n    SELECT 1\n    FROM planos_exames pe\n    JOIN exames e ON pe.exame_id = e.id\n    JOIN planos p ON pe.plano_id = p.id\n    WHERE LOWER(p.nome) = LOWER('{{$('Retorna plano').last().json.output}}')\n      AND e.nome_normalizado ILIKE '%{{$('inicio_fluxo').last().json.nome_exame}}%'\n) AS cobertura_convenio;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2352,
+        -240
+      ],
+      "id": "13fdc329-c1d3-47bf-a6d3-337fddb4077e",
+      "name": "GET Convênio existe",
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const convenios = $('GET Convenios').all().map(item => item.json);\n\nconst formattedList = convenios.map((e, i) => `${i + 1}. ${e.nome}`);\n\nreturn [\n  {\n    json: {\n      convenios: formattedList.join(\"\\n\")\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        400,
+        -16
+      ],
+      "id": "00b6df89-d1f1-42de-af88-75a9d37324ad",
+      "name": "Converte JSON para texto"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "231f3ce4-9565-4f2a-8068-7ebf0ead9fff",
+              "name": "response",
+              "value": "={{ $('GET Convênio existe').last().json.cobertura_convenio }}",
+              "type": "boolean"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2576,
+        -240
+      ],
+      "id": "09cfb831-6d78-4c12-b54b-8f575f56dfcf",
+      "name": "Response convênio cobre exame"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "95295653-7185-463a-8f9a-d10474aedb4f",
+              "leftValue": "={{ $('Retorna convenio').last().json.output }}",
+              "rightValue": "=DESCONHECIDO",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            },
+            {
+              "id": "be45ab2f-7a7d-407d-94f9-0a902b692269",
+              "leftValue": "={{ $('Retorna plano').last().json.output }}",
+              "rightValue": "DESCONHECIDO",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2112,
+        -128
+      ],
+      "id": "800e4f10-4eac-4e65-a2b0-c204c7e06965",
+      "name": "IF Convênio não encontrado"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "convenio",
+          "mode": "list",
+          "cachedResultName": "convenio"
+        },
+        "returnAll": true,
+        "where": {
+          "values": [
+            {
+              "column": "convenio_ativo",
+              "value": "true"
+            }
+          ]
+        },
+        "options": {
+          "outputColumns": [
+            "nome"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        208,
+        -16
+      ],
+      "id": "6f2c4795-380c-451d-ad25-ec3013d400a6",
+      "name": "GET Convenios",
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT p.*\nFROM planos p\nJOIN convenio c ON p.convenio_id = c.id\nWHERE c.nome ILIKE '%{{ $('Retorna convenio').last().json.output }}%';\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1168,
+        -144
+      ],
+      "id": "38ea9d49-bb84-42be-97cd-0f774badee52",
+      "name": "GET Planos",
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Você é um assistente responsável por identificar convênios médicos.\n\nAqui está a lista oficial de convênios disponíveis:\n\n{{ $json.convenios }}\n\nO paciente informou o convênio: \"{{ $('SELECT sessao_agendamento').last().json.convenio }}\"\n\nSua tarefa é:\n- Encontrar o convênio da lista que mais se aproxima ao informado.\n- Caso não exista nenhum convênio parecido, responda apenas \"DESCONHECIDO\".\n- Responda SOMENTE com o nome exato do convênio da lista ou \"DESCONHECIDO\".\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        608,
+        -16
+      ],
+      "id": "5abb9df1-07cb-4ac4-bd40-155eb66408eb",
+      "name": "Retorna convenio"
+    },
+    {
+      "parameters": {
+        "jsCode": "const planos = $('GET Planos').all().map(item => item.json);\n\nconst formattedList = planos.map((e, i) => `${i + 1}. ${e.nome}`);\n\nreturn [\n  {\n    json: {\n      planos: formattedList.join(\"\\n\")\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1632,
+        -128
+      ],
+      "id": "ef3296e9-a76f-4ce8-b83f-c65fcd99d374",
+      "name": "Converte JSON para texto1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Você é um assistente responsável por identificar qual dos planos médicos o usuário possui.\n\nAqui está a lista oficial de planos médicos disponíveis:\n\n{{ $json.planos }}\n\nO paciente informou o plano: \"{{ $('SELECT sessao_agendamento').last().json.plano }}\"\n\nSua tarefa é:\n- Encontrar o plano médico da lista que mais se aproxima ao informado.\n- Caso não exista nenhum plano médico parecido, responda apenas \"DESCONHECIDO\".\n- Responda SOMENTE com o nome exato do plano médico da lista ou \"DESCONHECIDO\".\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1808,
+        -128
+      ],
+      "id": "26990687-9bbc-4bee-aa5c-bc3eda8b7eec",
+      "name": "Retorna plano"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "95295653-7185-463a-8f9a-d10474aedb4f",
+              "leftValue": "={{ $('Retorna convenio').last().json.output }}",
+              "rightValue": "=DESCONHECIDO",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        928,
+        -16
+      ],
+      "id": "19d62abe-c024-4eb4-954a-e3f494c16b79",
+      "name": "IF Convênio não encontrado1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "231f3ce4-9565-4f2a-8068-7ebf0ead9fff",
+              "name": "response",
+              "value": "={{ false }}",
+              "type": "boolean"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1168,
+        96
+      ],
+      "id": "dc4ae083-c7ee-4cc7-a270-a5a3f7cecc10",
+      "name": "Response convênio não cobre"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "231f3ce4-9565-4f2a-8068-7ebf0ead9fff",
+              "name": "response",
+              "value": "=false",
+              "type": "boolean"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2576,
+        -48
+      ],
+      "id": "63da55ce-3b40-4e2c-be86-2988ef4e4248",
+      "name": "Response convênio não encontrado"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        608,
+        160
+      ],
+      "id": "5c58024f-3bf5-49aa-80d8-1a042ba9d7b1",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "qEMgoAYyLwMTsoVL",
+          "name": "OpenRouter NANO - Automações N8N"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        1808,
+        64
+      ],
+      "id": "aa79dc68-adf6-4400-82cd-d79d1f8eb242",
+      "name": "OpenRouter Chat Model1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "qEMgoAYyLwMTsoVL",
+          "name": "OpenRouter NANO - Automações N8N"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "95295653-7185-463a-8f9a-d10474aedb4f",
+              "leftValue": "={{ $('GET Planos').last().json.nome }}",
+              "rightValue": "=ATENDE TODOS OS PLANOS",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1376,
+        -144
+      ],
+      "id": "9acfe84e-ad2b-4193-a1c5-08c6940bff3c",
+      "name": "IF Convênio não encontrado2"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT EXISTS (\n    SELECT 1\n    FROM planos_exames pe\n    JOIN exames e ON pe.exame_id = e.id\n    JOIN planos p ON pe.plano_id = p.id\n    WHERE LOWER(p.nome) = LOWER('ATENDE TODOS OS PLANOS')\n      AND e.nome_normalizado = '{{$('inicio_fluxo').last().json.nome_exame}}'\n) AS cobertura_convenio;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1632,
+        -304
+      ],
+      "id": "994b1981-b20f-4020-9e1d-86af702842aa",
+      "name": "GET Convênio existe1",
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "231f3ce4-9565-4f2a-8068-7ebf0ead9fff",
+              "name": "response",
+              "value": "={{ $('GET Convênio existe1').last().json.cobertura_convenio }}",
+              "type": "boolean"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1856,
+        -304
+      ],
+      "id": "352120a5-bab5-4aa0-b9fd-0ca3abac5eb8",
+      "name": "Response convênio cobre exame1"
+    }
+  ],
+  "pinData": {
+    "inicio_fluxo": [
+      {
+        "json": {
+          "telefone": "5519996004219",
+          "nome_exame": "radiografia / raio x / rx panoramica"
+        }
+      }
+    ]
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-09-23T21:03:44.058Z",
+      "createdAt": "2025-09-23T21:03:44.058Z",
+      "role": "workflow:owner",
+      "workflowId": "t6ds4kP8JAt72hIz",
+      "projectId": "IcfJLMCsRkuOqzR8"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-11-12T13:50:43.000Z",
+  "versionId": "38ffeed3-cb84-4e2b-ba93-c54415735932"
+}
