@@ -1,0 +1,997 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2026-01-15T19:36:41.000Z",
+    "createdAt": "2026-01-15T19:36:39.173Z",
+    "versionId": "664ee2ea-3dbd-468e-a5e7-2da207f9108a",
+    "workflowId": "AXrPxOwSutRwsVGC",
+    "nodes": [
+      {
+        "parameters": {
+          "workflowId": {
+            "__rl": true,
+            "value": "5xd8BDCWMj8YytX8",
+            "mode": "list",
+            "cachedResultUrl": "/workflow/5xd8BDCWMj8YytX8",
+            "cachedResultName": "Agents Garage"
+          },
+          "workflowInputs": {
+            "mappingMode": "defineBelow",
+            "value": {},
+            "matchingColumns": [],
+            "schema": [],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": true
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.executeWorkflow",
+        "typeVersion": 1.2,
+        "position": [
+          496,
+          -160
+        ],
+        "id": "823e4b62-78b2-4f98-99d8-57a45808a8de",
+        "name": "Execute fluxo garage1"
+      },
+      {
+        "parameters": {
+          "workflowId": {
+            "__rl": true,
+            "value": "tD0Gv0IfDlnzNUm0",
+            "mode": "list",
+            "cachedResultUrl": "/workflow/tD0Gv0IfDlnzNUm0",
+            "cachedResultName": "Agente Principal | Ortho X"
+          },
+          "workflowInputs": {
+            "mappingMode": "defineBelow",
+            "value": {},
+            "matchingColumns": [],
+            "schema": [],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": true
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.executeWorkflow",
+        "typeVersion": 1.2,
+        "position": [
+          256,
+          48
+        ],
+        "id": "c7f81724-5b28-4dc9-9a4b-18d33fc49aa4",
+        "name": "Execute Agente Principal OrthoX"
+      },
+      {
+        "parameters": {
+          "rules": {
+            "values": [
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 2
+                  },
+                  "conditions": [
+                    {
+                      "leftValue": "={{ $json.body.payload.from }}",
+                      "rightValue": "5519998210119@c.us",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      },
+                      "id": "8ef87673-dc03-4969-b1f6-f313e2bed375"
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "Flavio"
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 2
+                  },
+                  "conditions": [
+                    {
+                      "id": "28a4d530-4ad4-4678-ba66-1027ec821290",
+                      "leftValue": "={{ $json.body.payload.from }}",
+                      "rightValue": "5519996004219@c.us",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals",
+                        "name": "filter.operator.equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "Arisa"
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 2
+                  },
+                  "conditions": [
+                    {
+                      "id": "e92f4574-c228-4a21-897b-389cf2004740",
+                      "leftValue": "={{ $json.body.payload.from }}",
+                      "rightValue": "5519991753867@c.us",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals",
+                        "name": "filter.operator.equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "Maurilio"
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 2
+                  },
+                  "conditions": [
+                    {
+                      "id": "39718e04-2d4e-421e-980d-aaab2c42f1eb",
+                      "leftValue": "={{ $json.body.payload.from }}",
+                      "rightValue": "5519996772007@c.us",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals",
+                        "name": "filter.operator.equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "Victor"
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 2
+                  },
+                  "conditions": [
+                    {
+                      "id": "24de9bdf-f71c-4565-9b06-2663a5caf8c0",
+                      "leftValue": "={{ $json.body.payload.from }}",
+                      "rightValue": "5519983942211@c.us",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals",
+                        "name": "filter.operator.equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "Yuri"
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 2
+                  },
+                  "conditions": [
+                    {
+                      "id": "07148fc0-c813-41ef-859f-023b50fcc483",
+                      "leftValue": "={{ $json.body.payload.from }}",
+                      "rightValue": "5519998720646@c.us",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals",
+                        "name": "filter.operator.equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "Letícia"
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 2
+                  },
+                  "conditions": [
+                    {
+                      "id": "9401e753-df77-4960-9157-c5e60359c899",
+                      "leftValue": "={{ $json.body.payload.from }}",
+                      "rightValue": "5519992754853@c.us",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals",
+                        "name": "filter.operator.equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "Hugo"
+              }
+            ]
+          },
+          "options": {
+            "fallbackOutput": "extra"
+          }
+        },
+        "type": "n8n-nodes-base.switch",
+        "typeVersion": 3.3,
+        "position": [
+          -112,
+          32
+        ],
+        "id": "52e8328a-512a-44b6-a27c-5188e99de3ee",
+        "name": "Switch2"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://autobots-n8n.5lyxxc.easypanel.host/webhook/whatsapp_datasafer",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={{ $json }}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          256,
+          -160
+        ],
+        "id": "0d135b73-968c-49e5-bf42-a2f1be35d794",
+        "name": "POST Datasafer flow"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://paramount-n8n.ydrp39.easypanel.host/webhook/27f0546c-03e0-4df7-b4a9-11ba3115f44b",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={{ $json }}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          256,
+          -336
+        ],
+        "id": "001c0c22-087f-400f-9ec9-a5827635cea2",
+        "name": "POST Paramount Flow"
+      },
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "agente-master-v3",
+          "options": {}
+        },
+        "id": "2650de38-d23e-4574-aaec-59901a4930ae",
+        "name": "Webhook Waha",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2,
+        "position": [
+          -352,
+          112
+        ],
+        "webhookId": "7ecd43ed-123c-4fef-b86d-f9ce39e55d64"
+      }
+    ],
+    "connections": {
+      "Switch2": {
+        "main": [
+          [
+            {
+              "node": "POST Datasafer flow",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Execute Agente Principal OrthoX",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "POST Paramount Flow",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "POST Datasafer flow",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "POST Datasafer flow",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "POST Datasafer flow",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "POST Datasafer flow",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          []
+        ]
+      },
+      "Webhook Waha": {
+        "main": [
+          [
+            {
+              "node": "Switch2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Nano Incub",
+    "name": "Version 664ee2ea",
+    "description": "",
+    "autosaved": false
+  },
+  "activeVersionId": "664ee2ea-3dbd-468e-a5e7-2da207f9108a",
+  "connections": {
+    "Switch2": {
+      "main": [
+        [
+          {
+            "node": "POST Datasafer flow",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Execute Agente Principal OrthoX",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "POST Paramount Flow",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "POST Datasafer flow",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "POST Datasafer flow",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "POST Datasafer flow",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "POST Datasafer flow",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Webhook Waha": {
+      "main": [
+        [
+          {
+            "node": "Switch2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-12-01T19:27:41.519Z",
+  "id": "AXrPxOwSutRwsVGC",
+  "isArchived": false,
+  "meta": null,
+  "name": "Flow Router Nano 19995785753 [Waha]",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "5xd8BDCWMj8YytX8",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/5xd8BDCWMj8YytX8",
+          "cachedResultName": "Agents Garage"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        496,
+        -160
+      ],
+      "id": "823e4b62-78b2-4f98-99d8-57a45808a8de",
+      "name": "Execute fluxo garage1"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "tD0Gv0IfDlnzNUm0",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/tD0Gv0IfDlnzNUm0",
+          "cachedResultName": "Agente Principal | Ortho X"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        256,
+        48
+      ],
+      "id": "c7f81724-5b28-4dc9-9a4b-18d33fc49aa4",
+      "name": "Execute Agente Principal OrthoX"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.payload.from }}",
+                    "rightValue": "5519998210119@c.us",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "8ef87673-dc03-4969-b1f6-f313e2bed375"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Flavio"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "28a4d530-4ad4-4678-ba66-1027ec821290",
+                    "leftValue": "={{ $json.body.payload.from }}",
+                    "rightValue": "5519996004219@c.us",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Arisa"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "e92f4574-c228-4a21-897b-389cf2004740",
+                    "leftValue": "={{ $json.body.payload.from }}",
+                    "rightValue": "5519991753867@c.us",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Maurilio"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "39718e04-2d4e-421e-980d-aaab2c42f1eb",
+                    "leftValue": "={{ $json.body.payload.from }}",
+                    "rightValue": "5519996772007@c.us",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Victor"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "24de9bdf-f71c-4565-9b06-2663a5caf8c0",
+                    "leftValue": "={{ $json.body.payload.from }}",
+                    "rightValue": "5519983942211@c.us",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Yuri"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "07148fc0-c813-41ef-859f-023b50fcc483",
+                    "leftValue": "={{ $json.body.payload.from }}",
+                    "rightValue": "5519998720646@c.us",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Letícia"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "9401e753-df77-4960-9157-c5e60359c899",
+                    "leftValue": "={{ $json.body.payload.from }}",
+                    "rightValue": "5519992754853@c.us",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Hugo"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        -112,
+        32
+      ],
+      "id": "52e8328a-512a-44b6-a27c-5188e99de3ee",
+      "name": "Switch2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://autobots-n8n.5lyxxc.easypanel.host/webhook/whatsapp_datasafer",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        256,
+        -160
+      ],
+      "id": "0d135b73-968c-49e5-bf42-a2f1be35d794",
+      "name": "POST Datasafer flow"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://paramount-n8n.ydrp39.easypanel.host/webhook/27f0546c-03e0-4df7-b4a9-11ba3115f44b",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        256,
+        -336
+      ],
+      "id": "001c0c22-087f-400f-9ec9-a5827635cea2",
+      "name": "POST Paramount Flow"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "agente-master-v3",
+        "options": {}
+      },
+      "id": "2650de38-d23e-4574-aaec-59901a4930ae",
+      "name": "Webhook Waha",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -352,
+        112
+      ],
+      "webhookId": "7ecd43ed-123c-4fef-b86d-f9ce39e55d64"
+    }
+  ],
+  "pinData": {
+    "Webhook Waha": [
+      {
+        "json": {
+          "headers": {
+            "host": "orthox-n8n.reyhdo.easypanel.host",
+            "user-agent": "WAHA/2025.11.4",
+            "content-length": "3286",
+            "accept": "application/json, text/plain, */*",
+            "accept-encoding": "gzip, compress, deflate, br",
+            "content-type": "application/json",
+            "x-forwarded-for": "72.60.63.225",
+            "x-forwarded-host": "orthox-n8n.reyhdo.easypanel.host",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "bcfaa6f85db2",
+            "x-real-ip": "72.60.63.225",
+            "x-webhook-request-id": "1fva91cmjbebu32",
+            "x-webhook-timestamp": "1766059669262"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "id": "evt_01kcrnqxrdkqqt988mc32m5w4k",
+            "timestamp": 1766059669262,
+            "event": "message",
+            "session": "default",
+            "metadata": {},
+            "me": {
+              "id": "5519995785753@c.us",
+              "pushName": "Assistente NANO (Pessoal)"
+            },
+            "payload": {
+              "id": "false_5519998210119@c.us_3EB084C889549D68A5414E",
+              "timestamp": 1766059669,
+              "from": "5519998210119@c.us",
+              "fromMe": false,
+              "source": "app",
+              "to": "5519995785753@c.us",
+              "body": "Bom dia",
+              "hasMedia": false,
+              "media": null,
+              "ack": 1,
+              "ackName": "SERVER",
+              "location": null,
+              "vCards": [],
+              "_data": {
+                "id": {
+                  "fromMe": false,
+                  "remote": "5519998210119@c.us",
+                  "id": "3EB084C889549D68A5414E",
+                  "_serialized": "false_5519998210119@c.us_3EB084C889549D68A5414E"
+                },
+                "viewed": false,
+                "body": "Bom dia",
+                "type": "chat",
+                "t": 1766059669,
+                "clientReceivedTsMillis": 1766059668203,
+                "notifyName": "Flavio",
+                "from": "5519998210119@c.us",
+                "to": "5519995785753@c.us",
+                "ack": 1,
+                "invis": false,
+                "isNewMsg": true,
+                "star": false,
+                "kicNotified": false,
+                "recvFresh": true,
+                "isFromTemplate": false,
+                "thumbnail": "",
+                "faviconMMSMetadata": null,
+                "isAdsMedia": false,
+                "pollInvalidated": false,
+                "isSentCagPollCreation": false,
+                "latestEditMsgKey": null,
+                "latestEditSenderTimestampMs": null,
+                "mentionedJidList": [],
+                "groupMentions": [],
+                "isEventCanceled": false,
+                "eventInvalidated": false,
+                "isVcardOverMmsDocument": false,
+                "questionReplyQuotedMessage": null,
+                "questionResponsesCount": 0,
+                "readQuestionResponsesCount": 0,
+                "forwardsCount": 0,
+                "hasReaction": false,
+                "ephemeralSettingTimestamp": 1764428862,
+                "disappearingModeInitiator": "chat",
+                "disappearingModeTrigger": "chat_settings",
+                "disappearingModeInitiatedByMe": true,
+                "viewMode": "VISIBLE",
+                "messageSecret": {
+                  "0": 38,
+                  "1": 122,
+                  "2": 185,
+                  "3": 54,
+                  "4": 117,
+                  "5": 53,
+                  "6": 217,
+                  "7": 67,
+                  "8": 178,
+                  "9": 242,
+                  "10": 18,
+                  "11": 176,
+                  "12": 77,
+                  "13": 148,
+                  "14": 151,
+                  "15": 163,
+                  "16": 104,
+                  "17": 228,
+                  "18": 173,
+                  "19": 243,
+                  "20": 122,
+                  "21": 48,
+                  "22": 222,
+                  "23": 213,
+                  "24": 234,
+                  "25": 175,
+                  "26": 42,
+                  "27": 76,
+                  "28": 149,
+                  "29": 33,
+                  "30": 163,
+                  "31": 44
+                },
+                "inviteGrpType": "DEFAULT",
+                "productHeaderImageRejected": false,
+                "lastPlaybackProgress": 0,
+                "isDynamicReplyButtonsMsg": false,
+                "isCarouselCard": false,
+                "parentMsgId": null,
+                "callSilenceReason": null,
+                "isVideoCall": false,
+                "callDuration": null,
+                "callCreator": null,
+                "callParticipants": null,
+                "isCallLink": null,
+                "callLinkToken": null,
+                "isMdHistoryMsg": false,
+                "stickerSentTs": 0,
+                "isAvatar": false,
+                "lastUpdateFromServerTs": 0,
+                "invokedBotWid": null,
+                "bizBotType": null,
+                "botResponseTargetId": null,
+                "botPluginType": null,
+                "botPluginReferenceIndex": null,
+                "botPluginSearchProvider": null,
+                "botPluginSearchUrl": null,
+                "botPluginSearchQuery": null,
+                "botPluginMaybeParent": false,
+                "botReelPluginThumbnailCdnUrl": null,
+                "botMessageDisclaimerText": null,
+                "botMsgBodyType": null,
+                "reportingTokenInfo": {
+                  "reportingToken": {
+                    "0": 209,
+                    "1": 59,
+                    "2": 169,
+                    "3": 126,
+                    "4": 87,
+                    "5": 67,
+                    "6": 190,
+                    "7": 11,
+                    "8": 30,
+                    "9": 213,
+                    "10": 82,
+                    "11": 139,
+                    "12": 219,
+                    "13": 221,
+                    "14": 30,
+                    "15": 184
+                  },
+                  "version": 2,
+                  "reportingTag": {
+                    "0": 1,
+                    "1": 14,
+                    "2": 50,
+                    "3": 13,
+                    "4": 126,
+                    "5": 179,
+                    "6": 89,
+                    "7": 97,
+                    "8": 221,
+                    "9": 243,
+                    "10": 242,
+                    "11": 139,
+                    "12": 1,
+                    "13": 20,
+                    "14": 205,
+                    "15": 209,
+                    "16": 21,
+                    "17": 7,
+                    "18": 23,
+                    "19": 192
+                  }
+                },
+                "requiresDirectConnection": null,
+                "bizContentPlaceholderType": null,
+                "hostedBizEncStateMismatch": false,
+                "senderOrRecipientAccountTypeHosted": false,
+                "placeholderCreatedWhenAccountIsHosted": false,
+                "groupHistoryBundleMessageKey": null,
+                "groupHistoryBundleMetadata": null,
+                "groupHistoryIndividualMessageInfo": null,
+                "links": []
+              }
+            },
+            "engine": "WEBJS",
+            "environment": {
+              "version": "2025.11.4",
+              "engine": "WEBJS",
+              "tier": "CORE",
+              "browser": "/usr/bin/chromium"
+            }
+          },
+          "webhookUrl": "https://orthox-n8n.reyhdo.easypanel.host/webhook/agente-master-v3",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-12-01T19:27:41.523Z",
+      "createdAt": "2025-12-01T19:27:41.523Z",
+      "role": "workflow:owner",
+      "workflowId": "AXrPxOwSutRwsVGC",
+      "projectId": "IcfJLMCsRkuOqzR8"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2026-01-15T19:36:39.171Z",
+  "versionId": "664ee2ea-3dbd-468e-a5e7-2da207f9108a"
+}
