@@ -1,0 +1,1808 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2026-01-12T19:58:16.393Z",
+    "createdAt": "2026-01-12T19:58:16.393Z",
+    "versionId": "979f8e86-a983-495c-9d37-c85e71411500",
+    "workflowId": "MQZxGZkhiSk4BXLK",
+    "nodes": [
+      {
+        "parameters": {
+          "url": "https://orthox-easyappointments.reyhdo.easypanel.host/index.php/api/v1/availabilities",
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "serviceId",
+                "value": "={{ $('SELECT sessao_agendamento').last().json.servico_id }}"
+              },
+              {
+                "name": "providerId",
+                "value": "={{ $('Loop Over Items').item.json.id_easyappointments }}"
+              },
+              {
+                "name": "date",
+                "value": "={{ $('SELECT sessao_agendamento').last().json.data_agendamento }}"
+              }
+            ]
+          },
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "accept",
+                "value": "application/json"
+              },
+              {
+                "name": "Authorization",
+                "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          528,
+          528
+        ],
+        "id": "2864e6ea-6104-4ddc-85bc-a9cdbe8f93f4",
+        "name": "GET Disponibilidade",
+        "alwaysOutputData": true,
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "10ca24d0-96a9-4d49-8d1b-8b7c49496d97",
+                "name": "response",
+                "value": "=Sucesso. O horário solicitado {{ $('inicio_fluxo').last().json.hora }} está disponível. Notifique o usuário.",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1568,
+          416
+        ],
+        "id": "979fae05-e0dd-4c33-b6a4-07e4081657f6",
+        "name": "Horário encontrado"
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "n8n-nodes-base.splitInBatches",
+        "typeVersion": 3,
+        "position": [
+          320,
+          512
+        ],
+        "id": "ec51e7a7-5fe9-4677-8211-2d5f566615ba",
+        "name": "Loop Over Items"
+      },
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.noOp",
+        "name": "Replace Me",
+        "typeVersion": 1,
+        "position": [
+          1376,
+          624
+        ],
+        "id": "295faca8-adb2-46ef-9eda-63d04b3830e4"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "10ca24d0-96a9-4d49-8d1b-8b7c49496d97",
+                "name": "response",
+                "value": "=status: {{ $('Code verifica disponibilidade').last().json.status }},\nmensagem: {{ $('Code verifica disponibilidade').last().json.message }},\nalternativas: {{ $('Code verifica disponibilidade').last().json.alternatives }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          736,
+          192
+        ],
+        "id": "eed7530c-0006-4057-90fd-9884326e77af",
+        "name": "Horário Não encontrado"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "f015bcd6-e095-4734-9f0f-257258918a3f",
+                "name": "response",
+                "value": "Responda para o usuário que o procedimento requisitado não é feito nesta unidade. NUNCA sugira outro procedimento ou unidade.",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          -80,
+          320
+        ],
+        "id": "fb5bfcd9-3c81-4e52-8276-7f8bb1d688f3",
+        "name": "Resposta procedimento não encontrado"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "ef0fa343-2762-4bd4-b008-099d9c4e7a3f",
+                "leftValue": "={{ $('SELECT sessao_agendamento').last().json.servico_id }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "string",
+                  "operation": "empty",
+                  "singleValue": true
+                }
+              },
+              {
+                "id": "65089e4e-ce31-4eae-b5bf-89a19428cc3f",
+                "leftValue": "={{ $('SELECT sessao_agendamento').last().json.servico_id }}",
+                "rightValue": "undefined",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals",
+                  "name": "filter.operator.equals"
+                }
+              }
+            ],
+            "combinator": "or"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          -304,
+          416
+        ],
+        "id": "7c8cd247-34ba-4164-b2f9-19c9e436552e",
+        "name": "IF procedimento não encontrado"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "8da58558-d754-453b-b92f-4c0c936447ac",
+                "leftValue": "={{ $json.status }}",
+                "rightValue": "sucesso",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals",
+                  "name": "filter.operator.equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          1168,
+          432
+        ],
+        "id": "fb261018-8884-4c93-936a-8af42753395f",
+        "name": "IF horário encontrado"
+      },
+      {
+        "parameters": {
+          "jsCode": "const items = $input.all();\n\n// Map to array of strings\nconst availableTimes = items.map(i => {\n  if (typeof i.json === \"string\") return i.json;\n  if (i.json.availableTime) return i.json.availableTime;\n  return null;\n}).filter(Boolean);\n\n// Get requested time and remove seconds if present\nconst requestedRaw = $('inicio_fluxo').last().json.hora;\nconst requested = requestedRaw.split(':').slice(0,2).join(':'); // \"10:30\"\n\nif (availableTimes.includes(requested)) {\n  return [{\n    status: \"sucesso\",\n    message: `O horário solicitado ${requested} está disponível.`,\n    exactMatch: requested\n  }];\n} else {\n  function toMinutes(t) {\n    const [h, m] = t.split(\":\").map(Number);\n    return h * 60 + m;\n  }\n\n  const requestedM = toMinutes(requested);\n\n  const nextSlots = availableTimes\n    .filter(t => toMinutes(t) > requestedM)\n    .slice(0, 4);\n\n  return [{\n    status: \"Horário não disponível\",\n    message: `O horário solicitado ${requested} não está disponível.`,\n    alternatives: nextSlots.length > 0 ? nextSlots : [\"No later slots available\"]\n  }];\n}\n"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          976,
+          432
+        ],
+        "id": "8e19f2ed-f405-4303-a16d-ba069dd415cc",
+        "name": "Code verifica disponibilidade"
+      },
+      {
+        "parameters": {
+          "workflowInputs": {
+            "values": [
+              {
+                "name": "hora"
+              },
+              {
+                "name": "telefone",
+                "type": "any"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.executeWorkflowTrigger",
+        "typeVersion": 1.1,
+        "position": [
+          -1424,
+          416
+        ],
+        "id": "bd1385ca-c968-492b-9a76-14e95ce328f4",
+        "name": "inicio_fluxo"
+      },
+      {
+        "parameters": {
+          "operation": "select",
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "sessao_agendamento",
+            "mode": "list",
+            "cachedResultName": "sessao_agendamento"
+          },
+          "limit": 10,
+          "where": {
+            "values": [
+              {
+                "column": "telefone",
+                "value": "={{ $('inicio_fluxo').last().json.telefone }}"
+              },
+              {
+                "column": "deletado",
+                "value": "={{ false }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          -976,
+          416
+        ],
+        "id": "8271f5a4-a609-42a9-bdb2-78a7208ec672",
+        "name": "SELECT sessao_agendamento",
+        "alwaysOutputData": true,
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "b1e1a362-052e-4602-8a4a-f7a6cb0a0e07",
+                "leftValue": "={{ $('SELECT sessao_agendamento').last().json.data_agendamento }}",
+                "rightValue": "nao_informado",
+                "operator": {
+                  "type": "string",
+                  "operation": "notExists",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "or"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          -752,
+          416
+        ],
+        "id": "71fa1c13-e07e-45a0-b425-66f35f022b74",
+        "name": "IF data não informada"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "f015bcd6-e095-4734-9f0f-257258918a3f",
+                "name": "response",
+                "value": "Data não encontrada. Você executou a ferramenta `atualiza_dados`?",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          -528,
+          320
+        ],
+        "id": "c7beaa7e-f1bb-40fd-877b-3bf054cc8257",
+        "name": "Resposta data não definida"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "8da58558-d754-453b-b92f-4c0c936447ac",
+                "leftValue": "={{ $('inicio_fluxo').last().json.hora }}",
+                "rightValue": "nao_informado",
+                "operator": {
+                  "type": "string",
+                  "operation": "notEquals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          736,
+          528
+        ],
+        "id": "344fb891-bc9e-4839-8e61-13061eca2a0f",
+        "name": "IF hora existe"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "b249b490-8f65-4756-83a8-09565040986d",
+                "name": "response",
+                "value": "={{ $('GET Disponibilidade').item }}",
+                "type": "object"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          976,
+          624
+        ],
+        "id": "19917bc9-a440-4d29-9427-237b74023e05",
+        "name": "Edit Fields"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "8da58558-d754-453b-b92f-4c0c936447ac",
+                "leftValue": "={{ $('inicio_fluxo').last().json.hora }}",
+                "rightValue": "nao_informado",
+                "operator": {
+                  "type": "string",
+                  "operation": "notEquals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          528,
+          336
+        ],
+        "id": "d1ad1133-58db-481d-ba6a-bc24cdb9be6c",
+        "name": "IF hora existe - retorno agente"
+      },
+      {
+        "parameters": {
+          "jsCode": "const horariosDisponiveis = $('Loop Over Items').all();\n\n// Extrai e filtra valores válidos (remove undefined, null, vazio ou objeto vazio)\nconst horariosDisponiveisUnificadosPorAgenda = [\n  ...new Set(\n    horariosDisponiveis\n      .map(item => item.json?.response?.json)\n      .filter(v => v && Object.keys(v).length > 0) // garante que não seja vazio\n  )\n];\n\nlet response;\n\nif (horariosDisponiveisUnificadosPorAgenda.length === 0) {\n  response = `Não há horários disponíveis para o dia ${$('SELECT sessao_agendamento').last().json.data_agendamento}.`;\n} else {\n  response = `Os horários disponíveis para o dia ${$('SELECT sessao_agendamento').last().json.data_agendamento} são: ${JSON.stringify(horariosDisponiveisUnificadosPorAgenda)}.`;\n}\n\nreturn [{ response }];"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          736,
+          352
+        ],
+        "id": "c635cc68-cafc-4a1a-8d2d-e3cae8a8d8f0",
+        "name": "Retorno agente com lista de horários por dia"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "15dadf7d-1707-479b-8827-057df208a225",
+                "leftValue": "={{ $('SELECT sessao_agendamento').last().json.telefone }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "string",
+                  "operation": "notEmpty",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          -528,
+          512
+        ],
+        "id": "d89de445-39f5-409a-8326-6b39012b0ed2",
+        "name": "Existe telefone?"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "1808af2e-3f7e-43fc-98c6-ddf3e5ea9c82",
+                "name": "response",
+                "value": "Certifique-se de ter executado a ferramenta `atualiza_dados` e só então execute a ferramenta `verifica_disponibilidade_agenda`",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          -304,
+          608
+        ],
+        "id": "e110a3dd-3142-47f2-a8c1-6f706b2a23b6",
+        "name": "Retorna para agente executar ferramenta `atualiza_dados`",
+        "notesInFlow": true,
+        "notes": "Antes de consultar a disponibilidade de agenda, primeiro é preciso salvar os dados da pessoa e criar o registro na tabela `sessao_agendamento` que só é feito quando a ferramenta `atualiza_dados` é executada. Essa resposta é necessária para o agente obter o retorno de que precisa chamar \"novamente\" a ferramenta `atualizar_dados` para que o registro seja criado e o fluxo siga."
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "UPDATE public.sessao_agendamento\nSET provider_id = '{{ $('Loop Over Items').last().json.id_easyappointments }}',\n    atualizado_em = '{{ $now }}'::timestamptz\nWHERE telefone = '{{ $('inicio_fluxo').last().json.telefone }}'\n  AND deletado = false;",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          1376,
+          416
+        ],
+        "id": "71737397-c269-481f-b457-819b80a58771",
+        "name": "UPDATE sessao_agendamento",
+        "notesInFlow": true,
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        },
+        "notes": "Atualiza provider_id"
+      },
+      {
+        "parameters": {
+          "amount": 7
+        },
+        "type": "n8n-nodes-base.wait",
+        "typeVersion": 1.1,
+        "position": [
+          -1200,
+          416
+        ],
+        "id": "0c0423d2-0e2d-4a0d-8d6b-047fed87f2d9",
+        "name": "Wait",
+        "webhookId": "182f155a-b041-406c-bccb-10be40e34dde"
+      },
+      {
+        "parameters": {
+          "operation": "select",
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "servico",
+            "mode": "list",
+            "cachedResultName": "servico"
+          },
+          "limit": 1,
+          "where": {
+            "values": [
+              {
+                "column": "id_easyappointments",
+                "value": "={{ $('SELECT sessao_agendamento').last().json.servico_id }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          -80,
+          512
+        ],
+        "id": "f291d7f9-fe6d-4886-bcbf-b75022601a18",
+        "name": "Get service id",
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "select",
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "provedor",
+            "mode": "list",
+            "cachedResultName": "provedor"
+          },
+          "returnAll": true,
+          "where": {
+            "values": [
+              {
+                "column": "servico_id",
+                "value": "={{ $('Get service id').last().json.id }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          128,
+          512
+        ],
+        "id": "b0c77470-9ccd-40d7-91ad-0ab46199e437",
+        "name": "GET providers",
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        }
+      }
+    ],
+    "connections": {
+      "GET Disponibilidade": {
+        "main": [
+          [
+            {
+              "node": "IF hora existe",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Loop Over Items": {
+        "main": [
+          [
+            {
+              "node": "IF hora existe - retorno agente",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "GET Disponibilidade",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Replace Me": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Items",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Horário encontrado": {
+        "main": [
+          []
+        ]
+      },
+      "IF procedimento não encontrado": {
+        "main": [
+          [
+            {
+              "node": "Resposta procedimento não encontrado",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Get service id",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF horário encontrado": {
+        "main": [
+          [
+            {
+              "node": "UPDATE sessao_agendamento",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Replace Me",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code verifica disponibilidade": {
+        "main": [
+          [
+            {
+              "node": "IF horário encontrado",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "inicio_fluxo": {
+        "main": [
+          [
+            {
+              "node": "Wait",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "SELECT sessao_agendamento": {
+        "main": [
+          [
+            {
+              "node": "IF data não informada",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF data não informada": {
+        "main": [
+          [
+            {
+              "node": "Resposta data não definida",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Existe telefone?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF hora existe": {
+        "main": [
+          [
+            {
+              "node": "Code verifica disponibilidade",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Edit Fields",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Edit Fields": {
+        "main": [
+          [
+            {
+              "node": "Replace Me",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF hora existe - retorno agente": {
+        "main": [
+          [
+            {
+              "node": "Horário Não encontrado",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Retorno agente com lista de horários por dia",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Existe telefone?": {
+        "main": [
+          [
+            {
+              "node": "IF procedimento não encontrado",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Retorna para agente executar ferramenta `atualiza_dados`",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "UPDATE sessao_agendamento": {
+        "main": [
+          [
+            {
+              "node": "Horário encontrado",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait": {
+        "main": [
+          [
+            {
+              "node": "SELECT sessao_agendamento",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get service id": {
+        "main": [
+          [
+            {
+              "node": "GET providers",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "GET providers": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Items",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "system migration",
+    "name": null,
+    "description": null,
+    "autosaved": false
+  },
+  "activeVersionId": "979f8e86-a983-495c-9d37-c85e71411500",
+  "connections": {
+    "GET Disponibilidade": {
+      "main": [
+        [
+          {
+            "node": "IF hora existe",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "IF hora existe - retorno agente",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "GET Disponibilidade",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Replace Me": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Horário encontrado": {
+      "main": [
+        []
+      ]
+    },
+    "IF procedimento não encontrado": {
+      "main": [
+        [
+          {
+            "node": "Resposta procedimento não encontrado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get service id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF horário encontrado": {
+      "main": [
+        [
+          {
+            "node": "UPDATE sessao_agendamento",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Replace Me",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code verifica disponibilidade": {
+      "main": [
+        [
+          {
+            "node": "IF horário encontrado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "inicio_fluxo": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SELECT sessao_agendamento": {
+      "main": [
+        [
+          {
+            "node": "IF data não informada",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF data não informada": {
+      "main": [
+        [
+          {
+            "node": "Resposta data não definida",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Existe telefone?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF hora existe": {
+      "main": [
+        [
+          {
+            "node": "Code verifica disponibilidade",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Replace Me",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF hora existe - retorno agente": {
+      "main": [
+        [
+          {
+            "node": "Horário Não encontrado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Retorno agente com lista de horários por dia",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Existe telefone?": {
+      "main": [
+        [
+          {
+            "node": "IF procedimento não encontrado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Retorna para agente executar ferramenta `atualiza_dados`",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UPDATE sessao_agendamento": {
+      "main": [
+        [
+          {
+            "node": "Horário encontrado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "SELECT sessao_agendamento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get service id": {
+      "main": [
+        [
+          {
+            "node": "GET providers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET providers": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-09-01T12:33:46.414Z",
+  "id": "MQZxGZkhiSk4BXLK",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Busca Disponibilidade| Easy Appointments",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "https://orthox-easyappointments.reyhdo.easypanel.host/index.php/api/v1/availabilities",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "serviceId",
+              "value": "={{ $('SELECT sessao_agendamento').last().json.servico_id }}"
+            },
+            {
+              "name": "providerId",
+              "value": "={{ $('Loop Over Items').item.json.id_easyappointments }}"
+            },
+            {
+              "name": "date",
+              "value": "={{ $('SELECT sessao_agendamento').last().json.data_agendamento }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        528,
+        528
+      ],
+      "id": "2864e6ea-6104-4ddc-85bc-a9cdbe8f93f4",
+      "name": "GET Disponibilidade",
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "10ca24d0-96a9-4d49-8d1b-8b7c49496d97",
+              "name": "response",
+              "value": "=Sucesso. O horário solicitado {{ $('inicio_fluxo').last().json.hora }} está disponível. Notifique o usuário.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1568,
+        416
+      ],
+      "id": "979fae05-e0dd-4c33-b6a4-07e4081657f6",
+      "name": "Horário encontrado"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        320,
+        512
+      ],
+      "id": "ec51e7a7-5fe9-4677-8211-2d5f566615ba",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "name": "Replace Me",
+      "typeVersion": 1,
+      "position": [
+        1376,
+        624
+      ],
+      "id": "295faca8-adb2-46ef-9eda-63d04b3830e4"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "10ca24d0-96a9-4d49-8d1b-8b7c49496d97",
+              "name": "response",
+              "value": "=status: {{ $('Code verifica disponibilidade').last().json.status }},\nmensagem: {{ $('Code verifica disponibilidade').last().json.message }},\nalternativas: {{ $('Code verifica disponibilidade').last().json.alternatives }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        736,
+        192
+      ],
+      "id": "eed7530c-0006-4057-90fd-9884326e77af",
+      "name": "Horário Não encontrado"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f015bcd6-e095-4734-9f0f-257258918a3f",
+              "name": "response",
+              "value": "Responda para o usuário que o procedimento requisitado não é feito nesta unidade. NUNCA sugira outro procedimento ou unidade.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -80,
+        320
+      ],
+      "id": "fb5bfcd9-3c81-4e52-8276-7f8bb1d688f3",
+      "name": "Resposta procedimento não encontrado"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ef0fa343-2762-4bd4-b008-099d9c4e7a3f",
+              "leftValue": "={{ $('SELECT sessao_agendamento').last().json.servico_id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "65089e4e-ce31-4eae-b5bf-89a19428cc3f",
+              "leftValue": "={{ $('SELECT sessao_agendamento').last().json.servico_id }}",
+              "rightValue": "undefined",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -304,
+        416
+      ],
+      "id": "7c8cd247-34ba-4164-b2f9-19c9e436552e",
+      "name": "IF procedimento não encontrado"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8da58558-d754-453b-b92f-4c0c936447ac",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "sucesso",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1168,
+        432
+      ],
+      "id": "fb261018-8884-4c93-936a-8af42753395f",
+      "name": "IF horário encontrado"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\n// Map to array of strings\nconst availableTimes = items.map(i => {\n  if (typeof i.json === \"string\") return i.json;\n  if (i.json.availableTime) return i.json.availableTime;\n  return null;\n}).filter(Boolean);\n\n// Get requested time and remove seconds if present\nconst requestedRaw = $('inicio_fluxo').last().json.hora;\nconst requested = requestedRaw.split(':').slice(0,2).join(':'); // \"10:30\"\n\nif (availableTimes.includes(requested)) {\n  return [{\n    status: \"sucesso\",\n    message: `O horário solicitado ${requested} está disponível.`,\n    exactMatch: requested\n  }];\n} else {\n  function toMinutes(t) {\n    const [h, m] = t.split(\":\").map(Number);\n    return h * 60 + m;\n  }\n\n  const requestedM = toMinutes(requested);\n\n  const nextSlots = availableTimes\n    .filter(t => toMinutes(t) > requestedM)\n    .slice(0, 4);\n\n  return [{\n    status: \"Horário não disponível\",\n    message: `O horário solicitado ${requested} não está disponível.`,\n    alternatives: nextSlots.length > 0 ? nextSlots : [\"No later slots available\"]\n  }];\n}\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        976,
+        432
+      ],
+      "id": "8e19f2ed-f405-4303-a16d-ba069dd415cc",
+      "name": "Code verifica disponibilidade"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "hora"
+            },
+            {
+              "name": "telefone",
+              "type": "any"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -1424,
+        416
+      ],
+      "id": "bd1385ca-c968-492b-9a76-14e95ce328f4",
+      "name": "inicio_fluxo"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "sessao_agendamento",
+          "mode": "list",
+          "cachedResultName": "sessao_agendamento"
+        },
+        "limit": 10,
+        "where": {
+          "values": [
+            {
+              "column": "telefone",
+              "value": "={{ $('inicio_fluxo').last().json.telefone }}"
+            },
+            {
+              "column": "deletado",
+              "value": "={{ false }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -976,
+        416
+      ],
+      "id": "8271f5a4-a609-42a9-bdb2-78a7208ec672",
+      "name": "SELECT sessao_agendamento",
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b1e1a362-052e-4602-8a4a-f7a6cb0a0e07",
+              "leftValue": "={{ $('SELECT sessao_agendamento').last().json.data_agendamento }}",
+              "rightValue": "nao_informado",
+              "operator": {
+                "type": "string",
+                "operation": "notExists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -752,
+        416
+      ],
+      "id": "71fa1c13-e07e-45a0-b425-66f35f022b74",
+      "name": "IF data não informada"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f015bcd6-e095-4734-9f0f-257258918a3f",
+              "name": "response",
+              "value": "Data não encontrada. Você executou a ferramenta `atualiza_dados`?",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -528,
+        320
+      ],
+      "id": "c7beaa7e-f1bb-40fd-877b-3bf054cc8257",
+      "name": "Resposta data não definida"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8da58558-d754-453b-b92f-4c0c936447ac",
+              "leftValue": "={{ $('inicio_fluxo').last().json.hora }}",
+              "rightValue": "nao_informado",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        736,
+        528
+      ],
+      "id": "344fb891-bc9e-4839-8e61-13061eca2a0f",
+      "name": "IF hora existe"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b249b490-8f65-4756-83a8-09565040986d",
+              "name": "response",
+              "value": "={{ $('GET Disponibilidade').item }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        976,
+        624
+      ],
+      "id": "19917bc9-a440-4d29-9427-237b74023e05",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8da58558-d754-453b-b92f-4c0c936447ac",
+              "leftValue": "={{ $('inicio_fluxo').last().json.hora }}",
+              "rightValue": "nao_informado",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        528,
+        336
+      ],
+      "id": "d1ad1133-58db-481d-ba6a-bc24cdb9be6c",
+      "name": "IF hora existe - retorno agente"
+    },
+    {
+      "parameters": {
+        "jsCode": "const horariosDisponiveis = $('Loop Over Items').all();\n\n// Extrai e filtra valores válidos (remove undefined, null, vazio ou objeto vazio)\nconst horariosDisponiveisUnificadosPorAgenda = [\n  ...new Set(\n    horariosDisponiveis\n      .map(item => item.json?.response?.json)\n      .filter(v => v && Object.keys(v).length > 0) // garante que não seja vazio\n  )\n];\n\nlet response;\n\nif (horariosDisponiveisUnificadosPorAgenda.length === 0) {\n  response = `Não há horários disponíveis para o dia ${$('SELECT sessao_agendamento').last().json.data_agendamento}.`;\n} else {\n  response = `Os horários disponíveis para o dia ${$('SELECT sessao_agendamento').last().json.data_agendamento} são: ${JSON.stringify(horariosDisponiveisUnificadosPorAgenda)}.`;\n}\n\nreturn [{ response }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        736,
+        352
+      ],
+      "id": "c635cc68-cafc-4a1a-8d2d-e3cae8a8d8f0",
+      "name": "Retorno agente com lista de horários por dia"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "15dadf7d-1707-479b-8827-057df208a225",
+              "leftValue": "={{ $('SELECT sessao_agendamento').last().json.telefone }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -528,
+        512
+      ],
+      "id": "d89de445-39f5-409a-8326-6b39012b0ed2",
+      "name": "Existe telefone?"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1808af2e-3f7e-43fc-98c6-ddf3e5ea9c82",
+              "name": "response",
+              "value": "Certifique-se de ter executado a ferramenta `atualiza_dados` e só então execute a ferramenta `verifica_disponibilidade_agenda`",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -304,
+        608
+      ],
+      "id": "e110a3dd-3142-47f2-a8c1-6f706b2a23b6",
+      "name": "Retorna para agente executar ferramenta `atualiza_dados`",
+      "notesInFlow": true,
+      "notes": "Antes de consultar a disponibilidade de agenda, primeiro é preciso salvar os dados da pessoa e criar o registro na tabela `sessao_agendamento` que só é feito quando a ferramenta `atualiza_dados` é executada. Essa resposta é necessária para o agente obter o retorno de que precisa chamar \"novamente\" a ferramenta `atualizar_dados` para que o registro seja criado e o fluxo siga."
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE public.sessao_agendamento\nSET provider_id = '{{ $('Loop Over Items').last().json.id_easyappointments }}',\n    atualizado_em = '{{ $now }}'::timestamptz\nWHERE telefone = '{{ $('inicio_fluxo').last().json.telefone }}'\n  AND deletado = false;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1376,
+        416
+      ],
+      "id": "71737397-c269-481f-b457-819b80a58771",
+      "name": "UPDATE sessao_agendamento",
+      "notesInFlow": true,
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      },
+      "notes": "Atualiza provider_id"
+    },
+    {
+      "parameters": {
+        "amount": 7
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -1200,
+        416
+      ],
+      "id": "0c0423d2-0e2d-4a0d-8d6b-047fed87f2d9",
+      "name": "Wait",
+      "webhookId": "182f155a-b041-406c-bccb-10be40e34dde"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "servico",
+          "mode": "list",
+          "cachedResultName": "servico"
+        },
+        "limit": 1,
+        "where": {
+          "values": [
+            {
+              "column": "id_easyappointments",
+              "value": "={{ $('SELECT sessao_agendamento').last().json.servico_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -80,
+        512
+      ],
+      "id": "f291d7f9-fe6d-4886-bcbf-b75022601a18",
+      "name": "Get service id",
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "provedor",
+          "mode": "list",
+          "cachedResultName": "provedor"
+        },
+        "returnAll": true,
+        "where": {
+          "values": [
+            {
+              "column": "servico_id",
+              "value": "={{ $('Get service id').last().json.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        128,
+        512
+      ],
+      "id": "b0c77470-9ccd-40d7-91ad-0ab46199e437",
+      "name": "GET providers",
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "inicio_fluxo": [
+      {
+        "json": {
+          "hora": "nao_informado",
+          "telefone": "19998219966"
+        }
+      }
+    ]
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Sao_Paulo",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-09-01T12:33:46.423Z",
+      "createdAt": "2025-09-01T12:33:46.423Z",
+      "role": "workflow:owner",
+      "workflowId": "MQZxGZkhiSk4BXLK",
+      "projectId": "IcfJLMCsRkuOqzR8"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-10-03T18:24:43.000Z",
+  "versionId": "979f8e86-a983-495c-9d37-c85e71411500"
+}
