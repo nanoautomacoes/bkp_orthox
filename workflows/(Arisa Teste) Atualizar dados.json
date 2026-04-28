@@ -1,0 +1,794 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2026-01-12T19:58:16.393Z",
+    "createdAt": "2026-01-12T19:58:16.393Z",
+    "versionId": "45f36215-0b65-4f37-9251-6c0df42c2172",
+    "workflowId": "hKUPQpCpQU6ejplX",
+    "nodes": [
+      {
+        "parameters": {
+          "workflowInputs": {
+            "values": [
+              {
+                "name": "primeiro_nome"
+              },
+              {
+                "name": "Sobrenome"
+              },
+              {
+                "name": "Email"
+              },
+              {
+                "name": "telefone"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.executeWorkflowTrigger",
+        "typeVersion": 1.1,
+        "position": [
+          -976,
+          32
+        ],
+        "id": "abc8e19c-19e0-4873-b590-132b21f1f8b2",
+        "name": "When Executed by Another Workflow"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://orthox-easyappointments.reyhdo.easypanel.host/index.php/api/v1/customers",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "accept",
+                "value": "application/json"
+              },
+              {
+                "name": "Authorization",
+                "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"firstName\": \"{{ $json.primeiro_nome }}\",\n  \"lastName\": \"{{ $json.Sobrenome }}\",\n  \"phone\": \"{{ $json.telefone }}\"\n} ",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          -192,
+          112
+        ],
+        "id": "5ed9f12d-b812-487c-8008-efa20ffd91d1",
+        "name": "HTTP Request"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "3c71c66f-c80c-42bb-80c8-b01d3a84c515",
+                "name": "response",
+                "value": "=dado cadastrado com sucesso. O ID do usuário é {{ $json.id }}.",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          16,
+          112
+        ],
+        "id": "d885053c-b4d5-4fb0-8219-f79eb697295d",
+        "name": "Edit Fields"
+      },
+      {
+        "parameters": {
+          "content": "## A Fazer\n\n### Atualizar nomes nodes",
+          "height": 240
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -816,
+          224
+        ],
+        "typeVersion": 1,
+        "id": "b30a7318-e366-4ab7-871f-7a5a686d4b7e",
+        "name": "Sticky Note"
+      },
+      {
+        "parameters": {
+          "operation": "upsert",
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "cliente",
+            "mode": "list",
+            "cachedResultName": "cliente"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "telefone": "={{ $('When Executed by Another Workflow').last().json.telefone }}",
+              "nome_completo": "={{ $('HTTP Request').item.json.firstName }} {{ $('HTTP Request').item.json.lastName }}",
+              "email": "={{ $('HTTP Request').item.json.email || null }}",
+              "id_usuario": "={{ $('HTTP Request').last().json.id }}"
+            },
+            "matchingColumns": [
+              "telefone"
+            ],
+            "schema": [
+              {
+                "id": "id",
+                "displayName": "id",
+                "required": false,
+                "defaultMatch": true,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "nome_completo",
+                "displayName": "nome_completo",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": false
+              },
+              {
+                "id": "email",
+                "displayName": "email",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": false
+              },
+              {
+                "id": "telefone",
+                "displayName": "telefone",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "id_usuario",
+                "displayName": "id_usuario",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": false
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          224,
+          112
+        ],
+        "id": "28e8b436-04ea-4c9d-b4da-75b16cf8d0f3",
+        "name": "Insert or update rows in a table",
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "select",
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "cliente",
+            "mode": "list",
+            "cachedResultName": "cliente"
+          },
+          "limit": 1,
+          "where": {
+            "values": [
+              {
+                "column": "telefone",
+                "value": "={{ $json.telefone }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          -768,
+          32
+        ],
+        "id": "0a194f5b-8164-40ef-a74d-c2b22b71c72f",
+        "name": "Select rows from a table",
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "68a0e166-9a2a-4dda-a26c-e1ac1e647bf8",
+                "leftValue": "={{ $json.telefone }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "string",
+                  "operation": "notEmpty",
+                  "singleValue": true
+                }
+              },
+              {
+                "id": "a9facb81-3468-41ef-a76a-ce21134aa1b8",
+                "leftValue": "={{ $json.nome_completo }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "string",
+                  "operation": "notEmpty",
+                  "singleValue": true
+                }
+              },
+              {
+                "id": "a0e83d67-cd4e-4d0e-b803-26907617dd72",
+                "leftValue": "={{ $json.id_usuario }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "number",
+                  "operation": "notEmpty",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          -560,
+          32
+        ],
+        "id": "e3c5114e-15f4-487e-9e24-b48c0c04a3a4",
+        "name": "If"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "69bcbc97-a66e-49fe-8603-7ee7ea45d5f3",
+                "name": "response",
+                "value": "Os dados do usuário estão completos!",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          -192,
+          -64
+        ],
+        "id": "b835e900-a80f-439c-ac86-0050f779169e",
+        "name": "Edit Fields1"
+      }
+    ],
+    "connections": {
+      "When Executed by Another Workflow": {
+        "main": [
+          [
+            {
+              "node": "Select rows from a table",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTTP Request": {
+        "main": [
+          [
+            {
+              "node": "Edit Fields",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Edit Fields": {
+        "main": [
+          [
+            {
+              "node": "Insert or update rows in a table",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Select rows from a table": {
+        "main": [
+          [
+            {
+              "node": "If",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "If": {
+        "main": [
+          [
+            {
+              "node": "Edit Fields1",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "HTTP Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "system migration",
+    "name": null,
+    "description": null,
+    "autosaved": false
+  },
+  "activeVersionId": "45f36215-0b65-4f37-9251-6c0df42c2172",
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Select rows from a table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Insert or update rows in a table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Select rows from a table": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-09-03T18:55:07.396Z",
+  "id": "hKUPQpCpQU6ejplX",
+  "isArchived": true,
+  "meta": null,
+  "name": "(Arisa Teste) Atualizar dados",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "primeiro_nome"
+            },
+            {
+              "name": "Sobrenome"
+            },
+            {
+              "name": "Email"
+            },
+            {
+              "name": "telefone"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -976,
+        32
+      ],
+      "id": "abc8e19c-19e0-4873-b590-132b21f1f8b2",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://orthox-easyappointments.reyhdo.easypanel.host/index.php/api/v1/customers",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"firstName\": \"{{ $json.primeiro_nome }}\",\n  \"lastName\": \"{{ $json.Sobrenome }}\",\n  \"phone\": \"{{ $json.telefone }}\"\n} ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -192,
+        112
+      ],
+      "id": "5ed9f12d-b812-487c-8008-efa20ffd91d1",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3c71c66f-c80c-42bb-80c8-b01d3a84c515",
+              "name": "response",
+              "value": "=dado cadastrado com sucesso. O ID do usuário é {{ $json.id }}.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        16,
+        112
+      ],
+      "id": "d885053c-b4d5-4fb0-8219-f79eb697295d",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "content": "## A Fazer\n\n### Atualizar nomes nodes",
+        "height": 240
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -816,
+        224
+      ],
+      "typeVersion": 1,
+      "id": "b30a7318-e366-4ab7-871f-7a5a686d4b7e",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "cliente",
+          "mode": "list",
+          "cachedResultName": "cliente"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "telefone": "={{ $('When Executed by Another Workflow').last().json.telefone }}",
+            "nome_completo": "={{ $('HTTP Request').item.json.firstName }} {{ $('HTTP Request').item.json.lastName }}",
+            "email": "={{ $('HTTP Request').item.json.email || null }}",
+            "id_usuario": "={{ $('HTTP Request').last().json.id }}"
+          },
+          "matchingColumns": [
+            "telefone"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "nome_completo",
+              "displayName": "nome_completo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "telefone",
+              "displayName": "telefone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "id_usuario",
+              "displayName": "id_usuario",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        224,
+        112
+      ],
+      "id": "28e8b436-04ea-4c9d-b4da-75b16cf8d0f3",
+      "name": "Insert or update rows in a table",
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "cliente",
+          "mode": "list",
+          "cachedResultName": "cliente"
+        },
+        "limit": 1,
+        "where": {
+          "values": [
+            {
+              "column": "telefone",
+              "value": "={{ $json.telefone }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -768,
+        32
+      ],
+      "id": "0a194f5b-8164-40ef-a74d-c2b22b71c72f",
+      "name": "Select rows from a table",
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "68a0e166-9a2a-4dda-a26c-e1ac1e647bf8",
+              "leftValue": "={{ $json.telefone }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "a9facb81-3468-41ef-a76a-ce21134aa1b8",
+              "leftValue": "={{ $json.nome_completo }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "a0e83d67-cd4e-4d0e-b803-26907617dd72",
+              "leftValue": "={{ $json.id_usuario }}",
+              "rightValue": "",
+              "operator": {
+                "type": "number",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -560,
+        32
+      ],
+      "id": "e3c5114e-15f4-487e-9e24-b48c0c04a3a4",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "69bcbc97-a66e-49fe-8603-7ee7ea45d5f3",
+              "name": "response",
+              "value": "Os dados do usuário estão completos!",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -192,
+        -64
+      ],
+      "id": "b835e900-a80f-439c-ac86-0050f779169e",
+      "name": "Edit Fields1"
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "primeiro_nome": "Flavio",
+          "Sobrenome": "Silva",
+          "Email": "flavio3@gmail.com",
+          "telefone": "19998210119"
+        }
+      }
+    ]
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-09-03T18:55:07.402Z",
+      "createdAt": "2025-09-03T18:55:07.402Z",
+      "role": "workflow:owner",
+      "workflowId": "hKUPQpCpQU6ejplX",
+      "projectId": "IcfJLMCsRkuOqzR8"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-09-05T12:23:42.000Z",
+  "versionId": "45f36215-0b65-4f37-9251-6c0df42c2172"
+}
