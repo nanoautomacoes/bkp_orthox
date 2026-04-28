@@ -1,0 +1,790 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2026-01-12T19:58:16.393Z",
+    "createdAt": "2026-01-12T19:58:16.393Z",
+    "versionId": "693138c3-2ad3-41eb-9f45-05bf79d23945",
+    "workflowId": "XksVKWCaY68T9iGL",
+    "nodes": [
+      {
+        "parameters": {
+          "url": "=https://orthox-easyappointments.reyhdo.easypanel.host/index.php/api/v1/service_categories/{{ $json.id_unidade }}",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "accept",
+                "value": "application/json"
+              },
+              {
+                "name": "Authorization",
+                "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          -592,
+          480
+        ],
+        "id": "68b305c9-8f8d-4359-ad98-b042546c232d",
+        "name": "GET Services"
+      },
+      {
+        "parameters": {
+          "url": "https://orthox-easyappointments.reyhdo.easypanel.host/index.php/api/v1/availabilities",
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "serviceId",
+                "value": "={{ $json.services[0] }}"
+              },
+              {
+                "name": "providerId",
+                "value": "={{ $json.services[0] }}"
+              },
+              {
+                "name": "date",
+                "value": "=2025-09-04"
+              },
+              {
+                "value": "={{ $('When Executed by Another Workflow').last().json.data_selecionada }}"
+              }
+            ]
+          },
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "accept",
+                "value": "application/json"
+              },
+              {
+                "name": "Authorization",
+                "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          -80,
+          480
+        ],
+        "id": "1444460a-7719-4fc8-888b-93019bc71611",
+        "name": "GET Disponibilidade",
+        "alwaysOutputData": true
+      },
+      {
+        "parameters": {
+          "url": "=https://orthox-easyappointments.reyhdo.easypanel.host/index.php/api/v1/providers/{{ $json.id }}",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "accept",
+                "value": "application/json"
+              },
+              {
+                "name": "Authorization",
+                "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          -320,
+          480
+        ],
+        "id": "c77f9d84-de63-4069-9044-17d348a2cf59",
+        "name": "GET Providers"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://demo.easyappointments.org/index.php/api/v1/appointments",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "accept",
+                "value": "application/json"
+              },
+              {
+                "name": "Authorization",
+                "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+              }
+            ]
+          },
+          "sendBody": true,
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "start",
+                "value": "2021-01-01 17:00:00"
+              },
+              {
+                "name": "end",
+                "value": "2021-01-01 18:00:00"
+              },
+              {
+                "name": "location",
+                "value": "Test Street 1A, 12345 Some State, Some Place"
+              },
+              {
+                "name": "color",
+                "value": "#123456"
+              },
+              {
+                "name": "status",
+                "value": "Booked"
+              },
+              {
+                "name": "notes",
+                "value": "This is a test appointment."
+              },
+              {
+                "name": "customerId",
+                "value": "5"
+              },
+              {
+                "name": "providerId",
+                "value": "2"
+              },
+              {
+                "name": "serviceId",
+                "value": "6"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          368,
+          256
+        ],
+        "id": "49eee115-92c2-436d-8832-74e8a309cc79",
+        "name": "HTTP Request"
+      },
+      {
+        "parameters": {
+          "workflowInputs": {
+            "values": [
+              {
+                "name": "initial",
+                "type": "any"
+              },
+              {
+                "name": "end",
+                "type": "any"
+              },
+              {
+                "name": "data"
+              },
+              {
+                "name": "id_unidade"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.executeWorkflowTrigger",
+        "typeVersion": 1.1,
+        "position": [
+          -800,
+          480
+        ],
+        "id": "b1320142-6ebd-4b99-9acb-9fd251e29a54",
+        "name": "When Executed by Another Workflow"
+      },
+      {
+        "parameters": {
+          "jsCode": "const items = $input.all();\n\n// Map to array of strings\nconst availableTimes = items.map(i => {\n  if (typeof i.json === \"string\") return i.json;\n  if (i.json.availableTime) return i.json.availableTime;\n  return null;\n}).filter(Boolean);\n\n// Get requested time and remove seconds if present\nconst requestedRaw = $('When Executed by Another Workflow').last().json.initial;\nconst requested = requestedRaw.split(':').slice(0,2).join(':'); // \"10:30\"\n\nif (availableTimes.includes(requested)) {\n  return [{\n    status: \"sucesso\",\n    message: `O horário solicitado ${requested} está disponível.`,\n    exactMatch: requested\n  }];\n} else {\n  function toMinutes(t) {\n    const [h, m] = t.split(\":\").map(Number);\n    return h * 60 + m;\n  }\n\n  const requestedM = toMinutes(requested);\n\n  const nextSlots = availableTimes\n    .filter(t => toMinutes(t) > requestedM)\n    .slice(0, 4);\n\n  return [{\n    status: \"Horário não disponível\",\n    message: `O horário solicitado ${requested} não está disponível.`,\n    alternatives: nextSlots.length > 0 ? nextSlots : [\"No later slots available\"]\n  }];\n}\n"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          160,
+          480
+        ],
+        "id": "9c948079-81be-48ef-9c86-dccb80279510",
+        "name": "Code"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "10ca24d0-96a9-4d49-8d1b-8b7c49496d97",
+                "name": "response",
+                "value": "=Sucesso. O horário solicitado {{ $('When Executed by Another Workflow').last().json.initial }} está disponível. Notifique o usuário.",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          752,
+          384
+        ],
+        "id": "710ca033-c55e-4d7e-aedf-ebacf54edb1d",
+        "name": "Horário encontrado"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "8da58558-d754-453b-b92f-4c0c936447ac",
+                "leftValue": "={{ $json.status }}",
+                "rightValue": "sucesso",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals",
+                  "name": "filter.operator.equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          368,
+          480
+        ],
+        "id": "bc91e278-511e-4cd0-bf5e-fcdbd48a5d3a",
+        "name": "If"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "10ca24d0-96a9-4d49-8d1b-8b7c49496d97",
+                "name": "response",
+                "value": "=status: {{ $json.status }},\nmensagem: {{ $json.message }},\nalternativas: {{ $json.alternatives }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          752,
+          576
+        ],
+        "id": "cbeff90e-3eeb-48bc-900c-8aed3dd4508d",
+        "name": "Horário Não encontrado"
+      }
+    ],
+    "connections": {
+      "GET Services": {
+        "main": [
+          [
+            {
+              "node": "GET Providers",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "GET Disponibilidade": {
+        "main": [
+          [
+            {
+              "node": "Code",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "GET Providers": {
+        "main": [
+          [
+            {
+              "node": "GET Disponibilidade",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "When Executed by Another Workflow": {
+        "main": [
+          [
+            {
+              "node": "GET Services",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code": {
+        "main": [
+          [
+            {
+              "node": "If",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "If": {
+        "main": [
+          [
+            {
+              "node": "Horário encontrado",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Horário Não encontrado",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "system migration",
+    "name": null,
+    "description": null,
+    "autosaved": false
+  },
+  "activeVersionId": "693138c3-2ad3-41eb-9f45-05bf79d23945",
+  "connections": {
+    "GET Services": {
+      "main": [
+        [
+          {
+            "node": "GET Providers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Disponibilidade": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Providers": {
+      "main": [
+        [
+          {
+            "node": "GET Disponibilidade",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "GET Services",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Horário encontrado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Horário Não encontrado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-09-03T16:42:28.595Z",
+  "id": "XksVKWCaY68T9iGL",
+  "isArchived": true,
+  "meta": null,
+  "name": "(Arisa Teste) Busca Disponibilidade",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "=https://orthox-easyappointments.reyhdo.easypanel.host/index.php/api/v1/service_categories/{{ $json.id_unidade }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -592,
+        480
+      ],
+      "id": "68b305c9-8f8d-4359-ad98-b042546c232d",
+      "name": "GET Services"
+    },
+    {
+      "parameters": {
+        "url": "https://orthox-easyappointments.reyhdo.easypanel.host/index.php/api/v1/availabilities",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "serviceId",
+              "value": "={{ $json.services[0] }}"
+            },
+            {
+              "name": "providerId",
+              "value": "={{ $json.services[0] }}"
+            },
+            {
+              "name": "date",
+              "value": "=2025-09-04"
+            },
+            {
+              "value": "={{ $('When Executed by Another Workflow').last().json.data_selecionada }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -80,
+        480
+      ],
+      "id": "1444460a-7719-4fc8-888b-93019bc71611",
+      "name": "GET Disponibilidade",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "=https://orthox-easyappointments.reyhdo.easypanel.host/index.php/api/v1/providers/{{ $json.id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -320,
+        480
+      ],
+      "id": "c77f9d84-de63-4069-9044-17d348a2cf59",
+      "name": "GET Providers"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://demo.easyappointments.org/index.php/api/v1/appointments",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "start",
+              "value": "2021-01-01 17:00:00"
+            },
+            {
+              "name": "end",
+              "value": "2021-01-01 18:00:00"
+            },
+            {
+              "name": "location",
+              "value": "Test Street 1A, 12345 Some State, Some Place"
+            },
+            {
+              "name": "color",
+              "value": "#123456"
+            },
+            {
+              "name": "status",
+              "value": "Booked"
+            },
+            {
+              "name": "notes",
+              "value": "This is a test appointment."
+            },
+            {
+              "name": "customerId",
+              "value": "5"
+            },
+            {
+              "name": "providerId",
+              "value": "2"
+            },
+            {
+              "name": "serviceId",
+              "value": "6"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        368,
+        256
+      ],
+      "id": "49eee115-92c2-436d-8832-74e8a309cc79",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "initial",
+              "type": "any"
+            },
+            {
+              "name": "end",
+              "type": "any"
+            },
+            {
+              "name": "data"
+            },
+            {
+              "name": "id_unidade"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -800,
+        480
+      ],
+      "id": "b1320142-6ebd-4b99-9acb-9fd251e29a54",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\n// Map to array of strings\nconst availableTimes = items.map(i => {\n  if (typeof i.json === \"string\") return i.json;\n  if (i.json.availableTime) return i.json.availableTime;\n  return null;\n}).filter(Boolean);\n\n// Get requested time and remove seconds if present\nconst requestedRaw = $('When Executed by Another Workflow').last().json.initial;\nconst requested = requestedRaw.split(':').slice(0,2).join(':'); // \"10:30\"\n\nif (availableTimes.includes(requested)) {\n  return [{\n    status: \"sucesso\",\n    message: `O horário solicitado ${requested} está disponível.`,\n    exactMatch: requested\n  }];\n} else {\n  function toMinutes(t) {\n    const [h, m] = t.split(\":\").map(Number);\n    return h * 60 + m;\n  }\n\n  const requestedM = toMinutes(requested);\n\n  const nextSlots = availableTimes\n    .filter(t => toMinutes(t) > requestedM)\n    .slice(0, 4);\n\n  return [{\n    status: \"Horário não disponível\",\n    message: `O horário solicitado ${requested} não está disponível.`,\n    alternatives: nextSlots.length > 0 ? nextSlots : [\"No later slots available\"]\n  }];\n}\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        160,
+        480
+      ],
+      "id": "9c948079-81be-48ef-9c86-dccb80279510",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "10ca24d0-96a9-4d49-8d1b-8b7c49496d97",
+              "name": "response",
+              "value": "=Sucesso. O horário solicitado {{ $('When Executed by Another Workflow').last().json.initial }} está disponível. Notifique o usuário.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        752,
+        384
+      ],
+      "id": "710ca033-c55e-4d7e-aedf-ebacf54edb1d",
+      "name": "Horário encontrado"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8da58558-d754-453b-b92f-4c0c936447ac",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "sucesso",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        368,
+        480
+      ],
+      "id": "bc91e278-511e-4cd0-bf5e-fcdbd48a5d3a",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "10ca24d0-96a9-4d49-8d1b-8b7c49496d97",
+              "name": "response",
+              "value": "=status: {{ $json.status }},\nmensagem: {{ $json.message }},\nalternativas: {{ $json.alternatives }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        752,
+        576
+      ],
+      "id": "cbeff90e-3eeb-48bc-900c-8aed3dd4508d",
+      "name": "Horário Não encontrado"
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "initial": "09:00",
+          "end": "10:00",
+          "data": "2025-09-03",
+          "id_unidade": 4
+        }
+      }
+    ]
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-09-03T16:42:28.616Z",
+      "createdAt": "2025-09-03T16:42:28.616Z",
+      "role": "workflow:owner",
+      "workflowId": "XksVKWCaY68T9iGL",
+      "projectId": "IcfJLMCsRkuOqzR8"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-09-05T12:23:44.000Z",
+  "versionId": "693138c3-2ad3-41eb-9f45-05bf79d23945"
+}
