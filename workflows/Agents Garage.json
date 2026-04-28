@@ -1,0 +1,3625 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2026-01-12T19:58:16.393Z",
+    "createdAt": "2026-01-12T19:58:16.393Z",
+    "versionId": "96d859af-0519-4680-81c4-0005be786788",
+    "workflowId": "5xd8BDCWMj8YytX8",
+    "nodes": [
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+        "typeVersion": 1.3,
+        "position": [
+          -784,
+          400
+        ],
+        "id": "6749e839-3a49-4219-8758-d539dfcb9b5a",
+        "name": "When chat message received",
+        "webhookId": "079ed43d-00e6-4b2a-b695-7b79e3c05603"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "b12249d9-c3b0-40dc-a332-cc509fae1922",
+                "name": "telefone",
+                "value": "19971388220",
+                "type": "string"
+              },
+              {
+                "id": "0069d741-de73-40c2-9947-38b742d0d8b9",
+                "name": "chatInput",
+                "value": "={{ $json.chatInput }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          -448,
+          400
+        ],
+        "id": "cb0b41d9-e7c0-45da-b042-dac9e2d73872",
+        "name": "SET telefone"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "7173483a-a3cc-4e35-9dd7-4f181216d247",
+                "leftValue": "={{ $('When chat message received').last().json.chatInput }}",
+                "rightValue": "##delete",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals",
+                  "name": "filter.operator.equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          -96,
+          272
+        ],
+        "id": "5c1ea2e8-014f-4a24-864d-08a7dc38a16b",
+        "name": "IF trigger delete"
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "DO $$\nDECLARE\n  target_phone text := '{{ $('Webhook EVO').last().json.body.data.key.remoteJid.split('@')[0] }}';\nBEGIN\n  -- Step 1: Delete from user_session\n  DELETE FROM public.user_session\n  WHERE telefone = target_phone;\n\n  -- Step 1: Delete from sessao_agendamento\n  DELETE FROM public.sessao_agendamento\n  WHERE telefone = target_phone;\n\n  -- Step 2: Delete from cliente\n  DELETE FROM public.cliente\n  WHERE telefone = target_phone;\n\nEND $$;\n",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          -80,
+          1696
+        ],
+        "id": "f5e8605a-2898-473b-abb3-c540ce42c2c4",
+        "name": "DELETE user_session, conversation_state, leads",
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "url": "https://orthox-easyappointments.reyhdo.easypanel.host/index.php/api/v1/customers",
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "q",
+                "value": "=19998210119"
+              }
+            ]
+          },
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Authorization",
+                "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+              },
+              {
+                "name": "Accept",
+                "value": "application/json"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          176,
+          1696
+        ],
+        "id": "1099a959-3663-46ad-8916-06e94aef80a4",
+        "name": "GET customer if exists",
+        "alwaysOutputData": true
+      },
+      {
+        "parameters": {
+          "method": "DELETE",
+          "url": "=https://orthox-easyappointments.reyhdo.easypanel.host/index.php/api/v1/customers/{{ $('GET customer if exists').last().json.id }}",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Authorization",
+                "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+              },
+              {
+                "name": "Accept",
+                "value": "application/json"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          416,
+          1696
+        ],
+        "id": "fe015c95-7728-40b9-a2d9-a353d53f19a2",
+        "name": "DELETE test customer",
+        "alwaysOutputData": true
+      },
+      {
+        "parameters": {
+          "resource": "image",
+          "operation": "analyze",
+          "modelId": {
+            "__rl": true,
+            "value": "chatgpt-4o-latest",
+            "mode": "list",
+            "cachedResultName": "CHATGPT-4O-LATEST"
+          },
+          "text": "=Analise meticulosamente esse pedido de exame. Se for uma lista padronizada com os exames disponíveis, analise item a item até encontrar o item assinalado (com alguma sinalização no quadrado na frente de cada item da lista) e retorne semente os itens assinalados. Eles significam os pedidos de exame do usuário.",
+          "imageUrls": "https://zebagjecvqqmxmlisdkf.supabase.co/storage/v1/object/sign/fotos/interno(TesteassinaladoLesaoPatologica).PNG?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9lNTA0MzRjZC04MTNiLTQ0YmUtYmI0Mi01YzI5NTg3MmQwMGEiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJmb3Rvcy9pbnRlcm5vKFRlc3RlYXNzaW5hbGFkb0xlc2FvUGF0b2xvZ2ljYSkuUE5HIiwiaWF0IjoxNzU4MzExODQ4LCJleHAiOjE3NTg5MTY2NDh9.gTBAR9ISL25AAXJM124272AFOSXt1PUmSXj-Mlwa89c",
+          "options": {
+            "detail": "high"
+          }
+        },
+        "id": "d8d2eaa8-fd2e-4ba0-a987-4e70781afa21",
+        "name": "Analyze Image",
+        "type": "@n8n/n8n-nodes-langchain.openAi",
+        "position": [
+          272,
+          880
+        ],
+        "typeVersion": 1.8,
+        "credentials": {
+          "openAiApi": {
+            "id": "ER0I3fZmmkBwmDBr",
+            "name": "OpenAi ni.automacoes"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "67552183-de2e-494a-878e-c2948e8cb6bb",
+                "name": "text",
+                "type": "string",
+                "value": "=User request on the image:\n{{ \"Describe the following image\" || $('WhatsApp Trigger').item.json.messages[0].image.caption }}\n\nImage description:\n{{ $json.content }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "909da790-6ac1-4b23-b906-323fe64ac37a",
+        "name": "Image",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          752,
+          1008
+        ],
+        "typeVersion": 3.4
+      },
+      {
+        "parameters": {
+          "resource": "image",
+          "modelId": {
+            "__rl": true,
+            "value": "claude-opus-4-1-20250805",
+            "mode": "list",
+            "cachedResultName": "claude-opus-4-1-20250805"
+          },
+          "text": "=Analise meticulosamente esse pedido de exame. Se for uma lista padronizada com os exames disponíveis, analise item a item até encontrar o item assinalado (com alguma sinalização no quadrado na frente de cada item da lista) e retorne semente os itens assinalados. Eles significam os pedidos de exame do usuário.",
+          "imageUrls": "https://zebagjecvqqmxmlisdkf.supabase.co/storage/v1/object/sign/fotos/interno(TesteassinaladoLesaoPatologica).PNG?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9lNTA0MzRjZC04MTNiLTQ0YmUtYmI0Mi01YzI5NTg3MmQwMGEiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJmb3Rvcy9pbnRlcm5vKFRlc3RlYXNzaW5hbGFkb0xlc2FvUGF0b2xvZ2ljYSkuUE5HIiwiaWF0IjoxNzU4MzExODQ4LCJleHAiOjE3NTg5MTY2NDh9.gTBAR9ISL25AAXJM124272AFOSXt1PUmSXj-Mlwa89c",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.anthropic",
+        "typeVersion": 1,
+        "position": [
+          272,
+          1072
+        ],
+        "id": "aa25841d-ddcd-4edf-85f8-e9bc5f1b9894",
+        "name": "Analyze image",
+        "credentials": {
+          "anthropicApi": {
+            "id": "ESBrLbpuhNEbpbAx",
+            "name": "Anthropic ni.automacoes"
+          }
+        }
+      },
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.merge",
+        "typeVersion": 3.2,
+        "position": [
+          528,
+          1008
+        ],
+        "id": "049d843e-a680-454a-a857-f1ec10d5dfee",
+        "name": "Merge"
+      },
+      {
+        "parameters": {
+          "url": "https://studio.pixelixe.com/api/contrast/v1",
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "value",
+                "value": "0.6"
+              },
+              {
+                "name": "imageUrl",
+                "value": "https://zebagjecvqqmxmlisdkf.supabase.co/storage/v1/object/sign/fotos/interno.jpeg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9lNTA0MzRjZC04MTNiLTQ0YmUtYmI0Mi01YzI5NTg3MmQwMGEiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJmb3Rvcy9pbnRlcm5vLmpwZWciLCJpYXQiOjE3NTgxNDI1MjYsImV4cCI6MTc4OTY3ODUyNn0.eJZz2w20tBXvPNIsbWEytunDdpdLQY-MKcBUnCwjEbY"
+              }
+            ]
+          },
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Authorization",
+                "value": "Bearer f5FHfoo9uFOqDF1dOBwpNnfqCm12"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          -128,
+          912
+        ],
+        "id": "1ac1757c-d075-4db2-8e12-b248d82fc42e",
+        "name": "HTTP Request",
+        "disabled": true
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "2762293f-435e-443b-8e5b-d308bb332796",
+                "leftValue": "={{ $('Webhook EVO').item.json.body.data.message.conversation }}",
+                "rightValue": "##delete",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          -416,
+          1888
+        ],
+        "id": "5235ff22-c38a-4a6e-ae9e-ef5a9c3860f2",
+        "name": "Reiniciar conversa?2"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "3c5ccbc9-69d1-4b13-a7c3-e6945bc8c655",
+                "name": "imageBase64",
+                "value": "={{ $json.body.payload._data.body }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "bed29f00-3715-4fa5-b32a-9daee83d77c3",
+        "name": "Edit Fields3",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          -400,
+          2384
+        ]
+      },
+      {
+        "parameters": {
+          "resource": "audio",
+          "operation": "transcribe",
+          "options": {}
+        },
+        "id": "a16e8954-450c-4198-95e4-0b99a6d8761e",
+        "name": "OpenAI4",
+        "type": "@n8n/n8n-nodes-langchain.openAi",
+        "typeVersion": 1.6,
+        "position": [
+          -112,
+          2032
+        ],
+        "credentials": {
+          "openAiApi": {
+            "id": "ER0I3fZmmkBwmDBr",
+            "name": "OpenAi ni.automacoes"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "toBinary",
+          "sourceProperty": "data",
+          "options": {
+            "fileName": "file.ogg",
+            "mimeType": "application/ogg"
+          }
+        },
+        "id": "b72a7264-1021-45ec-a408-5000504d1a56",
+        "name": "Converter Audio",
+        "type": "n8n-nodes-base.convertToFile",
+        "typeVersion": 1.1,
+        "position": [
+          -272,
+          2032
+        ]
+      },
+      {
+        "parameters": {
+          "rules": {
+            "values": [
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 1
+                  },
+                  "conditions": [
+                    {
+                      "id": "52aaf749-fe4f-44e4-880e-15b2bfc027f1",
+                      "leftValue": "={{ $json.body.payload._data.type }}",
+                      "rightValue": "chat",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals",
+                        "name": "filter.operator.equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "text"
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 1
+                  },
+                  "conditions": [
+                    {
+                      "leftValue": "={{ $json.body.payload._data.type }}",
+                      "rightValue": "ptt",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      },
+                      "id": "eb8b500a-74b7-45ec-a4fc-f90e80acce20"
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "audio"
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 1
+                  },
+                  "conditions": [
+                    {
+                      "id": "c0e434dd-1268-421d-b81b-3a5e90ed9550",
+                      "leftValue": "={{ $json.body.payload._data.type }}",
+                      "rightValue": "image",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals",
+                        "name": "filter.operator.equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "image"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "24033a48-68f0-4485-a83b-87dc17d6cc40",
+        "name": "ROTA Mensagens",
+        "type": "n8n-nodes-base.switch",
+        "typeVersion": 3,
+        "position": [
+          -864,
+          2112
+        ]
+      },
+      {
+        "parameters": {
+          "operation": "push",
+          "list": "={{ $('Dados').item.json.Telefone }}",
+          "messageData": "={{ $json.text }}",
+          "tail": true
+        },
+        "id": "77ddcf2e-a599-4952-9700-952e30749ff2",
+        "name": "Audio Redis",
+        "type": "n8n-nodes-base.redis",
+        "typeVersion": 1,
+        "position": [
+          64,
+          2032
+        ],
+        "credentials": {
+          "redis": {
+            "id": "09S5reMQREDFaZPt",
+            "name": "Redis n8n"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "3c5ccbc9-69d1-4b13-a7c3-e6945bc8c655",
+                "name": "data",
+                "value": "={{ $('Webhook EVO').item.json.body.data.message.base64 }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "395ab2bd-e420-4b83-a136-e91fc2d75786",
+        "name": "Edit Fields",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          -432,
+          2032
+        ]
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "239cab79-8fb1-45ca-9a04-11006892d52e",
+                "name": "mensagem",
+                "value": "={{ (() => { try { return $('Webhook EVO').item.json.body.data.message.conversation } catch(e) { return $json.result[0].prediction[0].ocr_text } })() }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          656,
+          2032
+        ],
+        "id": "09196322-2e9c-4266-a039-2cb5f5b65fb7",
+        "name": "Mensagem"
+      },
+      {
+        "parameters": {
+          "sessionIdType": "customKey",
+          "sessionKey": "={{ $('CREATE & SELECT cliente & user_session').last().json.result.session.session_id }}",
+          "tableName": "ortho_x_chat_histories",
+          "contextWindowLength": 15
+        },
+        "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+        "typeVersion": 1.3,
+        "position": [
+          1440,
+          2256
+        ],
+        "id": "d1724e79-c2af-40d9-967a-4e24df077143",
+        "name": "Postgres Chat Memory",
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "mode": "list",
+            "value": "gpt-4o-mini"
+          },
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1.2,
+        "position": [
+          1312,
+          2256
+        ],
+        "id": "9babec8e-98ca-47c3-b6f8-6a09c28c574e",
+        "name": "OpenAI Chat Model",
+        "credentials": {
+          "openAiApi": {
+            "id": "ER0I3fZmmkBwmDBr",
+            "name": "OpenAi ni.automacoes"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "description": "=Chame esta ferramenta para criar um agendamento.",
+          "workflowId": {
+            "__rl": true,
+            "value": "vgSOin0VRrA7cx0p",
+            "mode": "list",
+            "cachedResultName": "Agendamento | Easy Appointments"
+          },
+          "workflowInputs": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "id_usuario": "={{ $('CREATE & SELECT cliente & user_session').last().json.result.cliente.id_usuario }}",
+              "telefone": "={{ $('CREATE & SELECT cliente & user_session').last().json.result.cliente.telefone }}",
+              "hora": "={{ $fromAI('hora', `Utilize esse campo para o horário do procedimento no formato hh:mm:ss`, 'string', 'nao_informado') }}",
+              "nome_paciente": "={{ $fromAI('nome_paciente', `Utilize esse campo para o nome do paciente`, 'string', 'nao_informado') }}",
+              "session_id": "={{ $('CREATE & SELECT cliente & user_session').last().json.result.session.session_id }}"
+            },
+            "matchingColumns": [],
+            "schema": [
+              {
+                "id": "hora",
+                "displayName": "hora",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "string",
+                "removed": false
+              },
+              {
+                "id": "id_usuario",
+                "displayName": "id_usuario",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "string",
+                "removed": false
+              },
+              {
+                "id": "telefone",
+                "displayName": "telefone",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "string",
+                "removed": false
+              },
+              {
+                "id": "nome_paciente",
+                "displayName": "nome_paciente",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "string",
+                "removed": false
+              },
+              {
+                "id": "session_id",
+                "displayName": "session_id",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "string",
+                "removed": false
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+        "typeVersion": 2.2,
+        "position": [
+          1584,
+          2256
+        ],
+        "id": "932b8e09-7dbb-4e8b-8977-38a2a527810d",
+        "name": "criar_agendamento"
+      },
+      {
+        "parameters": {
+          "description": "=SEMPRE utilize essa ferramenta para atualizar os dados do paciente a cada resposta obtida para as perguntas:\n\n- Nome completo\n- Unidade\n- Procedimento\n\n\nSEMPRE utilize o valor coletado sem formatação e NUNCA invente valores para os campos.",
+          "workflowId": {
+            "__rl": true,
+            "value": "tcSkxciXYiM5OnY7",
+            "mode": "list",
+            "cachedResultName": "Cadastro Usuário | EasyAppointments"
+          },
+          "workflowInputs": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "telefone": "={{ $('CREATE & SELECT cliente & user_session').last().json.result.cliente.telefone}}",
+              "procedimento": "={{ $fromAI('procedimento', `O tipo de procedimento/exame solicitado pelo usuário`, 'string', 'nao_informado') }}",
+              "nome": "={{ $fromAI('nome', `Utilize esse campo para preencher o nome completo da pessoa`, 'string', 'nao_informado' ) }}",
+              "unidade": "={{ $fromAI('unidade', `Utilize esse campo para preencher o ID da unidade que a pessoa escolher. Utilize somente o número associado com a respectiva unidade.`, 'string', 'nao_informado' ) }}",
+              "data_agendamento": "={{ $fromAI('data_agendamento', `Somente a data escolhida pelo usuário no formato yyyy-MM-dd.`, 'string', 'nao_informado') }}"
+            },
+            "matchingColumns": [],
+            "schema": [
+              {
+                "id": "telefone",
+                "displayName": "telefone",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "string"
+              },
+              {
+                "id": "nome",
+                "displayName": "nome",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "string",
+                "removed": false
+              },
+              {
+                "id": "unidade",
+                "displayName": "unidade",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "string",
+                "removed": false
+              },
+              {
+                "id": "procedimento",
+                "displayName": "procedimento",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "string",
+                "removed": false
+              },
+              {
+                "id": "data_agendamento",
+                "displayName": "data_agendamento",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "string",
+                "removed": false
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+        "typeVersion": 2.2,
+        "position": [
+          1712,
+          2256
+        ],
+        "id": "9b8894b8-adba-4a9c-acc0-f36d646716a0",
+        "name": "atualiza_dados"
+      },
+      {
+        "parameters": {
+          "description": "=Chame esta ferramenta para vefiricar os horários disponíveis após o usuário informar nome e data, horário e o procedimento.",
+          "workflowId": {
+            "__rl": true,
+            "value": "MQZxGZkhiSk4BXLK",
+            "mode": "list",
+            "cachedResultName": "Busca Disponibilidade| Easy Appointments"
+          },
+          "workflowInputs": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "telefone": "={{ $('CREATE & SELECT cliente & user_session').last().json.result.cliente.telefone }}",
+              "hora": "={{ $fromAI('hora', `Utilize esse campo para o horário do procedimento`, 'string', 'nao_informado') }}"
+            },
+            "matchingColumns": [],
+            "schema": [
+              {
+                "id": "hora",
+                "displayName": "hora",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "string",
+                "removed": false
+              },
+              {
+                "id": "telefone",
+                "displayName": "telefone",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "removed": false
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+        "typeVersion": 2.2,
+        "position": [
+          1856,
+          2256
+        ],
+        "id": "07988493-f93c-4b94-b66b-74761ec8787b",
+        "name": "verifica_disponibilidade_agenda"
+      },
+      {
+        "parameters": {
+          "description": "Consulta agendamentos existentes do cliente. Use para verificar, listar ou obter detalhes de agendamentos já confirmados pelo cliente.",
+          "workflowId": {
+            "__rl": true,
+            "value": "lDKIAPPZxKs173gl",
+            "mode": "list",
+            "cachedResultName": "EasyAppointments | Consulta Agendamento"
+          },
+          "workflowInputs": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "id_usuario": "={{ $('CREATE & SELECT cliente & user_session').last().json.result.cliente.id_usuario }}"
+            },
+            "matchingColumns": [],
+            "schema": [
+              {
+                "id": "telefone",
+                "displayName": "telefone",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "id_usuario",
+                "displayName": "id_usuario",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "cliente_solicita",
+                "displayName": "cliente_solicita",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "string",
+                "removed": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+        "typeVersion": 2.2,
+        "position": [
+          2016,
+          2256
+        ],
+        "id": "63b0f00f-684d-4554-b647-8a02f3c628c3",
+        "name": "consulta_agendamento"
+      },
+      {
+        "parameters": {
+          "description": "Cancela agendamentos existentes do cliente. Use para cancelar agendamentos já confirmados, passe \"reagendamento = true\" caso o cliente queira reagendar.",
+          "workflowId": {
+            "__rl": true,
+            "value": "0O6y5NDvNkKnkHWl",
+            "mode": "list",
+            "cachedResultName": "Cancelar Agendamento | EasyAppointments"
+          },
+          "workflowInputs": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "id_usuario": "={{ $('CREATE & SELECT cliente & user_session').last().json.result.cliente.id_usuario }}",
+              "data_agendada": "={{ $fromAI('data_agendada', `data e hora da consulta agendada que deseja cancelar em formato YYYY-mm-dd hh:mm:ss`, 'string') }}",
+              "nome_paciente": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('nome_paciente', `O nome completo do paciente.`, 'string') }}",
+              "session_id": "={{ $('CREATE & SELECT cliente & user_session').last().json.result.session.session_id }}",
+              "reagendamento": "={{ $fromAI('reagendamento', `true se estiver fazendo reagendamento`, 'boolean', false) }}",
+              "telefone": "={{ $('CREATE & SELECT cliente & user_session').last().json.result.cliente.telefone }}"
+            },
+            "matchingColumns": [
+              "info_cancelamento"
+            ],
+            "schema": [
+              {
+                "id": "id_usuario",
+                "displayName": "id_usuario",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "data_agendada",
+                "displayName": "data_agendada",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "string",
+                "removed": false
+              },
+              {
+                "id": "nome_paciente",
+                "displayName": "nome_paciente",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "string",
+                "removed": false
+              },
+              {
+                "id": "reagendamento",
+                "displayName": "reagendamento",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "boolean",
+                "removed": false
+              },
+              {
+                "id": "session_id",
+                "displayName": "session_id",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "string",
+                "removed": false
+              },
+              {
+                "id": "telefone",
+                "displayName": "telefone",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "string",
+                "removed": false
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+        "typeVersion": 2.2,
+        "position": [
+          2192,
+          2256
+        ],
+        "id": "63626d8e-8efe-4243-b646-8bdbb04a15ad",
+        "name": "cancela_agendamento"
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "={{ $('Mensagem').last().json.mensagem }}",
+          "options": {
+            "systemMessage": "=Você é um assistente de inteligência artificial chamada Bia, uma agente especializada em tirar dúvidas e realizar o agendamento de consultas para a clínica OrthoX. Sua missão é responder aos clientes pelo WhatsApp e guiá-los até a marcação da consulta.\n\n## Objetivo\nSeu objetivo principal é conseguir as seguintes informações antes de consultar ou realizar um agendamento.\n\n{{\n  (() => {\n    const cliente = $('CREATE & SELECT cliente & user_session').last().json.result.cliente;\n    const sessao_agendamento = $('SELECT sessao_agendamento').last().json;\n\n    return `\nTelefone: ${\n        cliente?.telefone\n          ? `Informação já obtida (${cliente.telefone})`\n          : 'Solicite para a pessoa o telefone'\n      }\nNome: ${\n        cliente?.nome\n          ? `Informação já obtida, NÃO perguntar novamente  (${cliente.nome})`\n          : '* **PRIMEIRA PERGUNTA OBRIGATÓRIA**: \"Qual seu nome?\" (para identificar quem está falando)'\n      }\nUnidade: ${\n        sessao_agendamento?.unidade\n          ? `Informação já obtida (${sessao_agendamento.unidade})`\n          : 'Solicite para a pessoa a unidade'\n      }\nProcedimento: ${\n        sessao_agendamento?.servico\n          ? `Informação já obtida (${sessao_agendamento.servico})`\n          : 'Solicite para a pessoa o procedimento desejado (exame)'\n      }\nData Agendamento: ${\n        sessao_agendamento?.data_agendamento\n          ? `Informação já obtida (${sessao_agendamento.data_agendamento})`\n          : 'Solicite para a pessoa a data desejada'\n      }`;\n  })()\n}}\n\n## FLUXO OBRIGATÓRIO DE FERRAMENTAS (EXECUTAR NA ORDEM)\n\n### Fase 1 - Coleta de Dados:\n1. SEMPRE que receber Nome → EXECUTE `atualiza_dados` IMEDIATAMENTE\n2. SEMPRE que receber Unidade → EXECUTE `atualiza_dados` IMEDIATAMENTE  \n3. SEMPRE que receber Procedimento → EXECUTE `atualiza_dados` IMEDIATAMENTE\n   - CORRIJA a ortografia SOMENTE do Procedimento antes de atualizar\n\n### Fase 2 - Disponibilidade:\n4. SOMENTE APÓS ter Nome + Unidade + Procedimento coletados:\n   - Pergunte qual dia o usuário gostaria de agendar\n   - **SEMPRE** utilize a ferramenta `Think` para determinar o dia corretamente\n   - Quando usuário informar data agendamento → EXECUTE `atualiza_dados` IMEDIATAMENTE\n   - Após executar `atualiza_dados` → EXECUTE `verifica_disponibilidade_agenda`\n   - NUNCA sugira horários sem executar esta ferramenta\n\n### Fase 3 - Consulta:\n5. Para CONSULTAR agendamentos → EXECUTE `consulta_agendamento`\n   - NUNCA use informações de memória/histórico/chat history para listar agendamentos\n\n### Fase 4 - Ação Final:\n6. Para CRIAR agendamento → EXECUTE `criar_agendamento` após confirmação explícita\n7. Para CANCELAR → EXECUTE `consulta_agendamento` PRIMEIRO, DEPOIS `cancela_agendamento`\n   - **SEMPRE** utilize a ferramenta `Think` para determinar se completou o fluxo de cancelamento\n\n## GATILHOS AUTOMÁTICOS DE FERRAMENTAS\n\nEXECUTE IMEDIATAMENTE (sem avisar o usuário):\n- Nome recebido → `atualiza_dados`\n- Unidade e Procedimento informados → `atualiza_dados`\n- Data/horário solicitado → `verifica_disponibilidade_agenda`\n- Pedido de cancelamento → `consulta_agendamento`\n- Pedido de consulta de agendamentos → `consulta_agendamento`\n- Confirmação de agendamento → `criar_agendamento`\n- Confirmação de cancelamento → `cancela_agendamento`\n\n## BLOQUEIOS OBRIGATÓRIOS\n\n- **NUNCA** sugira horários sem executar `verifica_disponibilidade_agenda`\n- **NUNCA** mostre agendamentos sem executar `consulta_agendamento`\n- **NUNCA** crie agendamento sem confirmação explícita do usuário\n- **NUNCA** cancele sem primeiro executar `consulta_agendamento`\n- **NUNCA** use informações de memória/histórico/chat history para disponibilidades\n- **NUNCA** execute múltiplas operações simultâneas (crie/cancele APENAS um por vez)\n- **NUNCA** faça duas perguntas em uma única mensagem\n- **NUNCA** pause a conversa ou peça \"um momento\"\n- **NUNCA** anuncie ao usuário que vai usar ferramentas\n\nSEMPRE BLOQUEIE E PEÇA INFO SE:\n- Faltam dados obrigatórios para a ferramenta\n- Usuário não confirmou explicitamente a ação\n- Horário solicitado não está disponível (ofereça o próximo disponível)\n\n## USO OBRIGATÓRIO DE RESPOSTAS DAS FERRAMENTAS\n\nApós executar ferramenta:\n1. USE APENAS o campo 'response' da ferramenta como base da resposta\n2. NUNCA invente ou adicione informações não retornadas pela ferramenta\n3. Se erro → informe exatamente a mensagem de erro retornada\n4. Se sucesso → prossiga IMEDIATAMENTE com próxima pergunta pendente\n\n## Diretrizes de Conversação\n\n* SEMPRE apresente-se dizendo seu nome e a sua função de maneira cordial\n* APÓS obter o nome do usuário, prossiga com outras informações\n* Aguarde a resposta antes de seguir para a próxima pergunta\n* Utilize a data de hoje para se orientar: {{ new Date().toLocaleString(\"pt-br\", {  weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }) }}\n* Você sempre receberá o dia e horário atuais; a partir daí, identifique datas como amanhã, depois de amanhã, semana que vem, mês que vem, ano que vem\n* NUNCA invente respostas\n* **NUNCA peça \"um momento\" ou similar** - mantenha o fluxo natural\n* NUNCA utilize emojis\n* Mantenha o tom prestativo ao longo de toda a conversa\n* Evite repetir o nome da pessoa em toda resposta. Use de forma natural, quando necessário\n\n## Unidades\n- Se o usuário escolher a unidade de São Bernando do Campo (SBC) o id da unidade = 1\n- Se o usuário escolher a unidade de Diadema o id da unidade = 2\n- Se o usuário escolher a unidade Premium o id da unidade = 3\n- Se o usuário escolher a unidade de Santo André o id da unidade = 4\n\n## Identificação do Paciente\n\n**FLUXO OBRIGATÓRIO:**\n- **SEMPRE PERGUNTE**: \"Este agendamento é para você ou para outra pessoa?\"\n\n**Se for para outra pessoa:**\n- Colete: \"Qual o nome completo da pessoa para o agendamento?\"\n- **IMPORTANTE**: NUNCA use `atualiza_dados` para o nome do paciente\n\n**Se for para o próprio usuário:**\n- Utilize o Nome já coletado\n\n## Fluxo de Coleta (IMPORTANTE)\nQuando receber uma informação do usuário:\n1. Use a ferramenta necessária SEM avisar\n2. IMEDIATAMENTE faça a próxima pergunta pendente\n3. NUNCA pause a conversa para \"atualizar\" ou \"registrar\"\n\n## Progresso Parcial\nSe o cliente fornecer apenas parte dos dados:\n- Agradeça brevemente E faça a próxima pergunta na MESMA mensagem\n- Exemplo: \"Perfeito! Agora, qual seu nome completo?\"\n\n## Procedimentos Específicos\n\n### Cancelamento\n- Nome recebido com pedido de cancelamento → EXECUTE `consulta_agendamento` IMEDIATAMENTE\n- SEMPRE liste TODOS os agendamentos numericamente após executar `consulta_agendamento`\n- QUANDO houver múltiplos agendamentos:\n  - LISTE: \"[1] Nome paciente - Unidade - Procedimento - Data/Hora\"\n  - AGUARDE o usuário escolher o NÚMERO ou procedimento ou data/hora\n  - NUNCA prossiga sem confirmação específica de QUAL cancelar\n- SEMPRE confirme ANTES de cancelar:\n  - MOSTRE: \"Confirma cancelamento de [procedimento] em [data/hora]?\"\n  - SOMENTE execute `cancela_agendamento` após confirmação explícita\n\n### Reagendamento\n- Se o usuário pedir reagendamento, notifique que ele deverá cancelar o agendamento e criar um novo\n- NUNCA tente realizar reagendamento direto\n- Realize o cancelamento passando o parâmetro \"reagendamento = true\"\n- Após cancelar, comece novo fluxo de agendamento pedindo: Unidade, Procedimento, Data e Hora\n\n### ⚠️ Crítico\n* **NUNCA** peça \"um momento\" ou similar** - mantenha o fluxo natural"
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 1.8,
+        "position": [
+          1584,
+          2032
+        ],
+        "id": "170fb7cf-3022-48bc-9a7f-0ef26f1d499a",
+        "name": "AI Agent"
+      },
+      {
+        "parameters": {
+          "description": "=Use esta ferramenta para determinar:\n- a data que o usuário solicitar, com base na data atual:  {{ new Date().toLocaleString(\"pt-br\", {  weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }) }}.\n- se o fluxo de cancelamento foi executado"
+        },
+        "type": "@n8n/n8n-nodes-langchain.toolThink",
+        "typeVersion": 1.1,
+        "position": [
+          1184,
+          2256
+        ],
+        "id": "b1ce6f3f-c2d4-4bdf-b57c-23df8981ed54",
+        "name": "Think"
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "WITH existing_cliente AS (\n    SELECT *\n    FROM public.cliente\n    WHERE telefone = '{{ $('Webhook EVO').last().json.body.data.key.remoteJid.split('@')[0] }}'\n    LIMIT 1\n), inserted_cliente AS (\n    INSERT INTO public.cliente (telefone)\n    SELECT '{{ $('Webhook EVO').last().json.body.data.key.remoteJid.split('@')[0] }}'\n    WHERE NOT EXISTS (SELECT 1 FROM existing_cliente)\n    RETURNING *\n), final_cliente AS (\n    SELECT * FROM existing_cliente\n    UNION ALL\n    SELECT * FROM inserted_cliente\n), cliente_with_session AS (\n    SELECT \n        f.*,\n        s.session_id,\n        s.precisa_saudar,\n        us.transferido_para_humano,\n        us.id_agente_humano\n    FROM final_cliente f\n    CROSS JOIN LATERAL get_or_create_session(f.telefone) s\n    LEFT JOIN public.user_session us\n    ON us.id = s.session_id\n)\nSELECT json_build_object(\n    'cliente', to_jsonb(f) - 'session_id' - 'precisa_saudar' - 'transferido_para_humano' - 'id_agente_humano',\n    'session', json_build_object(\n        'session_id', f.session_id,\n        'precisa_saudar', f.precisa_saudar,\n        'transferido_para_humano', f.transferido_para_humano,\n        'id_agente_humano', f.id_agente_humano\n    )\n) AS result\nFROM cliente_with_session f;\n",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          864,
+          2032
+        ],
+        "id": "c7f61ab0-2b09-4fde-8c30-1c93c6e39175",
+        "name": "CREATE & SELECT cliente & user_session",
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "select",
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "sessao_agendamento",
+            "mode": "list",
+            "cachedResultName": "sessao_agendamento"
+          },
+          "limit": 1,
+          "where": {
+            "values": [
+              {
+                "column": "telefone",
+                "value": "={{ $('Webhook EVO').last().json.body.data.key.remoteJid.split('@')[0] }}"
+              },
+              {
+                "column": "deletado",
+                "value": "false"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          1136,
+          2032
+        ],
+        "id": "7c88bc91-cff6-40ac-a3c4-4e5598280eec",
+        "name": "SELECT sessao_agendamento",
+        "alwaysOutputData": true,
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "resource": "messages-api",
+          "instanceName": "={{ $('Webhook EVO').last().json.body.instance }}",
+          "remoteJid": "={{ $('CREATE & SELECT cliente & user_session').last().json.result.cliente.telefone }}",
+          "messageText": "=Dados apagados",
+          "options_message": {
+            "delay": 4200,
+            "linkPreview": false
+          }
+        },
+        "type": "n8n-nodes-evolution-api.evolutionApi",
+        "typeVersion": 1,
+        "position": [
+          624,
+          1696
+        ],
+        "id": "b0fe9b25-b81a-4fb3-9b83-4a4c0bbcd9d3",
+        "name": "Evolution API",
+        "credentials": {
+          "evolutionApi": {
+            "id": "3oTT7RsCuxervFw5",
+            "name": "Evolution account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://us-documentai.googleapis.com/v1/projects/110802252897/locations/us/processors/154939bb32f53f96/processorVersions/484fa14959d57133:process\n",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "googleOAuth2Api",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"skipHumanReview\": true,\n  \"rawDocument\": {\n    \"mimeType\": \"{{ $('Webhook EVO').item.json.body.payload.media.mimetype }}\",\n    \"content\": \"{{ $json.imageBase64 }}\"\n  },\n  \"fieldMask\": \"entities\"\n}\n ",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          -176,
+          2384
+        ],
+        "id": "52e63b6f-5640-44f1-bcc6-b08782b522b0",
+        "name": "document AI google",
+        "credentials": {
+          "googleOAuth2Api": {
+            "id": "vgiE4AVDHe0QtJRD",
+            "name": "solicitacao-exame-orthox"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "// First, let's inspect the data structure\nconst inputData = $input.all();\nconsole.log('Input structure:', JSON.stringify(inputData[0], null, 2));\n\n// Access the data - adjust path based on your actual structure\nlet entities;\ntry {\n  // Try different possible paths\n  if (inputData[0].json && Array.isArray(inputData[0].json)) {\n    entities = inputData[0].json[0]?.document?.entities;\n  } else if (inputData[0].json?.document?.entities) {\n    entities = inputData[0].json.document.entities;\n  } else {\n    throw new Error('Cannot find entities in the expected structure');\n  }\n} catch (error) {\n  console.error('Error accessing entities:', error);\n  return [];\n}\n\nif (!entities) {\n  console.log('No entities found');\n  return [];\n}\n\nconst results = [];\n\nentities.forEach((entity, index) => {\n  // Check main entity for booleanValue: true\n  if (entity.normalizedValue?.booleanValue === true) {\n    results.push({\n      type: entity.type,\n      mentionText: entity.mentionText,\n      confidence: entity.confidence,\n      id: entity.id,\n      source: 'main_entity'\n    });\n  }\n  \n  // Check properties for booleanValue: true\n  if (entity.properties) {\n    entity.properties.forEach(prop => {\n      if (prop.normalizedValue?.booleanValue === true) {\n        results.push({\n          type: prop.type,\n          parentType: entity.type,\n          mentionText: prop.mentionText,\n          confidence: prop.confidence,\n          id: prop.id,\n          source: 'property'\n        });\n      }\n    });\n  }\n});\n\nconsole.log('Found results:', results);\n\nreturn results.map((item, index) => ({ json: item, index }));"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          48,
+          2384
+        ],
+        "id": "4af34f11-4c8a-40ce-92cd-56a5f0afffe1",
+        "name": "Code"
+      },
+      {
+        "parameters": {
+          "inputSource": "passthrough"
+        },
+        "type": "n8n-nodes-base.executeWorkflowTrigger",
+        "typeVersion": 1.1,
+        "position": [
+          -1216,
+          2176
+        ],
+        "id": "bc7a416f-84d5-4d68-a5c0-1920ed3b2de6",
+        "name": "Webhook EVO"
+      },
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "orthox-ocr",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          -1552,
+          2384
+        ],
+        "id": "78f81eeb-7b58-4590-9e52-7a1512d719d8",
+        "name": "Webhook",
+        "webhookId": "ce18f623-c82d-4d61-b3bc-31cf8ea79562"
+      },
+      {
+        "parameters": {
+          "operation": "toBinary",
+          "sourceProperty": "imageBase64",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.convertToFile",
+        "typeVersion": 1.1,
+        "position": [
+          -400,
+          2560
+        ],
+        "id": "97687745-7377-495c-afe8-1eb121ddeaae",
+        "name": "Convert to File"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://orthox-waha.reyhdo.easypanel.host/api/sendText",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "accept",
+                "value": "application/json"
+              },
+              {
+                "name": "X-Api-Key",
+                "value": "8e130716e537469e98eb72ab4297c240"
+              },
+              {
+                "name": "api-key",
+                "value": "8e130716e537469e98eb72ab4297c240"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"chatId\": \"{{ $('Webhook Evo').last().json.body.payload.from }}\",\n  \"reply_to\": null,\n  \"text\": {{ $json.mensagem.toJsonString() }},\n  \"linkPreview\": false,\n  \"linkPreviewHighQuality\": false,\n  \"session\": \"default\"\n}\n\n\n\n",
+          "options": {
+            "redirect": {
+              "redirect": {}
+            }
+          }
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          272,
+          2384
+        ],
+        "id": "fda9ca5d-9f69-42f3-94b1-aaa00aec91d4",
+        "name": "WAHA | HTTP Request"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://orthox-waha.reyhdo.easypanel.host/api/sendText",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "accept",
+                "value": "application/json"
+              },
+              {
+                "name": "X-Api-Key",
+                "value": "8e130716e537469e98eb72ab4297c240"
+              },
+              {
+                "name": "api-key",
+                "value": "8e130716e537469e98eb72ab4297c240"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"chatId\": \"{{ $('Webhook Evo').last().json.body.payload.from }}\",\n  \"reply_to\": null,\n  \"text\": {{ $json.mensagem.toJsonString() }},\n  \"linkPreview\": false,\n  \"linkPreviewHighQuality\": false,\n  \"session\": \"default\"\n}\n\n\n\n",
+          "options": {
+            "redirect": {
+              "redirect": {}
+            }
+          }
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          2000,
+          2032
+        ],
+        "id": "add9202c-ff81-4232-aa75-b14d14ca8a12",
+        "name": "WAHA | HTTP Request1"
+      },
+      {
+        "parameters": {
+          "url": "https://orthox-n8n.reyhdo.easypanel.host/api/files/default/false_5519998210119@c.us_3EB08435868399A2626549.jpeg",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          -656,
+          2224
+        ],
+        "id": "f3f8abe6-00e2-4f92-a203-86ceba748af4",
+        "name": "HTTP Request1"
+      }
+    ],
+    "connections": {
+      "When chat message received": {
+        "main": [
+          [
+            {
+              "node": "SET telefone",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "SET telefone": {
+        "main": [
+          [
+            {
+              "node": "IF trigger delete",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF trigger delete": {
+        "main": [
+          [],
+          []
+        ]
+      },
+      "DELETE user_session, conversation_state, leads": {
+        "main": [
+          [
+            {
+              "node": "GET customer if exists",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "GET customer if exists": {
+        "main": [
+          [
+            {
+              "node": "DELETE test customer",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Analyze Image": {
+        "main": [
+          [
+            {
+              "node": "Merge",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Analyze image": {
+        "main": [
+          [
+            {
+              "node": "Merge",
+              "type": "main",
+              "index": 1
+            }
+          ]
+        ]
+      },
+      "Merge": {
+        "main": [
+          [
+            {
+              "node": "Image",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTTP Request": {
+        "main": [
+          [
+            {
+              "node": "Analyze image",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Analyze Image",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Reiniciar conversa?2": {
+        "main": [
+          [
+            {
+              "node": "DELETE user_session, conversation_state, leads",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Mensagem",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Edit Fields3": {
+        "main": [
+          [
+            {
+              "node": "document AI google",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI4": {
+        "main": [
+          [
+            {
+              "node": "Audio Redis",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Converter Audio": {
+        "main": [
+          [
+            {
+              "node": "OpenAI4",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "ROTA Mensagens": {
+        "main": [
+          [
+            {
+              "node": "Reiniciar conversa?2",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Edit Fields",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "HTTP Request1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Edit Fields": {
+        "main": [
+          [
+            {
+              "node": "Converter Audio",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Audio Redis": {
+        "main": [
+          []
+        ]
+      },
+      "Mensagem": {
+        "main": [
+          [
+            {
+              "node": "CREATE & SELECT cliente & user_session",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Postgres Chat Memory": {
+        "ai_memory": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_memory",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "criar_agendamento": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "atualiza_dados": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "verifica_disponibilidade_agenda": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "consulta_agendamento": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "cancela_agendamento": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Think": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "CREATE & SELECT cliente & user_session": {
+        "main": [
+          [
+            {
+              "node": "SELECT sessao_agendamento",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "SELECT sessao_agendamento": {
+        "main": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "AI Agent": {
+        "main": [
+          [
+            {
+              "node": "WAHA | HTTP Request1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "DELETE test customer": {
+        "main": [
+          [
+            {
+              "node": "Evolution API",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "document AI google": {
+        "main": [
+          [
+            {
+              "node": "Code",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code": {
+        "main": [
+          [
+            {
+              "node": "WAHA | HTTP Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Webhook EVO": {
+        "main": [
+          [
+            {
+              "node": "ROTA Mensagens",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Webhook": {
+        "main": [
+          []
+        ]
+      },
+      "Convert to File": {
+        "main": [
+          []
+        ]
+      },
+      "HTTP Request1": {
+        "main": [
+          [
+            {
+              "node": "Edit Fields3",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "system migration",
+    "name": null,
+    "description": null,
+    "autosaved": false
+  },
+  "activeVersionId": "96d859af-0519-4680-81c4-0005be786788",
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "SET telefone",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SET telefone": {
+      "main": [
+        [
+          {
+            "node": "IF trigger delete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF trigger delete": {
+      "main": [
+        [],
+        []
+      ]
+    },
+    "DELETE user_session, conversation_state, leads": {
+      "main": [
+        [
+          {
+            "node": "GET customer if exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET customer if exists": {
+      "main": [
+        [
+          {
+            "node": "DELETE test customer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Image": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze image": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Analyze image",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Analyze Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reiniciar conversa?2": {
+      "main": [
+        [
+          {
+            "node": "DELETE user_session, conversation_state, leads",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mensagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        [
+          {
+            "node": "document AI google",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI4": {
+      "main": [
+        [
+          {
+            "node": "Audio Redis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Converter Audio": {
+      "main": [
+        [
+          {
+            "node": "OpenAI4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ROTA Mensagens": {
+      "main": [
+        [
+          {
+            "node": "Reiniciar conversa?2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Converter Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Audio Redis": {
+      "main": [
+        []
+      ]
+    },
+    "Mensagem": {
+      "main": [
+        [
+          {
+            "node": "CREATE & SELECT cliente & user_session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "criar_agendamento": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "atualiza_dados": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "verifica_disponibilidade_agenda": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "consulta_agendamento": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "cancela_agendamento": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Think": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CREATE & SELECT cliente & user_session": {
+      "main": [
+        [
+          {
+            "node": "SELECT sessao_agendamento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SELECT sessao_agendamento": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "WAHA | HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DELETE test customer": {
+      "main": [
+        [
+          {
+            "node": "Evolution API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "document AI google": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "WAHA | HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook EVO": {
+      "main": [
+        [
+          {
+            "node": "ROTA Mensagens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        []
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        []
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-09-10T13:10:08.330Z",
+  "id": "5xd8BDCWMj8YytX8",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Agents Garage",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -784,
+        400
+      ],
+      "id": "6749e839-3a49-4219-8758-d539dfcb9b5a",
+      "name": "When chat message received",
+      "webhookId": "079ed43d-00e6-4b2a-b695-7b79e3c05603"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b12249d9-c3b0-40dc-a332-cc509fae1922",
+              "name": "telefone",
+              "value": "19971388220",
+              "type": "string"
+            },
+            {
+              "id": "0069d741-de73-40c2-9947-38b742d0d8b9",
+              "name": "chatInput",
+              "value": "={{ $json.chatInput }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -448,
+        400
+      ],
+      "id": "cb0b41d9-e7c0-45da-b042-dac9e2d73872",
+      "name": "SET telefone"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "7173483a-a3cc-4e35-9dd7-4f181216d247",
+              "leftValue": "={{ $('When chat message received').last().json.chatInput }}",
+              "rightValue": "##delete",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -96,
+        272
+      ],
+      "id": "5c1ea2e8-014f-4a24-864d-08a7dc38a16b",
+      "name": "IF trigger delete"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "DO $$\nDECLARE\n  target_phone text := '{{ $('Webhook EVO').last().json.body.data.key.remoteJid.split('@')[0] }}';\nBEGIN\n  -- Step 1: Delete from user_session\n  DELETE FROM public.user_session\n  WHERE telefone = target_phone;\n\n  -- Step 1: Delete from sessao_agendamento\n  DELETE FROM public.sessao_agendamento\n  WHERE telefone = target_phone;\n\n  -- Step 2: Delete from cliente\n  DELETE FROM public.cliente\n  WHERE telefone = target_phone;\n\nEND $$;\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -80,
+        1696
+      ],
+      "id": "f5e8605a-2898-473b-abb3-c540ce42c2c4",
+      "name": "DELETE user_session, conversation_state, leads",
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://orthox-easyappointments.reyhdo.easypanel.host/index.php/api/v1/customers",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "=19998210119"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        176,
+        1696
+      ],
+      "id": "1099a959-3663-46ad-8916-06e94aef80a4",
+      "name": "GET customer if exists",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "method": "DELETE",
+        "url": "=https://orthox-easyappointments.reyhdo.easypanel.host/index.php/api/v1/customers/{{ $('GET customer if exists').last().json.id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        416,
+        1696
+      ],
+      "id": "fe015c95-7728-40b9-a2d9-a353d53f19a2",
+      "name": "DELETE test customer",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "chatgpt-4o-latest",
+          "mode": "list",
+          "cachedResultName": "CHATGPT-4O-LATEST"
+        },
+        "text": "=Analise meticulosamente esse pedido de exame. Se for uma lista padronizada com os exames disponíveis, analise item a item até encontrar o item assinalado (com alguma sinalização no quadrado na frente de cada item da lista) e retorne semente os itens assinalados. Eles significam os pedidos de exame do usuário.",
+        "imageUrls": "https://zebagjecvqqmxmlisdkf.supabase.co/storage/v1/object/sign/fotos/interno(TesteassinaladoLesaoPatologica).PNG?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9lNTA0MzRjZC04MTNiLTQ0YmUtYmI0Mi01YzI5NTg3MmQwMGEiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJmb3Rvcy9pbnRlcm5vKFRlc3RlYXNzaW5hbGFkb0xlc2FvUGF0b2xvZ2ljYSkuUE5HIiwiaWF0IjoxNzU4MzExODQ4LCJleHAiOjE3NTg5MTY2NDh9.gTBAR9ISL25AAXJM124272AFOSXt1PUmSXj-Mlwa89c",
+        "options": {
+          "detail": "high"
+        }
+      },
+      "id": "d8d2eaa8-fd2e-4ba0-a987-4e70781afa21",
+      "name": "Analyze Image",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        272,
+        880
+      ],
+      "typeVersion": 1.8,
+      "credentials": {
+        "openAiApi": {
+          "id": "ER0I3fZmmkBwmDBr",
+          "name": "OpenAi ni.automacoes"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "67552183-de2e-494a-878e-c2948e8cb6bb",
+              "name": "text",
+              "type": "string",
+              "value": "=User request on the image:\n{{ \"Describe the following image\" || $('WhatsApp Trigger').item.json.messages[0].image.caption }}\n\nImage description:\n{{ $json.content }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "909da790-6ac1-4b23-b906-323fe64ac37a",
+      "name": "Image",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        752,
+        1008
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "modelId": {
+          "__rl": true,
+          "value": "claude-opus-4-1-20250805",
+          "mode": "list",
+          "cachedResultName": "claude-opus-4-1-20250805"
+        },
+        "text": "=Analise meticulosamente esse pedido de exame. Se for uma lista padronizada com os exames disponíveis, analise item a item até encontrar o item assinalado (com alguma sinalização no quadrado na frente de cada item da lista) e retorne semente os itens assinalados. Eles significam os pedidos de exame do usuário.",
+        "imageUrls": "https://zebagjecvqqmxmlisdkf.supabase.co/storage/v1/object/sign/fotos/interno(TesteassinaladoLesaoPatologica).PNG?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9lNTA0MzRjZC04MTNiLTQ0YmUtYmI0Mi01YzI5NTg3MmQwMGEiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJmb3Rvcy9pbnRlcm5vKFRlc3RlYXNzaW5hbGFkb0xlc2FvUGF0b2xvZ2ljYSkuUE5HIiwiaWF0IjoxNzU4MzExODQ4LCJleHAiOjE3NTg5MTY2NDh9.gTBAR9ISL25AAXJM124272AFOSXt1PUmSXj-Mlwa89c",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.anthropic",
+      "typeVersion": 1,
+      "position": [
+        272,
+        1072
+      ],
+      "id": "aa25841d-ddcd-4edf-85f8-e9bc5f1b9894",
+      "name": "Analyze image",
+      "credentials": {
+        "anthropicApi": {
+          "id": "ESBrLbpuhNEbpbAx",
+          "name": "Anthropic ni.automacoes"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        528,
+        1008
+      ],
+      "id": "049d843e-a680-454a-a857-f1ec10d5dfee",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "url": "https://studio.pixelixe.com/api/contrast/v1",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "value",
+              "value": "0.6"
+            },
+            {
+              "name": "imageUrl",
+              "value": "https://zebagjecvqqmxmlisdkf.supabase.co/storage/v1/object/sign/fotos/interno.jpeg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9lNTA0MzRjZC04MTNiLTQ0YmUtYmI0Mi01YzI5NTg3MmQwMGEiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJmb3Rvcy9pbnRlcm5vLmpwZWciLCJpYXQiOjE3NTgxNDI1MjYsImV4cCI6MTc4OTY3ODUyNn0.eJZz2w20tBXvPNIsbWEytunDdpdLQY-MKcBUnCwjEbY"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer f5FHfoo9uFOqDF1dOBwpNnfqCm12"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -128,
+        912
+      ],
+      "id": "1ac1757c-d075-4db2-8e12-b248d82fc42e",
+      "name": "HTTP Request",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "2762293f-435e-443b-8e5b-d308bb332796",
+              "leftValue": "={{ $('Webhook EVO').item.json.body.data.message.conversation }}",
+              "rightValue": "##delete",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -416,
+        1888
+      ],
+      "id": "5235ff22-c38a-4a6e-ae9e-ef5a9c3860f2",
+      "name": "Reiniciar conversa?2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3c5ccbc9-69d1-4b13-a7c3-e6945bc8c655",
+              "name": "imageBase64",
+              "value": "={{ $json.body.payload._data.body }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "bed29f00-3715-4fa5-b32a-9daee83d77c3",
+      "name": "Edit Fields3",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -400,
+        2384
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {}
+      },
+      "id": "a16e8954-450c-4198-95e4-0b99a6d8761e",
+      "name": "OpenAI4",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.6,
+      "position": [
+        -112,
+        2032
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "ER0I3fZmmkBwmDBr",
+          "name": "OpenAi ni.automacoes"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "data",
+        "options": {
+          "fileName": "file.ogg",
+          "mimeType": "application/ogg"
+        }
+      },
+      "id": "b72a7264-1021-45ec-a408-5000504d1a56",
+      "name": "Converter Audio",
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        -272,
+        2032
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "52aaf749-fe4f-44e4-880e-15b2bfc027f1",
+                    "leftValue": "={{ $json.body.payload._data.type }}",
+                    "rightValue": "chat",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "text"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.payload._data.type }}",
+                    "rightValue": "ptt",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "eb8b500a-74b7-45ec-a4fc-f90e80acce20"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "audio"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "c0e434dd-1268-421d-b81b-3a5e90ed9550",
+                    "leftValue": "={{ $json.body.payload._data.type }}",
+                    "rightValue": "image",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "image"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "24033a48-68f0-4485-a83b-87dc17d6cc40",
+      "name": "ROTA Mensagens",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        -864,
+        2112
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "push",
+        "list": "={{ $('Dados').item.json.Telefone }}",
+        "messageData": "={{ $json.text }}",
+        "tail": true
+      },
+      "id": "77ddcf2e-a599-4952-9700-952e30749ff2",
+      "name": "Audio Redis",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        64,
+        2032
+      ],
+      "credentials": {
+        "redis": {
+          "id": "09S5reMQREDFaZPt",
+          "name": "Redis n8n"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3c5ccbc9-69d1-4b13-a7c3-e6945bc8c655",
+              "name": "data",
+              "value": "={{ $('Webhook EVO').item.json.body.data.message.base64 }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "395ab2bd-e420-4b83-a136-e91fc2d75786",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -432,
+        2032
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "239cab79-8fb1-45ca-9a04-11006892d52e",
+              "name": "mensagem",
+              "value": "={{ (() => { try { return $('Webhook EVO').item.json.body.data.message.conversation } catch(e) { return $json.result[0].prediction[0].ocr_text } })() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        656,
+        2032
+      ],
+      "id": "09196322-2e9c-4266-a039-2cb5f5b65fb7",
+      "name": "Mensagem"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('CREATE & SELECT cliente & user_session').last().json.result.session.session_id }}",
+        "tableName": "ortho_x_chat_histories",
+        "contextWindowLength": 15
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        1440,
+        2256
+      ],
+      "id": "d1724e79-c2af-40d9-967a-4e24df077143",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1312,
+        2256
+      ],
+      "id": "9babec8e-98ca-47c3-b6f8-6a09c28c574e",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "ER0I3fZmmkBwmDBr",
+          "name": "OpenAi ni.automacoes"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "=Chame esta ferramenta para criar um agendamento.",
+        "workflowId": {
+          "__rl": true,
+          "value": "vgSOin0VRrA7cx0p",
+          "mode": "list",
+          "cachedResultName": "Agendamento | Easy Appointments"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id_usuario": "={{ $('CREATE & SELECT cliente & user_session').last().json.result.cliente.id_usuario }}",
+            "telefone": "={{ $('CREATE & SELECT cliente & user_session').last().json.result.cliente.telefone }}",
+            "hora": "={{ $fromAI('hora', `Utilize esse campo para o horário do procedimento no formato hh:mm:ss`, 'string', 'nao_informado') }}",
+            "nome_paciente": "={{ $fromAI('nome_paciente', `Utilize esse campo para o nome do paciente`, 'string', 'nao_informado') }}",
+            "session_id": "={{ $('CREATE & SELECT cliente & user_session').last().json.result.session.session_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "hora",
+              "displayName": "hora",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "id_usuario",
+              "displayName": "id_usuario",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "telefone",
+              "displayName": "telefone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "nome_paciente",
+              "displayName": "nome_paciente",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "session_id",
+              "displayName": "session_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        1584,
+        2256
+      ],
+      "id": "932b8e09-7dbb-4e8b-8977-38a2a527810d",
+      "name": "criar_agendamento"
+    },
+    {
+      "parameters": {
+        "description": "=SEMPRE utilize essa ferramenta para atualizar os dados do paciente a cada resposta obtida para as perguntas:\n\n- Nome completo\n- Unidade\n- Procedimento\n\n\nSEMPRE utilize o valor coletado sem formatação e NUNCA invente valores para os campos.",
+        "workflowId": {
+          "__rl": true,
+          "value": "tcSkxciXYiM5OnY7",
+          "mode": "list",
+          "cachedResultName": "Cadastro Usuário | EasyAppointments"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "telefone": "={{ $('CREATE & SELECT cliente & user_session').last().json.result.cliente.telefone}}",
+            "procedimento": "={{ $fromAI('procedimento', `O tipo de procedimento/exame solicitado pelo usuário`, 'string', 'nao_informado') }}",
+            "nome": "={{ $fromAI('nome', `Utilize esse campo para preencher o nome completo da pessoa`, 'string', 'nao_informado' ) }}",
+            "unidade": "={{ $fromAI('unidade', `Utilize esse campo para preencher o ID da unidade que a pessoa escolher. Utilize somente o número associado com a respectiva unidade.`, 'string', 'nao_informado' ) }}",
+            "data_agendamento": "={{ $fromAI('data_agendamento', `Somente a data escolhida pelo usuário no formato yyyy-MM-dd.`, 'string', 'nao_informado') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "telefone",
+              "displayName": "telefone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "nome",
+              "displayName": "nome",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "unidade",
+              "displayName": "unidade",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "procedimento",
+              "displayName": "procedimento",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "data_agendamento",
+              "displayName": "data_agendamento",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        1712,
+        2256
+      ],
+      "id": "9b8894b8-adba-4a9c-acc0-f36d646716a0",
+      "name": "atualiza_dados"
+    },
+    {
+      "parameters": {
+        "description": "=Chame esta ferramenta para vefiricar os horários disponíveis após o usuário informar nome e data, horário e o procedimento.",
+        "workflowId": {
+          "__rl": true,
+          "value": "MQZxGZkhiSk4BXLK",
+          "mode": "list",
+          "cachedResultName": "Busca Disponibilidade| Easy Appointments"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "telefone": "={{ $('CREATE & SELECT cliente & user_session').last().json.result.cliente.telefone }}",
+            "hora": "={{ $fromAI('hora', `Utilize esse campo para o horário do procedimento`, 'string', 'nao_informado') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "hora",
+              "displayName": "hora",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "telefone",
+              "displayName": "telefone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        1856,
+        2256
+      ],
+      "id": "07988493-f93c-4b94-b66b-74761ec8787b",
+      "name": "verifica_disponibilidade_agenda"
+    },
+    {
+      "parameters": {
+        "description": "Consulta agendamentos existentes do cliente. Use para verificar, listar ou obter detalhes de agendamentos já confirmados pelo cliente.",
+        "workflowId": {
+          "__rl": true,
+          "value": "lDKIAPPZxKs173gl",
+          "mode": "list",
+          "cachedResultName": "EasyAppointments | Consulta Agendamento"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id_usuario": "={{ $('CREATE & SELECT cliente & user_session').last().json.result.cliente.id_usuario }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "telefone",
+              "displayName": "telefone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "id_usuario",
+              "displayName": "id_usuario",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "cliente_solicita",
+              "displayName": "cliente_solicita",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        2016,
+        2256
+      ],
+      "id": "63b0f00f-684d-4554-b647-8a02f3c628c3",
+      "name": "consulta_agendamento"
+    },
+    {
+      "parameters": {
+        "description": "Cancela agendamentos existentes do cliente. Use para cancelar agendamentos já confirmados, passe \"reagendamento = true\" caso o cliente queira reagendar.",
+        "workflowId": {
+          "__rl": true,
+          "value": "0O6y5NDvNkKnkHWl",
+          "mode": "list",
+          "cachedResultName": "Cancelar Agendamento | EasyAppointments"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id_usuario": "={{ $('CREATE & SELECT cliente & user_session').last().json.result.cliente.id_usuario }}",
+            "data_agendada": "={{ $fromAI('data_agendada', `data e hora da consulta agendada que deseja cancelar em formato YYYY-mm-dd hh:mm:ss`, 'string') }}",
+            "nome_paciente": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('nome_paciente', `O nome completo do paciente.`, 'string') }}",
+            "session_id": "={{ $('CREATE & SELECT cliente & user_session').last().json.result.session.session_id }}",
+            "reagendamento": "={{ $fromAI('reagendamento', `true se estiver fazendo reagendamento`, 'boolean', false) }}",
+            "telefone": "={{ $('CREATE & SELECT cliente & user_session').last().json.result.cliente.telefone }}"
+          },
+          "matchingColumns": [
+            "info_cancelamento"
+          ],
+          "schema": [
+            {
+              "id": "id_usuario",
+              "displayName": "id_usuario",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "data_agendada",
+              "displayName": "data_agendada",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "nome_paciente",
+              "displayName": "nome_paciente",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "reagendamento",
+              "displayName": "reagendamento",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "boolean",
+              "removed": false
+            },
+            {
+              "id": "session_id",
+              "displayName": "session_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "telefone",
+              "displayName": "telefone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        2192,
+        2256
+      ],
+      "id": "63626d8e-8efe-4243-b646-8bdbb04a15ad",
+      "name": "cancela_agendamento"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Mensagem').last().json.mensagem }}",
+        "options": {
+          "systemMessage": "=Você é um assistente de inteligência artificial chamada Bia, uma agente especializada em tirar dúvidas e realizar o agendamento de consultas para a clínica OrthoX. Sua missão é responder aos clientes pelo WhatsApp e guiá-los até a marcação da consulta.\n\n## Objetivo\nSeu objetivo principal é conseguir as seguintes informações antes de consultar ou realizar um agendamento.\n\n{{\n  (() => {\n    const cliente = $('CREATE & SELECT cliente & user_session').last().json.result.cliente;\n    const sessao_agendamento = $('SELECT sessao_agendamento').last().json;\n\n    return `\nTelefone: ${\n        cliente?.telefone\n          ? `Informação já obtida (${cliente.telefone})`\n          : 'Solicite para a pessoa o telefone'\n      }\nNome: ${\n        cliente?.nome\n          ? `Informação já obtida, NÃO perguntar novamente  (${cliente.nome})`\n          : '* **PRIMEIRA PERGUNTA OBRIGATÓRIA**: \"Qual seu nome?\" (para identificar quem está falando)'\n      }\nUnidade: ${\n        sessao_agendamento?.unidade\n          ? `Informação já obtida (${sessao_agendamento.unidade})`\n          : 'Solicite para a pessoa a unidade'\n      }\nProcedimento: ${\n        sessao_agendamento?.servico\n          ? `Informação já obtida (${sessao_agendamento.servico})`\n          : 'Solicite para a pessoa o procedimento desejado (exame)'\n      }\nData Agendamento: ${\n        sessao_agendamento?.data_agendamento\n          ? `Informação já obtida (${sessao_agendamento.data_agendamento})`\n          : 'Solicite para a pessoa a data desejada'\n      }`;\n  })()\n}}\n\n## FLUXO OBRIGATÓRIO DE FERRAMENTAS (EXECUTAR NA ORDEM)\n\n### Fase 1 - Coleta de Dados:\n1. SEMPRE que receber Nome → EXECUTE `atualiza_dados` IMEDIATAMENTE\n2. SEMPRE que receber Unidade → EXECUTE `atualiza_dados` IMEDIATAMENTE  \n3. SEMPRE que receber Procedimento → EXECUTE `atualiza_dados` IMEDIATAMENTE\n   - CORRIJA a ortografia SOMENTE do Procedimento antes de atualizar\n\n### Fase 2 - Disponibilidade:\n4. SOMENTE APÓS ter Nome + Unidade + Procedimento coletados:\n   - Pergunte qual dia o usuário gostaria de agendar\n   - **SEMPRE** utilize a ferramenta `Think` para determinar o dia corretamente\n   - Quando usuário informar data agendamento → EXECUTE `atualiza_dados` IMEDIATAMENTE\n   - Após executar `atualiza_dados` → EXECUTE `verifica_disponibilidade_agenda`\n   - NUNCA sugira horários sem executar esta ferramenta\n\n### Fase 3 - Consulta:\n5. Para CONSULTAR agendamentos → EXECUTE `consulta_agendamento`\n   - NUNCA use informações de memória/histórico/chat history para listar agendamentos\n\n### Fase 4 - Ação Final:\n6. Para CRIAR agendamento → EXECUTE `criar_agendamento` após confirmação explícita\n7. Para CANCELAR → EXECUTE `consulta_agendamento` PRIMEIRO, DEPOIS `cancela_agendamento`\n   - **SEMPRE** utilize a ferramenta `Think` para determinar se completou o fluxo de cancelamento\n\n## GATILHOS AUTOMÁTICOS DE FERRAMENTAS\n\nEXECUTE IMEDIATAMENTE (sem avisar o usuário):\n- Nome recebido → `atualiza_dados`\n- Unidade e Procedimento informados → `atualiza_dados`\n- Data/horário solicitado → `verifica_disponibilidade_agenda`\n- Pedido de cancelamento → `consulta_agendamento`\n- Pedido de consulta de agendamentos → `consulta_agendamento`\n- Confirmação de agendamento → `criar_agendamento`\n- Confirmação de cancelamento → `cancela_agendamento`\n\n## BLOQUEIOS OBRIGATÓRIOS\n\n- **NUNCA** sugira horários sem executar `verifica_disponibilidade_agenda`\n- **NUNCA** mostre agendamentos sem executar `consulta_agendamento`\n- **NUNCA** crie agendamento sem confirmação explícita do usuário\n- **NUNCA** cancele sem primeiro executar `consulta_agendamento`\n- **NUNCA** use informações de memória/histórico/chat history para disponibilidades\n- **NUNCA** execute múltiplas operações simultâneas (crie/cancele APENAS um por vez)\n- **NUNCA** faça duas perguntas em uma única mensagem\n- **NUNCA** pause a conversa ou peça \"um momento\"\n- **NUNCA** anuncie ao usuário que vai usar ferramentas\n\nSEMPRE BLOQUEIE E PEÇA INFO SE:\n- Faltam dados obrigatórios para a ferramenta\n- Usuário não confirmou explicitamente a ação\n- Horário solicitado não está disponível (ofereça o próximo disponível)\n\n## USO OBRIGATÓRIO DE RESPOSTAS DAS FERRAMENTAS\n\nApós executar ferramenta:\n1. USE APENAS o campo 'response' da ferramenta como base da resposta\n2. NUNCA invente ou adicione informações não retornadas pela ferramenta\n3. Se erro → informe exatamente a mensagem de erro retornada\n4. Se sucesso → prossiga IMEDIATAMENTE com próxima pergunta pendente\n\n## Diretrizes de Conversação\n\n* SEMPRE apresente-se dizendo seu nome e a sua função de maneira cordial\n* APÓS obter o nome do usuário, prossiga com outras informações\n* Aguarde a resposta antes de seguir para a próxima pergunta\n* Utilize a data de hoje para se orientar: {{ new Date().toLocaleString(\"pt-br\", {  weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }) }}\n* Você sempre receberá o dia e horário atuais; a partir daí, identifique datas como amanhã, depois de amanhã, semana que vem, mês que vem, ano que vem\n* NUNCA invente respostas\n* **NUNCA peça \"um momento\" ou similar** - mantenha o fluxo natural\n* NUNCA utilize emojis\n* Mantenha o tom prestativo ao longo de toda a conversa\n* Evite repetir o nome da pessoa em toda resposta. Use de forma natural, quando necessário\n\n## Unidades\n- Se o usuário escolher a unidade de São Bernando do Campo (SBC) o id da unidade = 1\n- Se o usuário escolher a unidade de Diadema o id da unidade = 2\n- Se o usuário escolher a unidade Premium o id da unidade = 3\n- Se o usuário escolher a unidade de Santo André o id da unidade = 4\n\n## Identificação do Paciente\n\n**FLUXO OBRIGATÓRIO:**\n- **SEMPRE PERGUNTE**: \"Este agendamento é para você ou para outra pessoa?\"\n\n**Se for para outra pessoa:**\n- Colete: \"Qual o nome completo da pessoa para o agendamento?\"\n- **IMPORTANTE**: NUNCA use `atualiza_dados` para o nome do paciente\n\n**Se for para o próprio usuário:**\n- Utilize o Nome já coletado\n\n## Fluxo de Coleta (IMPORTANTE)\nQuando receber uma informação do usuário:\n1. Use a ferramenta necessária SEM avisar\n2. IMEDIATAMENTE faça a próxima pergunta pendente\n3. NUNCA pause a conversa para \"atualizar\" ou \"registrar\"\n\n## Progresso Parcial\nSe o cliente fornecer apenas parte dos dados:\n- Agradeça brevemente E faça a próxima pergunta na MESMA mensagem\n- Exemplo: \"Perfeito! Agora, qual seu nome completo?\"\n\n## Procedimentos Específicos\n\n### Cancelamento\n- Nome recebido com pedido de cancelamento → EXECUTE `consulta_agendamento` IMEDIATAMENTE\n- SEMPRE liste TODOS os agendamentos numericamente após executar `consulta_agendamento`\n- QUANDO houver múltiplos agendamentos:\n  - LISTE: \"[1] Nome paciente - Unidade - Procedimento - Data/Hora\"\n  - AGUARDE o usuário escolher o NÚMERO ou procedimento ou data/hora\n  - NUNCA prossiga sem confirmação específica de QUAL cancelar\n- SEMPRE confirme ANTES de cancelar:\n  - MOSTRE: \"Confirma cancelamento de [procedimento] em [data/hora]?\"\n  - SOMENTE execute `cancela_agendamento` após confirmação explícita\n\n### Reagendamento\n- Se o usuário pedir reagendamento, notifique que ele deverá cancelar o agendamento e criar um novo\n- NUNCA tente realizar reagendamento direto\n- Realize o cancelamento passando o parâmetro \"reagendamento = true\"\n- Após cancelar, comece novo fluxo de agendamento pedindo: Unidade, Procedimento, Data e Hora\n\n### ⚠️ Crítico\n* **NUNCA** peça \"um momento\" ou similar** - mantenha o fluxo natural"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "position": [
+        1584,
+        2032
+      ],
+      "id": "170fb7cf-3022-48bc-9a7f-0ef26f1d499a",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "description": "=Use esta ferramenta para determinar:\n- a data que o usuário solicitar, com base na data atual:  {{ new Date().toLocaleString(\"pt-br\", {  weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }) }}.\n- se o fluxo de cancelamento foi executado"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1.1,
+      "position": [
+        1184,
+        2256
+      ],
+      "id": "b1ce6f3f-c2d4-4bdf-b57c-23df8981ed54",
+      "name": "Think"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "WITH existing_cliente AS (\n    SELECT *\n    FROM public.cliente\n    WHERE telefone = '{{ $('Webhook EVO').last().json.body.data.key.remoteJid.split('@')[0] }}'\n    LIMIT 1\n), inserted_cliente AS (\n    INSERT INTO public.cliente (telefone)\n    SELECT '{{ $('Webhook EVO').last().json.body.data.key.remoteJid.split('@')[0] }}'\n    WHERE NOT EXISTS (SELECT 1 FROM existing_cliente)\n    RETURNING *\n), final_cliente AS (\n    SELECT * FROM existing_cliente\n    UNION ALL\n    SELECT * FROM inserted_cliente\n), cliente_with_session AS (\n    SELECT \n        f.*,\n        s.session_id,\n        s.precisa_saudar,\n        us.transferido_para_humano,\n        us.id_agente_humano\n    FROM final_cliente f\n    CROSS JOIN LATERAL get_or_create_session(f.telefone) s\n    LEFT JOIN public.user_session us\n    ON us.id = s.session_id\n)\nSELECT json_build_object(\n    'cliente', to_jsonb(f) - 'session_id' - 'precisa_saudar' - 'transferido_para_humano' - 'id_agente_humano',\n    'session', json_build_object(\n        'session_id', f.session_id,\n        'precisa_saudar', f.precisa_saudar,\n        'transferido_para_humano', f.transferido_para_humano,\n        'id_agente_humano', f.id_agente_humano\n    )\n) AS result\nFROM cliente_with_session f;\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        864,
+        2032
+      ],
+      "id": "c7f61ab0-2b09-4fde-8c30-1c93c6e39175",
+      "name": "CREATE & SELECT cliente & user_session",
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "sessao_agendamento",
+          "mode": "list",
+          "cachedResultName": "sessao_agendamento"
+        },
+        "limit": 1,
+        "where": {
+          "values": [
+            {
+              "column": "telefone",
+              "value": "={{ $('Webhook EVO').last().json.body.data.key.remoteJid.split('@')[0] }}"
+            },
+            {
+              "column": "deletado",
+              "value": "false"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1136,
+        2032
+      ],
+      "id": "7c88bc91-cff6-40ac-a3c4-4e5598280eec",
+      "name": "SELECT sessao_agendamento",
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "resource": "messages-api",
+        "instanceName": "={{ $('Webhook EVO').last().json.body.instance }}",
+        "remoteJid": "={{ $('CREATE & SELECT cliente & user_session').last().json.result.cliente.telefone }}",
+        "messageText": "=Dados apagados",
+        "options_message": {
+          "delay": 4200,
+          "linkPreview": false
+        }
+      },
+      "type": "n8n-nodes-evolution-api.evolutionApi",
+      "typeVersion": 1,
+      "position": [
+        624,
+        1696
+      ],
+      "id": "b0fe9b25-b81a-4fb3-9b83-4a4c0bbcd9d3",
+      "name": "Evolution API",
+      "credentials": {
+        "evolutionApi": {
+          "id": "3oTT7RsCuxervFw5",
+          "name": "Evolution account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://us-documentai.googleapis.com/v1/projects/110802252897/locations/us/processors/154939bb32f53f96/processorVersions/484fa14959d57133:process\n",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"skipHumanReview\": true,\n  \"rawDocument\": {\n    \"mimeType\": \"{{ $('Webhook EVO').item.json.body.payload.media.mimetype }}\",\n    \"content\": \"{{ $json.imageBase64 }}\"\n  },\n  \"fieldMask\": \"entities\"\n}\n ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -176,
+        2384
+      ],
+      "id": "52e63b6f-5640-44f1-bcc6-b08782b522b0",
+      "name": "document AI google",
+      "credentials": {
+        "googleOAuth2Api": {
+          "id": "vgiE4AVDHe0QtJRD",
+          "name": "solicitacao-exame-orthox"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// First, let's inspect the data structure\nconst inputData = $input.all();\nconsole.log('Input structure:', JSON.stringify(inputData[0], null, 2));\n\n// Access the data - adjust path based on your actual structure\nlet entities;\ntry {\n  // Try different possible paths\n  if (inputData[0].json && Array.isArray(inputData[0].json)) {\n    entities = inputData[0].json[0]?.document?.entities;\n  } else if (inputData[0].json?.document?.entities) {\n    entities = inputData[0].json.document.entities;\n  } else {\n    throw new Error('Cannot find entities in the expected structure');\n  }\n} catch (error) {\n  console.error('Error accessing entities:', error);\n  return [];\n}\n\nif (!entities) {\n  console.log('No entities found');\n  return [];\n}\n\nconst results = [];\n\nentities.forEach((entity, index) => {\n  // Check main entity for booleanValue: true\n  if (entity.normalizedValue?.booleanValue === true) {\n    results.push({\n      type: entity.type,\n      mentionText: entity.mentionText,\n      confidence: entity.confidence,\n      id: entity.id,\n      source: 'main_entity'\n    });\n  }\n  \n  // Check properties for booleanValue: true\n  if (entity.properties) {\n    entity.properties.forEach(prop => {\n      if (prop.normalizedValue?.booleanValue === true) {\n        results.push({\n          type: prop.type,\n          parentType: entity.type,\n          mentionText: prop.mentionText,\n          confidence: prop.confidence,\n          id: prop.id,\n          source: 'property'\n        });\n      }\n    });\n  }\n});\n\nconsole.log('Found results:', results);\n\nreturn results.map((item, index) => ({ json: item, index }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        48,
+        2384
+      ],
+      "id": "4af34f11-4c8a-40ce-92cd-56a5f0afffe1",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -1216,
+        2176
+      ],
+      "id": "bc7a416f-84d5-4d68-a5c0-1920ed3b2de6",
+      "name": "Webhook EVO"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "orthox-ocr",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1552,
+        2384
+      ],
+      "id": "78f81eeb-7b58-4590-9e52-7a1512d719d8",
+      "name": "Webhook",
+      "webhookId": "ce18f623-c82d-4d61-b3bc-31cf8ea79562"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "imageBase64",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        -400,
+        2560
+      ],
+      "id": "97687745-7377-495c-afe8-1eb121ddeaae",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://orthox-waha.reyhdo.easypanel.host/api/sendText",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-Api-Key",
+              "value": "8e130716e537469e98eb72ab4297c240"
+            },
+            {
+              "name": "api-key",
+              "value": "8e130716e537469e98eb72ab4297c240"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"chatId\": \"{{ $('Webhook Evo').last().json.body.payload.from }}\",\n  \"reply_to\": null,\n  \"text\": {{ $json.mensagem.toJsonString() }},\n  \"linkPreview\": false,\n  \"linkPreviewHighQuality\": false,\n  \"session\": \"default\"\n}\n\n\n\n",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        272,
+        2384
+      ],
+      "id": "fda9ca5d-9f69-42f3-94b1-aaa00aec91d4",
+      "name": "WAHA | HTTP Request"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://orthox-waha.reyhdo.easypanel.host/api/sendText",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-Api-Key",
+              "value": "8e130716e537469e98eb72ab4297c240"
+            },
+            {
+              "name": "api-key",
+              "value": "8e130716e537469e98eb72ab4297c240"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"chatId\": \"{{ $('Webhook Evo').last().json.body.payload.from }}\",\n  \"reply_to\": null,\n  \"text\": {{ $json.mensagem.toJsonString() }},\n  \"linkPreview\": false,\n  \"linkPreviewHighQuality\": false,\n  \"session\": \"default\"\n}\n\n\n\n",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2000,
+        2032
+      ],
+      "id": "add9202c-ff81-4232-aa75-b14d14ca8a12",
+      "name": "WAHA | HTTP Request1"
+    },
+    {
+      "parameters": {
+        "url": "https://orthox-n8n.reyhdo.easypanel.host/api/files/default/false_5519998210119@c.us_3EB08435868399A2626549.jpeg",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -656,
+        2224
+      ],
+      "id": "f3f8abe6-00e2-4f92-a203-86ceba748af4",
+      "name": "HTTP Request1"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "orthox-n8n.reyhdo.easypanel.host",
+            "user-agent": "axios/1.12.2",
+            "content-length": "535",
+            "accept": "application/json, text/plain, */*",
+            "accept-encoding": "gzip, compress, deflate, br",
+            "content-type": "application/json",
+            "x-forwarded-for": "172.18.0.1",
+            "x-forwarded-host": "orthox-n8n.reyhdo.easypanel.host",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "bcfaa6f85db2",
+            "x-real-ip": "172.18.0.1"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "event": "messages.update",
+            "instance": "celclaroinstance",
+            "data": {
+              "keyId": "3EB08C4402A971B3D11D95",
+              "remoteJid": "5519991753867:44@s.whatsapp.net",
+              "fromMe": true,
+              "status": "READ",
+              "instanceId": "fc9c8186-c5f9-40b9-881f-de8cd7e086bc",
+              "messageId": "cmin7o6k10bxdmt4kysywfi18"
+            },
+            "destination": "https://orthox-n8n.reyhdo.easypanel.host/webhook/orthox-ocr",
+            "date_time": "2025-12-01T10:55:08.341Z",
+            "sender": "5519995785753@s.whatsapp.net",
+            "server_url": "https://orthox-evolution-api.reyhdo.easypanel.host",
+            "apikey": "CC95368F7147-4103-9ABD-EFDE2A81A24B"
+          },
+          "webhookUrl": "https://orthox-n8n.reyhdo.easypanel.host/webhook/orthox-ocr",
+          "executionMode": "production"
+        }
+      }
+    ],
+    "Webhook EVO": [
+      {
+        "json": {
+          "headers": {
+            "host": "orthox-n8n.reyhdo.easypanel.host",
+            "user-agent": "WAHA/2025.11.4",
+            "content-length": "9893",
+            "accept": "application/json, text/plain, */*",
+            "accept-encoding": "gzip, compress, deflate, br",
+            "content-type": "application/json",
+            "x-forwarded-for": "72.60.63.225",
+            "x-forwarded-host": "orthox-n8n.reyhdo.easypanel.host",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "bcfaa6f85db2",
+            "x-real-ip": "72.60.63.225",
+            "x-webhook-request-id": "140t01r1cmincnoo7",
+            "x-webhook-timestamp": "1764605674659"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "id": "evt_01kbdb3h53akgpcgp5mck1cjd7",
+            "timestamp": 1764605674659,
+            "event": "message",
+            "session": "default",
+            "metadata": {},
+            "me": {
+              "id": "5519995785753@c.us",
+              "pushName": "Assistente NANO (Pessoal)"
+            },
+            "payload": {
+              "id": "false_5519998210119@c.us_3EB08435868399A2626549",
+              "timestamp": 1764605674,
+              "from": "5519998210119@c.us",
+              "fromMe": false,
+              "source": "app",
+              "to": "5519995785753@c.us",
+              "body": "",
+              "hasMedia": true,
+              "media": {
+                "url": "http://localhost:80/api/files/default/false_5519998210119@c.us_3EB08435868399A2626549.jpeg",
+                "filename": null,
+                "mimetype": "image/jpeg"
+              },
+              "ack": 1,
+              "ackName": "SERVER",
+              "location": null,
+              "vCards": [],
+              "_data": {
+                "id": {
+                  "fromMe": false,
+                  "remote": "5519998210119@c.us",
+                  "id": "3EB08435868399A2626549",
+                  "_serialized": "false_5519998210119@c.us_3EB08435868399A2626549"
+                },
+                "viewed": false,
+                "body": "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",
+                "type": "image",
+                "t": 1764605674,
+                "clientReceivedTsMillis": 1764605673444,
+                "notifyName": "Flavio",
+                "from": "5519998210119@c.us",
+                "to": "5519995785753@c.us",
+                "ack": 1,
+                "invis": false,
+                "isNewMsg": true,
+                "star": false,
+                "kicNotified": false,
+                "recvFresh": true,
+                "interactiveAnnotations": [],
+                "deprecatedMms3Url": "https://mmg.whatsapp.net/o1/v/t24/f2/m239/AQNprN8hAGxqARU6JiiecUEPwGUQq9xQ6g_7el93eDfOzHuZSgXsuqCbTIbs8uGITO0Xttp9POTlpdZ6sC71-Up9sAiyZ-fhpne_HA8Gfw?ccb=9-4&oh=01_Q5Aa3AHBV1fBUbkANmZgdvCvtOBQa5dDu4W-n3_i-ncv-KzOiw&oe=69551040&_nc_sid=e6ed6c&mms3=true",
+                "directPath": "/o1/v/t24/f2/m239/AQNprN8hAGxqARU6JiiecUEPwGUQq9xQ6g_7el93eDfOzHuZSgXsuqCbTIbs8uGITO0Xttp9POTlpdZ6sC71-Up9sAiyZ-fhpne_HA8Gfw?ccb=9-4&oh=01_Q5Aa3AHBV1fBUbkANmZgdvCvtOBQa5dDu4W-n3_i-ncv-KzOiw&oe=69551040&_nc_sid=e6ed6c",
+                "mimetype": "image/jpeg",
+                "filehash": "a6zyB6EzA6lbZX9TY2GchDtctl0We5fOFMnWp3xc0iY=",
+                "encFilehash": "B8/ylwgbkrXGxGfvHj4cMPkLSnVpvIvliPthJRTlesc=",
+                "size": 255857,
+                "mediaKey": "B3ywe3kmQrWTInrvlzykAmo1SqbVGhDMeDfVrmBggQQ=",
+                "mediaKeyTimestamp": 1764595078,
+                "isViewOnce": false,
+                "width": 900,
+                "height": 1600,
+                "staticUrl": "",
+                "scanLengths": [],
+                "isFromTemplate": false,
+                "isAdsMedia": false,
+                "pollInvalidated": false,
+                "isSentCagPollCreation": false,
+                "latestEditMsgKey": null,
+                "latestEditSenderTimestampMs": null,
+                "mentionedJidList": [],
+                "groupMentions": [],
+                "isEventCanceled": false,
+                "eventInvalidated": false,
+                "statusMentioned": false,
+                "isVcardOverMmsDocument": false,
+                "questionReplyQuotedMessage": null,
+                "questionResponsesCount": 0,
+                "readQuestionResponsesCount": 0,
+                "hasReaction": false,
+                "ephemeralSettingTimestamp": 1764428862,
+                "disappearingModeInitiator": "chat",
+                "disappearingModeTrigger": "chat_settings",
+                "viewMode": "VISIBLE",
+                "messageSecret": {
+                  "0": 54,
+                  "1": 141,
+                  "2": 123,
+                  "3": 195,
+                  "4": 2,
+                  "5": 87,
+                  "6": 14,
+                  "7": 102,
+                  "8": 62,
+                  "9": 49,
+                  "10": 162,
+                  "11": 192,
+                  "12": 164,
+                  "13": 197,
+                  "14": 51,
+                  "15": 123,
+                  "16": 66,
+                  "17": 93,
+                  "18": 94,
+                  "19": 93,
+                  "20": 37,
+                  "21": 145,
+                  "22": 156,
+                  "23": 24,
+                  "24": 22,
+                  "25": 216,
+                  "26": 104,
+                  "27": 46,
+                  "28": 251,
+                  "29": 185,
+                  "30": 5,
+                  "31": 13
+                },
+                "productHeaderImageRejected": false,
+                "lastPlaybackProgress": 0,
+                "isDynamicReplyButtonsMsg": false,
+                "isCarouselCard": false,
+                "parentMsgId": null,
+                "callSilenceReason": null,
+                "isVideoCall": false,
+                "callDuration": null,
+                "callCreator": null,
+                "callParticipants": null,
+                "isCallLink": null,
+                "callLinkToken": null,
+                "isMdHistoryMsg": false,
+                "stickerSentTs": 0,
+                "isAvatar": false,
+                "lastUpdateFromServerTs": 0,
+                "invokedBotWid": null,
+                "bizBotType": null,
+                "botResponseTargetId": null,
+                "botPluginType": null,
+                "botPluginReferenceIndex": null,
+                "botPluginSearchProvider": null,
+                "botPluginSearchUrl": null,
+                "botPluginSearchQuery": null,
+                "botPluginMaybeParent": false,
+                "botReelPluginThumbnailCdnUrl": null,
+                "botMessageDisclaimerText": null,
+                "botMsgBodyType": null,
+                "reportingTokenInfo": {
+                  "reportingToken": {
+                    "0": 76,
+                    "1": 105,
+                    "2": 211,
+                    "3": 120,
+                    "4": 0,
+                    "5": 232,
+                    "6": 22,
+                    "7": 238,
+                    "8": 11,
+                    "9": 33,
+                    "10": 122,
+                    "11": 143,
+                    "12": 250,
+                    "13": 148,
+                    "14": 43,
+                    "15": 54
+                  },
+                  "version": 2,
+                  "reportingTag": {
+                    "0": 1,
+                    "1": 13,
+                    "2": 170,
+                    "3": 11,
+                    "4": 94,
+                    "5": 117,
+                    "6": 108,
+                    "7": 139,
+                    "8": 8,
+                    "9": 66,
+                    "10": 219,
+                    "11": 199,
+                    "12": 122,
+                    "13": 148,
+                    "14": 89,
+                    "15": 164,
+                    "16": 124,
+                    "17": 136,
+                    "18": 208,
+                    "19": 212
+                  }
+                },
+                "requiresDirectConnection": null,
+                "bizContentPlaceholderType": null,
+                "hostedBizEncStateMismatch": false,
+                "senderOrRecipientAccountTypeHosted": false,
+                "placeholderCreatedWhenAccountIsHosted": false,
+                "groupHistoryBundleMessageKey": null,
+                "groupHistoryBundleMetadata": null,
+                "links": []
+              }
+            },
+            "engine": "WEBJS",
+            "environment": {
+              "version": "2025.11.4",
+              "engine": "WEBJS",
+              "tier": "CORE",
+              "browser": "/usr/bin/chromium"
+            }
+          },
+          "webhookUrl": "https://orthox-n8n.reyhdo.easypanel.host/webhook/agente-master-v3",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "xMZ12MFm8IYta9IH"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-09-10T13:10:08.347Z",
+      "createdAt": "2025-09-10T13:10:08.347Z",
+      "role": "workflow:owner",
+      "workflowId": "5xd8BDCWMj8YytX8",
+      "projectId": "IcfJLMCsRkuOqzR8"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 2,
+  "updatedAt": "2025-12-01T16:17:28.000Z",
+  "versionId": "96d859af-0519-4680-81c4-0005be786788"
+}
