@@ -1,0 +1,2781 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2026-01-12T19:58:16.393Z",
+    "createdAt": "2026-01-12T19:58:16.393Z",
+    "versionId": "266bdb99-2af7-48e6-9227-dedb6875096c",
+    "workflowId": "tcSkxciXYiM5OnY7",
+    "nodes": [
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "68a0e166-9a2a-4dda-a26c-e1ac1e647bf8",
+                "leftValue": "={{ $('SELECT cliente após atualizar cadastro').last().json.nome }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "string",
+                  "operation": "notEmpty",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          2928,
+          560
+        ],
+        "id": "b77a3be2-e74d-4d6c-94f0-a74f5f125110",
+        "name": "IF dados completos"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "23d37a21-d4b6-4933-a5c4-bcc3540c4ce8",
+                "name": "response",
+                "value": "O usuário já está cadastrado!",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          304,
+          1552
+        ],
+        "id": "c42fd665-ae7e-4ceb-b638-4978f4426a43",
+        "name": "Retorno preventivo para agente"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "77cd45d0-845f-4199-b276-05c15afc7180",
+                "leftValue": "={{ $('CLIENTE - Gerencia Campos Atualização').last().json.sql }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "string",
+                  "operation": "notEmpty",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          240,
+          560
+        ],
+        "id": "251aa2f2-855f-40a6-9945-1c14a7d94279",
+        "name": "IF existe SQL"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "9b702113-3be0-40ec-adb9-9ca39904debb",
+                "leftValue": "={{ $('SELECT cliente').last().json.id_usuario }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "number",
+                  "operation": "exists",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          -16,
+          1744
+        ],
+        "id": "dcb64cbd-2e6f-4705-8719-2ed7c677c852",
+        "name": "IF cliente existe no EasyAppointments",
+        "notesInFlow": true,
+        "notes": "A validação de qualificação concluída no início do fluxo evita que sempre retorne para o agente falando que a Paramount entrará em contato."
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "{{ $('CLIENTE - Gerencia Campos Atualização').last().json.sql }}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          464,
+          496
+        ],
+        "id": "2d2da5c6-88be-449b-9d3d-00105e64bf13",
+        "name": "UPDATE Cliente",
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "workflowInputs": {
+            "values": [
+              {
+                "name": "telefone"
+              },
+              {
+                "name": "nome"
+              },
+              {
+                "name": "unidade"
+              },
+              {
+                "name": "procedimento"
+              },
+              {
+                "name": "data_agendamento"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.executeWorkflowTrigger",
+        "typeVersion": 1.1,
+        "position": [
+          -464,
+          560
+        ],
+        "id": "4215f41f-11c1-47cc-a3ab-a0445e33b100",
+        "name": "inicio_fluxo"
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT *  \nFROM public.cliente \nWHERE telefone = '{{ $('inicio_fluxo').last().json.telefone }}';\n",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          -240,
+          560
+        ],
+        "id": "c108af98-f1f8-4b86-82d6-383492ac26d0",
+        "name": "SELECT cliente",
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "const ignoreFields = ['telefone', 'unidade', 'procedimento']\n\n// Para que esse código funcione corretamente, os nomes dos campos recebidos no workflow devem ser os MESMOS que as COLUNAS da tabela do lead\nconst clientePhone = $('inicio_fluxo').last().json.telefone;\n\nfunction getFieldsToUpdate(currentData, databaseData) {\n  const updates = {};\n\nif (databaseData.nome && databaseData.nome !== 'nao_informado') {\n  return {};\n}\n\n  for (const key in currentData) {\n    if (ignoreFields.includes(key)) continue;\n\n    const currentValue = currentData[key];\n    const databaseValue = databaseData[key];\n\n    if (currentValue === 'nao_informado' || currentValue === databaseValue) continue;\n\n    updates[key] = currentValue;\n  }\n\n  return updates;\n}\n\nfunction buildUpdateSQL(updates) {\n  const setClauses = Object.entries(updates).map(\n    ([key, value]) => `${key} = '${value.replace(/'/g, \"''\")}'`\n  );\n  if (setClauses.length === 0) return null;\n\n  return `UPDATE public.cliente SET ${setClauses.join(', ')}, updated_at = now() WHERE telefone = '${clientePhone}';`;\n}\n\nconst currentLeadData = $('inicio_fluxo').last().json;\nconst databaseLeadData = $('SELECT cliente').last().json;\n\n\nconst updatedLeadData = {...currentLeadData};\n\nconst updates = getFieldsToUpdate(updatedLeadData, databaseLeadData);\nconst sql = buildUpdateSQL(updates);\n\nreturn {\n  sql: sql,\n  updated_fields: updates,\n};"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          0,
+          560
+        ],
+        "id": "8e73d279-2253-4726-a931-4550be1deb79",
+        "name": "CLIENTE - Gerencia Campos Atualização"
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT *  \nFROM public.cliente \nWHERE telefone = '{{ $('inicio_fluxo').last().json.telefone }}';\n",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          688,
+          576
+        ],
+        "id": "7eb5163a-723b-4e4a-81f1-1a2bf77c7873",
+        "name": "SELECT cliente após atualizar cadastro",
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "upsert",
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "cliente",
+            "mode": "list",
+            "cachedResultName": "cliente"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "telefone": "={{ $('inicio_fluxo').last().json.telefone }}",
+              "id_usuario": "={{ $('CREATE cadastro cliente EasyAppointments').last().json.id }}",
+              "updated_at": "={{ $now }}"
+            },
+            "matchingColumns": [
+              "telefone"
+            ],
+            "schema": [
+              {
+                "id": "id",
+                "displayName": "id",
+                "required": false,
+                "defaultMatch": true,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "nome",
+                "displayName": "nome",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": false,
+                "removed": false
+              },
+              {
+                "id": "email",
+                "displayName": "email",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": false,
+                "removed": true
+              },
+              {
+                "id": "telefone",
+                "displayName": "telefone",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "id_usuario",
+                "displayName": "id_usuario",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": false
+              },
+              {
+                "id": "id_consulta",
+                "displayName": "id_consulta",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": false,
+                "removed": true
+              },
+              {
+                "id": "created_at",
+                "displayName": "created_at",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": false,
+                "removed": true
+              },
+              {
+                "id": "updated_at",
+                "displayName": "updated_at",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": false,
+                "removed": false
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          3904,
+          400
+        ],
+        "id": "e37d4cfe-8ec3-41bc-81de-0afd23424036",
+        "name": "UPDATE cliente",
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "authentication": "nocoDbApiToken",
+          "operation": "getAll",
+          "projectId": "pgql7k4nol2x2v3",
+          "table": "m0iyjihu1u1x367",
+          "options": {
+            "fields": [],
+            "where": "=(nome,like,%{{ $('Procura nome categoria (Similaridade)').last().json.procedimento_nome }}%)~and(servico_categoria_id,eq,{{ $('inicio_fluxo').last().json.unidade }})"
+          }
+        },
+        "type": "n8n-nodes-base.nocoDb",
+        "typeVersion": 3,
+        "position": [
+          1616,
+          560
+        ],
+        "id": "33dc1674-d02e-4b9a-a605-d1a1b94dd889",
+        "name": "GET serviço",
+        "alwaysOutputData": true,
+        "notesInFlow": true,
+        "credentials": {
+          "nocoDbApiToken": {
+            "id": "YMzQJOYYNNqkgSKg",
+            "name": "n8n_ortho_x"
+          }
+        },
+        "onError": "continueRegularOutput",
+        "notes": "Recupera serviço pelo id"
+      },
+      {
+        "parameters": {
+          "operation": "select",
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "sessao_agendamento",
+            "mode": "list",
+            "cachedResultName": "sessao_agendamento"
+          },
+          "limit": 1,
+          "where": {
+            "values": [
+              {
+                "column": "telefone",
+                "value": "={{ $('inicio_fluxo').last().json.telefone }}"
+              },
+              {
+                "column": "deletado",
+                "value": "={{ false }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          1808,
+          560
+        ],
+        "id": "5528f66e-bbfb-4a1a-9680-639707e82f3c",
+        "name": "SELECT sessao_agendamento",
+        "alwaysOutputData": true,
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "1bc3ac90-874d-4f2f-b695-c022ea113459",
+                "leftValue": "={{ $('SELECT sessao_agendamento').last().json.keys() }}",
+                "rightValue": 0,
+                "operator": {
+                  "type": "array",
+                  "operation": "lengthGt",
+                  "rightType": "number"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          1984,
+          560
+        ],
+        "id": "a67c22ec-61b3-4a4e-97f6-ce5f4bfbc99f",
+        "name": "If"
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "sessao_agendamento",
+            "mode": "list",
+            "cachedResultName": "sessao_agendamento"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "telefone": "={{ $('SELECT cliente').last().json.telefone }}",
+              "unidade_id": "={{ $('inicio_fluxo').last().json.unidade }}",
+              "servico_id": "={{ $('GET serviço').last().json.id_easyappointments }}",
+              "atualizado_em": "={{ $now }}"
+            },
+            "matchingColumns": [
+              "telefone"
+            ],
+            "schema": [
+              {
+                "id": "id",
+                "displayName": "id",
+                "required": false,
+                "defaultMatch": true,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "telefone",
+                "displayName": "telefone",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "unidade_id",
+                "displayName": "unidade_id",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "servico_id",
+                "displayName": "servico_id",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "criado_em",
+                "displayName": "criado_em",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "atualizado_em",
+                "displayName": "atualizado_em",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          1840,
+          304
+        ],
+        "id": "c6c6187c-ea09-43fc-8910-99bb15de1af0",
+        "name": "Update sessao_agendamento",
+        "alwaysOutputData": true,
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "sessao_agendamento",
+            "mode": "list",
+            "cachedResultName": "sessao_agendamento"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "telefone": "={{ $('inicio_fluxo').last().json.telefone }}",
+              "unidade_id": "={{ $('inicio_fluxo').last().json.unidade }}",
+              "atualizado_em": "={{ $now }}",
+              "servico_id": "={{ $('GET serviço').last().json.id_easyappointments }}",
+              "data_agendamento": "={{ $('inicio_fluxo').last().json.data_agendamento }}"
+            },
+            "matchingColumns": [
+              "id"
+            ],
+            "schema": [
+              {
+                "id": "id",
+                "displayName": "id",
+                "required": false,
+                "defaultMatch": true,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "telefone",
+                "displayName": "telefone",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "unidade_id",
+                "displayName": "unidade_id",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "servico_id",
+                "displayName": "servico_id",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "criado_em",
+                "displayName": "criado_em",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "atualizado_em",
+                "displayName": "atualizado_em",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "provider_id",
+                "displayName": "provider_id",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "deletado",
+                "displayName": "deletado",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "boolean",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "data_agendamento",
+                "displayName": "data_agendamento",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          2432,
+          672
+        ],
+        "id": "85d57ab0-03cf-46fe-87fa-1ea258d03ef3",
+        "name": "INSERT sessao_agendamento",
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "69bcbc97-a66e-49fe-8603-7ee7ea45d5f3",
+                "name": "response",
+                "value": "=Ainda faltam informações antes de seguir para o agendamento.",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          3200,
+          576
+        ],
+        "id": "09a9692b-b3ca-40c8-8fac-89e776b8173e",
+        "name": "Response dados incompletos"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "69bcbc97-a66e-49fe-8603-7ee7ea45d5f3",
+                "name": "response",
+                "value": "=Informações necessárias para realizar o agendamento obtidas. Utilize a ferramenta `verifica_disponibilidade_agenda` para entender os horários disponíveis de acordo com a data e hora informada pela pessoa.",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          4224,
+          400
+        ],
+        "id": "d86f0213-514d-4acf-9e43-fb28f2410dce",
+        "name": "Response dados completos"
+      },
+      {
+        "parameters": {
+          "url": "https://orthox-easyappointments.reyhdo.easypanel.host/index.php/api/v1/customers",
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "q",
+                "value": "={{ $('SELECT cliente').last().json.telefone }}"
+              }
+            ]
+          },
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Authorization",
+                "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+              },
+              {
+                "name": "Accept",
+                "value": "application/json"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          3200,
+          384
+        ],
+        "id": "5fd1b6fd-4d25-4b2f-9dc1-6e9f9881c273",
+        "name": "GET customer if exists",
+        "alwaysOutputData": true
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "57e31ebb-a88f-4481-846d-21fc20b9a9e7",
+                "leftValue": "={{ $('GET customer if exists').last().json.id }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "number",
+                  "operation": "exists",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          3408,
+          384
+        ],
+        "id": "b9513b50-1735-40ea-af30-dabf050698d4",
+        "name": "IF customer exists"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://orthox-easyappointments.reyhdo.easypanel.host/index.php/api/v1/customers",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "accept",
+                "value": "application/json"
+              },
+              {
+                "name": "Authorization",
+                "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"firstName\": \"{{ $('SELECT cliente após atualizar cadastro').last().json.nome }}\",\n  \"phone\": \"{{ $('inicio_fluxo').last().json.telefone }}\"\n} ",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          3648,
+          400
+        ],
+        "id": "e8ab0563-45ce-4944-a9a5-5e517be93fe7",
+        "name": "CREATE cadastro cliente EasyAppointments"
+      },
+      {
+        "parameters": {
+          "method": "PUT",
+          "url": "=https://orthox-easyappointments.reyhdo.easypanel.host/index.php/api/v1/customers/{{ $('GET customer if exists').last().json.id }}",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "accept",
+                "value": "application/json"
+              },
+              {
+                "name": "Authorization",
+                "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"firstName\": \"{{ $('SELECT cliente após atualizar cadastro').last().json.nome }}\",\n  \"phone\": \"{{ $('inicio_fluxo').last().json.telefone }}\"\n} ",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          3728,
+          240
+        ],
+        "id": "7ba41443-e480-41bc-8aee-79b4185e8313",
+        "name": "UPDATE cadastro cliente EasyAppointments"
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT DISTINCT p.nome AS procedimento_nome\nFROM procedimentos p\nJOIN exames e ON e.id_procedimento = p.id\nWHERE e.nome ILIKE '%{{ $('inicio_fluxo').last().json.procedimento }}%' OR\ne.nome_normalizado ILIKE '%{{ $('inicio_fluxo').last().json.procedimento }}%'",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          1184,
+          384
+        ],
+        "id": "eebcad4c-b9d1-4884-a5df-ce65a66c78a2",
+        "name": "Procura nome categoria (ILIKE)",
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT DISTINCT ON (p.nome) p.nome AS procedimento_nome\nFROM procedimentos p\nJOIN exames e ON e.id_procedimento = p.id\nWHERE e.nome % '{{ $('inicio_fluxo').last().json.procedimento }}'\n   OR e.nome_normalizado % '{{ $('inicio_fluxo').last().json.procedimento }}'\n   OR '{{ $('inicio_fluxo').last().json.procedimento }}' <% e.nome\n   OR '{{ $('inicio_fluxo').last().json.procedimento }}' <% e.nome_normalizado\nORDER BY \n  p.nome\n  DESC;",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          1184,
+          560
+        ],
+        "id": "f0a6d033-5d11-41fe-b507-01d42c8a975f",
+        "name": "Procura nome categoria (Similaridade)",
+        "alwaysOutputData": true,
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "UPDATE public.sessao_agendamento\nSET unidade_id = '{{ $('inicio_fluxo').last().json.unidade }}', servico_id = '{{ $('GET serviço').last().json.id_easyappointments }}', atualizado_em = '{{ $now }}'::timestamptz, data_agendamento = '{{ $('inicio_fluxo').last().json.data_agendamento }}'\nWHERE telefone = '{{ $('inicio_fluxo').last().json.telefone }}'\n  AND deletado = false;",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          2432,
+          448
+        ],
+        "id": "facb6ac8-01c1-43e1-bf01-2c7ab2ee8b30",
+        "name": "UPDATE sessao_agendamento",
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "5e46b9bb-cd14-4113-8aa9-9dc4fb3f8212",
+                "name": "response",
+                "value": "Procedimento não encontrado.",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1616,
+          784
+        ],
+        "id": "b279b194-dea3-461a-a47a-d3b9922e0b3a",
+        "name": "Resposta procedimento não encontrado"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "393b2f35-07b3-4155-88e9-115a3af1e8fb",
+                "leftValue": "={{ $('Procura nome categoria (Similaridade)').last().json }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "object",
+                  "operation": "notEmpty",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          1392,
+          560
+        ],
+        "id": "af892918-7ffb-4a46-995d-bd7086213e48",
+        "name": "If procedimento encontrado"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "5e46b9bb-cd14-4113-8aa9-9dc4fb3f8212",
+                "name": "response",
+                "value": "Identifique a unidade, procedimento e a data que a pessoa deseja",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1184,
+          784
+        ],
+        "id": "ad535987-570d-4e6a-8135-8a9e25ab310d",
+        "name": "Resposta unidade/procedimento/data não informado"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "c067dced-6c6e-44d2-94f4-7941f8d429d3",
+                "leftValue": "={{ $('inicio_fluxo').last().json.procedimento }}",
+                "rightValue": "nao_informado",
+                "operator": {
+                  "type": "string",
+                  "operation": "notEquals"
+                }
+              },
+              {
+                "id": "41e22d5a-96d0-4acf-9f5a-24fdbdf35435",
+                "leftValue": "={{ $('inicio_fluxo').last().json.unidade }}",
+                "rightValue": "nao_informado",
+                "operator": {
+                  "type": "string",
+                  "operation": "notEquals"
+                }
+              },
+              {
+                "id": "040cfba8-3e00-462e-99e3-fd8545570753",
+                "leftValue": "={{ $('inicio_fluxo').last().json.data_agendamento }}",
+                "rightValue": "nao_informado",
+                "operator": {
+                  "type": "string",
+                  "operation": "notEquals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          896,
+          576
+        ],
+        "id": "02f9b33b-6d76-426f-bcac-bdbccdd685e9",
+        "name": "Existe unidade, procedimento e data"
+      }
+    ],
+    "connections": {
+      "IF dados completos": {
+        "main": [
+          [
+            {
+              "node": "GET customer if exists",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Response dados incompletos",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF existe SQL": {
+        "main": [
+          [
+            {
+              "node": "UPDATE Cliente",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "SELECT cliente após atualizar cadastro",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF cliente existe no EasyAppointments": {
+        "main": [
+          [
+            {
+              "node": "Retorno preventivo para agente",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          []
+        ]
+      },
+      "UPDATE Cliente": {
+        "main": [
+          [
+            {
+              "node": "SELECT cliente após atualizar cadastro",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "inicio_fluxo": {
+        "main": [
+          [
+            {
+              "node": "SELECT cliente",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "SELECT cliente": {
+        "main": [
+          [
+            {
+              "node": "CLIENTE - Gerencia Campos Atualização",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "CLIENTE - Gerencia Campos Atualização": {
+        "main": [
+          [
+            {
+              "node": "IF existe SQL",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "SELECT cliente após atualizar cadastro": {
+        "main": [
+          [
+            {
+              "node": "Existe unidade, procedimento e data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "GET serviço": {
+        "main": [
+          [
+            {
+              "node": "SELECT sessao_agendamento",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "SELECT sessao_agendamento": {
+        "main": [
+          [
+            {
+              "node": "If",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "If": {
+        "main": [
+          [
+            {
+              "node": "UPDATE sessao_agendamento",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "INSERT sessao_agendamento",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Update sessao_agendamento": {
+        "main": [
+          []
+        ]
+      },
+      "INSERT sessao_agendamento": {
+        "main": [
+          [
+            {
+              "node": "IF dados completos",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "UPDATE cliente": {
+        "main": [
+          [
+            {
+              "node": "Response dados completos",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "GET customer if exists": {
+        "main": [
+          [
+            {
+              "node": "IF customer exists",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF customer exists": {
+        "main": [
+          [
+            {
+              "node": "UPDATE cadastro cliente EasyAppointments",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "CREATE cadastro cliente EasyAppointments",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "CREATE cadastro cliente EasyAppointments": {
+        "main": [
+          [
+            {
+              "node": "UPDATE cliente",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "UPDATE cadastro cliente EasyAppointments": {
+        "main": [
+          [
+            {
+              "node": "Response dados completos",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Procura nome categoria (Similaridade)": {
+        "main": [
+          [
+            {
+              "node": "If procedimento encontrado",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "UPDATE sessao_agendamento": {
+        "main": [
+          [
+            {
+              "node": "IF dados completos",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "If procedimento encontrado": {
+        "main": [
+          [
+            {
+              "node": "GET serviço",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Resposta procedimento não encontrado",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Existe unidade, procedimento e data": {
+        "main": [
+          [
+            {
+              "node": "Procura nome categoria (Similaridade)",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Resposta unidade/procedimento/data não informado",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "system migration",
+    "name": null,
+    "description": null,
+    "autosaved": false
+  },
+  "activeVersionId": "266bdb99-2af7-48e6-9227-dedb6875096c",
+  "connections": {
+    "IF dados completos": {
+      "main": [
+        [
+          {
+            "node": "GET customer if exists",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Response dados incompletos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF existe SQL": {
+      "main": [
+        [
+          {
+            "node": "UPDATE Cliente",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "SELECT cliente após atualizar cadastro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF cliente existe no EasyAppointments": {
+      "main": [
+        [
+          {
+            "node": "Retorno preventivo para agente",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "UPDATE Cliente": {
+      "main": [
+        [
+          {
+            "node": "SELECT cliente após atualizar cadastro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "inicio_fluxo": {
+      "main": [
+        [
+          {
+            "node": "SELECT cliente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SELECT cliente": {
+      "main": [
+        [
+          {
+            "node": "CLIENTE - Gerencia Campos Atualização",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CLIENTE - Gerencia Campos Atualização": {
+      "main": [
+        [
+          {
+            "node": "IF existe SQL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SELECT cliente após atualizar cadastro": {
+      "main": [
+        [
+          {
+            "node": "Existe unidade, procedimento e data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET serviço": {
+      "main": [
+        [
+          {
+            "node": "SELECT sessao_agendamento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SELECT sessao_agendamento": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "UPDATE sessao_agendamento",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "INSERT sessao_agendamento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update sessao_agendamento": {
+      "main": [
+        []
+      ]
+    },
+    "INSERT sessao_agendamento": {
+      "main": [
+        [
+          {
+            "node": "IF dados completos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UPDATE cliente": {
+      "main": [
+        [
+          {
+            "node": "Response dados completos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET customer if exists": {
+      "main": [
+        [
+          {
+            "node": "IF customer exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF customer exists": {
+      "main": [
+        [
+          {
+            "node": "UPDATE cadastro cliente EasyAppointments",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "CREATE cadastro cliente EasyAppointments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CREATE cadastro cliente EasyAppointments": {
+      "main": [
+        [
+          {
+            "node": "UPDATE cliente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UPDATE cadastro cliente EasyAppointments": {
+      "main": [
+        [
+          {
+            "node": "Response dados completos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Procura nome categoria (Similaridade)": {
+      "main": [
+        [
+          {
+            "node": "If procedimento encontrado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UPDATE sessao_agendamento": {
+      "main": [
+        [
+          {
+            "node": "IF dados completos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If procedimento encontrado": {
+      "main": [
+        [
+          {
+            "node": "GET serviço",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Resposta procedimento não encontrado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Existe unidade, procedimento e data": {
+      "main": [
+        [
+          {
+            "node": "Procura nome categoria (Similaridade)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Resposta unidade/procedimento/data não informado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-09-01T18:31:10.360Z",
+  "id": "tcSkxciXYiM5OnY7",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Cadastro Usuário | EasyAppointments",
+  "nodes": [
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "68a0e166-9a2a-4dda-a26c-e1ac1e647bf8",
+              "leftValue": "={{ $('SELECT cliente após atualizar cadastro').last().json.nome }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2928,
+        560
+      ],
+      "id": "b77a3be2-e74d-4d6c-94f0-a74f5f125110",
+      "name": "IF dados completos"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "23d37a21-d4b6-4933-a5c4-bcc3540c4ce8",
+              "name": "response",
+              "value": "O usuário já está cadastrado!",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        304,
+        1552
+      ],
+      "id": "c42fd665-ae7e-4ceb-b638-4978f4426a43",
+      "name": "Retorno preventivo para agente"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "77cd45d0-845f-4199-b276-05c15afc7180",
+              "leftValue": "={{ $('CLIENTE - Gerencia Campos Atualização').last().json.sql }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        240,
+        560
+      ],
+      "id": "251aa2f2-855f-40a6-9945-1c14a7d94279",
+      "name": "IF existe SQL"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9b702113-3be0-40ec-adb9-9ca39904debb",
+              "leftValue": "={{ $('SELECT cliente').last().json.id_usuario }}",
+              "rightValue": "",
+              "operator": {
+                "type": "number",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -16,
+        1744
+      ],
+      "id": "dcb64cbd-2e6f-4705-8719-2ed7c677c852",
+      "name": "IF cliente existe no EasyAppointments",
+      "notesInFlow": true,
+      "notes": "A validação de qualificação concluída no início do fluxo evita que sempre retorne para o agente falando que a Paramount entrará em contato."
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "{{ $('CLIENTE - Gerencia Campos Atualização').last().json.sql }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        464,
+        496
+      ],
+      "id": "2d2da5c6-88be-449b-9d3d-00105e64bf13",
+      "name": "UPDATE Cliente",
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "telefone"
+            },
+            {
+              "name": "nome"
+            },
+            {
+              "name": "unidade"
+            },
+            {
+              "name": "procedimento"
+            },
+            {
+              "name": "data_agendamento"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -464,
+        560
+      ],
+      "id": "4215f41f-11c1-47cc-a3ab-a0445e33b100",
+      "name": "inicio_fluxo"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT *  \nFROM public.cliente \nWHERE telefone = '{{ $('inicio_fluxo').last().json.telefone }}';\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -240,
+        560
+      ],
+      "id": "c108af98-f1f8-4b86-82d6-383492ac26d0",
+      "name": "SELECT cliente",
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const ignoreFields = ['telefone', 'unidade', 'procedimento']\n\n// Para que esse código funcione corretamente, os nomes dos campos recebidos no workflow devem ser os MESMOS que as COLUNAS da tabela do lead\nconst clientePhone = $('inicio_fluxo').last().json.telefone;\n\nfunction getFieldsToUpdate(currentData, databaseData) {\n  const updates = {};\n\nif (databaseData.nome && databaseData.nome !== 'nao_informado') {\n  return {};\n}\n\n  for (const key in currentData) {\n    if (ignoreFields.includes(key)) continue;\n\n    const currentValue = currentData[key];\n    const databaseValue = databaseData[key];\n\n    if (currentValue === 'nao_informado' || currentValue === databaseValue) continue;\n\n    updates[key] = currentValue;\n  }\n\n  return updates;\n}\n\nfunction buildUpdateSQL(updates) {\n  const setClauses = Object.entries(updates).map(\n    ([key, value]) => `${key} = '${value.replace(/'/g, \"''\")}'`\n  );\n  if (setClauses.length === 0) return null;\n\n  return `UPDATE public.cliente SET ${setClauses.join(', ')}, updated_at = now() WHERE telefone = '${clientePhone}';`;\n}\n\nconst currentLeadData = $('inicio_fluxo').last().json;\nconst databaseLeadData = $('SELECT cliente').last().json;\n\n\nconst updatedLeadData = {...currentLeadData};\n\nconst updates = getFieldsToUpdate(updatedLeadData, databaseLeadData);\nconst sql = buildUpdateSQL(updates);\n\nreturn {\n  sql: sql,\n  updated_fields: updates,\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        560
+      ],
+      "id": "8e73d279-2253-4726-a931-4550be1deb79",
+      "name": "CLIENTE - Gerencia Campos Atualização"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT *  \nFROM public.cliente \nWHERE telefone = '{{ $('inicio_fluxo').last().json.telefone }}';\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        688,
+        576
+      ],
+      "id": "7eb5163a-723b-4e4a-81f1-1a2bf77c7873",
+      "name": "SELECT cliente após atualizar cadastro",
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "cliente",
+          "mode": "list",
+          "cachedResultName": "cliente"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "telefone": "={{ $('inicio_fluxo').last().json.telefone }}",
+            "id_usuario": "={{ $('CREATE cadastro cliente EasyAppointments').last().json.id }}",
+            "updated_at": "={{ $now }}"
+          },
+          "matchingColumns": [
+            "telefone"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "nome",
+              "displayName": "nome",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": true
+            },
+            {
+              "id": "telefone",
+              "displayName": "telefone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "id_usuario",
+              "displayName": "id_usuario",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "id_consulta",
+              "displayName": "id_consulta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": false,
+              "removed": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": false,
+              "removed": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        3904,
+        400
+      ],
+      "id": "e37d4cfe-8ec3-41bc-81de-0afd23424036",
+      "name": "UPDATE cliente",
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "getAll",
+        "projectId": "pgql7k4nol2x2v3",
+        "table": "m0iyjihu1u1x367",
+        "options": {
+          "fields": [],
+          "where": "=(nome,like,%{{ $('Procura nome categoria (Similaridade)').last().json.procedimento_nome }}%)~and(servico_categoria_id,eq,{{ $('inicio_fluxo').last().json.unidade }})"
+        }
+      },
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 3,
+      "position": [
+        1616,
+        560
+      ],
+      "id": "33dc1674-d02e-4b9a-a605-d1a1b94dd889",
+      "name": "GET serviço",
+      "alwaysOutputData": true,
+      "notesInFlow": true,
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "YMzQJOYYNNqkgSKg",
+          "name": "n8n_ortho_x"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "notes": "Recupera serviço pelo id"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "sessao_agendamento",
+          "mode": "list",
+          "cachedResultName": "sessao_agendamento"
+        },
+        "limit": 1,
+        "where": {
+          "values": [
+            {
+              "column": "telefone",
+              "value": "={{ $('inicio_fluxo').last().json.telefone }}"
+            },
+            {
+              "column": "deletado",
+              "value": "={{ false }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1808,
+        560
+      ],
+      "id": "5528f66e-bbfb-4a1a-9680-639707e82f3c",
+      "name": "SELECT sessao_agendamento",
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1bc3ac90-874d-4f2f-b695-c022ea113459",
+              "leftValue": "={{ $('SELECT sessao_agendamento').last().json.keys() }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "array",
+                "operation": "lengthGt",
+                "rightType": "number"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1984,
+        560
+      ],
+      "id": "a67c22ec-61b3-4a4e-97f6-ce5f4bfbc99f",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "sessao_agendamento",
+          "mode": "list",
+          "cachedResultName": "sessao_agendamento"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "telefone": "={{ $('SELECT cliente').last().json.telefone }}",
+            "unidade_id": "={{ $('inicio_fluxo').last().json.unidade }}",
+            "servico_id": "={{ $('GET serviço').last().json.id_easyappointments }}",
+            "atualizado_em": "={{ $now }}"
+          },
+          "matchingColumns": [
+            "telefone"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "telefone",
+              "displayName": "telefone",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "unidade_id",
+              "displayName": "unidade_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "servico_id",
+              "displayName": "servico_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "criado_em",
+              "displayName": "criado_em",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "atualizado_em",
+              "displayName": "atualizado_em",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1840,
+        304
+      ],
+      "id": "c6c6187c-ea09-43fc-8910-99bb15de1af0",
+      "name": "Update sessao_agendamento",
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "sessao_agendamento",
+          "mode": "list",
+          "cachedResultName": "sessao_agendamento"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "telefone": "={{ $('inicio_fluxo').last().json.telefone }}",
+            "unidade_id": "={{ $('inicio_fluxo').last().json.unidade }}",
+            "atualizado_em": "={{ $now }}",
+            "servico_id": "={{ $('GET serviço').last().json.id_easyappointments }}",
+            "data_agendamento": "={{ $('inicio_fluxo').last().json.data_agendamento }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "telefone",
+              "displayName": "telefone",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "unidade_id",
+              "displayName": "unidade_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "servico_id",
+              "displayName": "servico_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "criado_em",
+              "displayName": "criado_em",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "atualizado_em",
+              "displayName": "atualizado_em",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "provider_id",
+              "displayName": "provider_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "deletado",
+              "displayName": "deletado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "data_agendamento",
+              "displayName": "data_agendamento",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2432,
+        672
+      ],
+      "id": "85d57ab0-03cf-46fe-87fa-1ea258d03ef3",
+      "name": "INSERT sessao_agendamento",
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "69bcbc97-a66e-49fe-8603-7ee7ea45d5f3",
+              "name": "response",
+              "value": "=Ainda faltam informações antes de seguir para o agendamento.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3200,
+        576
+      ],
+      "id": "09a9692b-b3ca-40c8-8fac-89e776b8173e",
+      "name": "Response dados incompletos"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "69bcbc97-a66e-49fe-8603-7ee7ea45d5f3",
+              "name": "response",
+              "value": "=Informações necessárias para realizar o agendamento obtidas. Utilize a ferramenta `verifica_disponibilidade_agenda` para entender os horários disponíveis de acordo com a data e hora informada pela pessoa.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4224,
+        400
+      ],
+      "id": "d86f0213-514d-4acf-9e43-fb28f2410dce",
+      "name": "Response dados completos"
+    },
+    {
+      "parameters": {
+        "url": "https://orthox-easyappointments.reyhdo.easypanel.host/index.php/api/v1/customers",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{ $('SELECT cliente').last().json.telefone }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3200,
+        384
+      ],
+      "id": "5fd1b6fd-4d25-4b2f-9dc1-6e9f9881c273",
+      "name": "GET customer if exists",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "57e31ebb-a88f-4481-846d-21fc20b9a9e7",
+              "leftValue": "={{ $('GET customer if exists').last().json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "number",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3408,
+        384
+      ],
+      "id": "b9513b50-1735-40ea-af30-dabf050698d4",
+      "name": "IF customer exists"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://orthox-easyappointments.reyhdo.easypanel.host/index.php/api/v1/customers",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"firstName\": \"{{ $('SELECT cliente após atualizar cadastro').last().json.nome }}\",\n  \"phone\": \"{{ $('inicio_fluxo').last().json.telefone }}\"\n} ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3648,
+        400
+      ],
+      "id": "e8ab0563-45ce-4944-a9a5-5e517be93fe7",
+      "name": "CREATE cadastro cliente EasyAppointments"
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://orthox-easyappointments.reyhdo.easypanel.host/index.php/api/v1/customers/{{ $('GET customer if exists').last().json.id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"firstName\": \"{{ $('SELECT cliente após atualizar cadastro').last().json.nome }}\",\n  \"phone\": \"{{ $('inicio_fluxo').last().json.telefone }}\"\n} ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3728,
+        240
+      ],
+      "id": "7ba41443-e480-41bc-8aee-79b4185e8313",
+      "name": "UPDATE cadastro cliente EasyAppointments"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT DISTINCT p.nome AS procedimento_nome\nFROM procedimentos p\nJOIN exames e ON e.id_procedimento = p.id\nWHERE e.nome ILIKE '%{{ $('inicio_fluxo').last().json.procedimento }}%' OR\ne.nome_normalizado ILIKE '%{{ $('inicio_fluxo').last().json.procedimento }}%'",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1184,
+        384
+      ],
+      "id": "eebcad4c-b9d1-4884-a5df-ce65a66c78a2",
+      "name": "Procura nome categoria (ILIKE)",
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT DISTINCT ON (p.nome) p.nome AS procedimento_nome\nFROM procedimentos p\nJOIN exames e ON e.id_procedimento = p.id\nWHERE e.nome % '{{ $('inicio_fluxo').last().json.procedimento }}'\n   OR e.nome_normalizado % '{{ $('inicio_fluxo').last().json.procedimento }}'\n   OR '{{ $('inicio_fluxo').last().json.procedimento }}' <% e.nome\n   OR '{{ $('inicio_fluxo').last().json.procedimento }}' <% e.nome_normalizado\nORDER BY \n  p.nome\n  DESC;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1184,
+        560
+      ],
+      "id": "f0a6d033-5d11-41fe-b507-01d42c8a975f",
+      "name": "Procura nome categoria (Similaridade)",
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE public.sessao_agendamento\nSET unidade_id = '{{ $('inicio_fluxo').last().json.unidade }}', servico_id = '{{ $('GET serviço').last().json.id_easyappointments }}', atualizado_em = '{{ $now }}'::timestamptz, data_agendamento = '{{ $('inicio_fluxo').last().json.data_agendamento }}'\nWHERE telefone = '{{ $('inicio_fluxo').last().json.telefone }}'\n  AND deletado = false;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2432,
+        448
+      ],
+      "id": "facb6ac8-01c1-43e1-bf01-2c7ab2ee8b30",
+      "name": "UPDATE sessao_agendamento",
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5e46b9bb-cd14-4113-8aa9-9dc4fb3f8212",
+              "name": "response",
+              "value": "Procedimento não encontrado.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1616,
+        784
+      ],
+      "id": "b279b194-dea3-461a-a47a-d3b9922e0b3a",
+      "name": "Resposta procedimento não encontrado"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "393b2f35-07b3-4155-88e9-115a3af1e8fb",
+              "leftValue": "={{ $('Procura nome categoria (Similaridade)').last().json }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1392,
+        560
+      ],
+      "id": "af892918-7ffb-4a46-995d-bd7086213e48",
+      "name": "If procedimento encontrado"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5e46b9bb-cd14-4113-8aa9-9dc4fb3f8212",
+              "name": "response",
+              "value": "Identifique a unidade, procedimento e a data que a pessoa deseja",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1184,
+        784
+      ],
+      "id": "ad535987-570d-4e6a-8135-8a9e25ab310d",
+      "name": "Resposta unidade/procedimento/data não informado"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c067dced-6c6e-44d2-94f4-7941f8d429d3",
+              "leftValue": "={{ $('inicio_fluxo').last().json.procedimento }}",
+              "rightValue": "nao_informado",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            },
+            {
+              "id": "41e22d5a-96d0-4acf-9f5a-24fdbdf35435",
+              "leftValue": "={{ $('inicio_fluxo').last().json.unidade }}",
+              "rightValue": "nao_informado",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            },
+            {
+              "id": "040cfba8-3e00-462e-99e3-fd8545570753",
+              "leftValue": "={{ $('inicio_fluxo').last().json.data_agendamento }}",
+              "rightValue": "nao_informado",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        896,
+        576
+      ],
+      "id": "02f9b33b-6d76-426f-bcac-bdbccdd685e9",
+      "name": "Existe unidade, procedimento e data"
+    }
+  ],
+  "pinData": {
+    "inicio_fluxo": [
+      {
+        "json": {
+          "telefone": "19998219996",
+          "nome": "nao_informado",
+          "unidade": "2",
+          "procedimento": "Levantamento",
+          "data_agendamento": "2025-09-25"
+        }
+      }
+    ]
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Sao_Paulo",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-09-01T18:31:10.364Z",
+      "createdAt": "2025-09-01T18:31:10.364Z",
+      "role": "workflow:owner",
+      "workflowId": "tcSkxciXYiM5OnY7",
+      "projectId": "IcfJLMCsRkuOqzR8"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-09-18T18:58:08.000Z",
+  "versionId": "266bdb99-2af7-48e6-9227-dedb6875096c"
+}
