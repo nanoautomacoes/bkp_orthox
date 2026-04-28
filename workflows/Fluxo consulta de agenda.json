@@ -1,0 +1,93 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2026-01-12T19:58:16.393Z",
+    "createdAt": "2026-01-12T19:58:16.393Z",
+    "versionId": "12a1dd6a-90b3-42fb-af41-af353c979639",
+    "workflowId": "AM93jMmA8VyZc6X3",
+    "nodes": [
+      {
+        "parameters": {
+          "workflowInputs": {
+            "values": [
+              {
+                "name": "limit"
+              },
+              {
+                "name": "after"
+              },
+              {
+                "name": "before"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.executeWorkflowTrigger",
+        "typeVersion": 1.1,
+        "position": [
+          0,
+          0
+        ],
+        "id": "6ba81b6d-fc28-4c16-970f-d56cd3aab76f",
+        "name": "When Executed by Another Workflow"
+      }
+    ],
+    "connections": {},
+    "authors": "system migration",
+    "name": null,
+    "description": null,
+    "autosaved": false
+  },
+  "activeVersionId": "12a1dd6a-90b3-42fb-af41-af353c979639",
+  "connections": {},
+  "createdAt": "2025-08-28T15:18:19.335Z",
+  "id": "AM93jMmA8VyZc6X3",
+  "isArchived": false,
+  "meta": null,
+  "name": "Fluxo consulta de agenda",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "limit"
+            },
+            {
+              "name": "after"
+            },
+            {
+              "name": "before"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "6ba81b6d-fc28-4c16-970f-d56cd3aab76f",
+      "name": "When Executed by Another Workflow"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-08-28T15:18:19.345Z",
+      "createdAt": "2025-08-28T15:18:19.345Z",
+      "role": "workflow:owner",
+      "workflowId": "AM93jMmA8VyZc6X3",
+      "projectId": "IcfJLMCsRkuOqzR8"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-08-28T15:26:24.000Z",
+  "versionId": "12a1dd6a-90b3-42fb-af41-af353c979639"
+}
