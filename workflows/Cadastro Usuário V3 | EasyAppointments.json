@@ -1,0 +1,3532 @@
+{
+  "active": true,
+  "activeVersion": {
+    "updatedAt": "2026-01-12T19:58:16.393Z",
+    "createdAt": "2026-01-12T19:58:16.393Z",
+    "versionId": "bcd2add3-c37b-44d8-9473-b87599290868",
+    "workflowId": "nwGXGrHACCCDgXfO",
+    "nodes": [
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "68a0e166-9a2a-4dda-a26c-e1ac1e647bf8",
+                "leftValue": "={{ $('SELECT cliente após atualizar cadastro').last().json.nome }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "string",
+                  "operation": "notEmpty",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          3056,
+          464
+        ],
+        "id": "153f5ead-be86-4a36-b00c-5ef6ebbe8bbe",
+        "name": "IF dados completos"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "23d37a21-d4b6-4933-a5c4-bcc3540c4ce8",
+                "name": "response",
+                "value": "O usuário já está cadastrado!",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          304,
+          1552
+        ],
+        "id": "c248bfd3-38c2-4e07-bd60-b257e5f97991",
+        "name": "Retorno preventivo para agente"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "77cd45d0-845f-4199-b276-05c15afc7180",
+                "leftValue": "={{ $('CLIENTE - Gerencia Campos Atualização').last().json.sql }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "string",
+                  "operation": "notEmpty",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          -16,
+          560
+        ],
+        "id": "e6469a92-4b47-47a3-b5b4-18eaef98d98b",
+        "name": "IF existe SQL"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "9b702113-3be0-40ec-adb9-9ca39904debb",
+                "leftValue": "={{ $('SELECT cliente').last().json.id_usuario }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "number",
+                  "operation": "exists",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          -16,
+          1744
+        ],
+        "id": "2bb716b6-31a7-4f17-abad-e885782a7f4b",
+        "name": "IF cliente existe no EasyAppointments",
+        "notesInFlow": true,
+        "notes": "A validação de qualificação concluída no início do fluxo evita que sempre retorne para o agente falando que a Paramount entrará em contato."
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "{{ $('CLIENTE - Gerencia Campos Atualização').last().json.sql }}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          208,
+          496
+        ],
+        "id": "35183e49-a72a-4a4a-bbe5-3d624bb82081",
+        "name": "UPDATE Cliente",
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "workflowInputs": {
+            "values": [
+              {
+                "name": "telefone"
+              },
+              {
+                "name": "nome"
+              },
+              {
+                "name": "convenio"
+              },
+              {
+                "name": "unidade"
+              },
+              {
+                "name": "procedimento"
+              },
+              {
+                "name": "data_agendamento"
+              },
+              {
+                "name": "is_dentista",
+                "type": "boolean"
+              },
+              {
+                "name": "falar_com_humano",
+                "type": "boolean"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.executeWorkflowTrigger",
+        "typeVersion": 1.1,
+        "position": [
+          -720,
+          560
+        ],
+        "id": "1ea5ab94-7eb7-4fbc-9f8f-8bc73e730ad5",
+        "name": "inicio_fluxo"
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT *  \nFROM public.cliente \nWHERE telefone = '{{ $('inicio_fluxo').last().json.telefone }}';\n",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          -496,
+          560
+        ],
+        "id": "5c052a8a-2173-4aef-9505-fa5c6c68c9d5",
+        "name": "SELECT cliente",
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "const ignoreFields = ['telefone', 'unidade', 'procedimento', 'data_agendamento', 'falar_com_humano']\n\n// Para que esse código funcione corretamente, os nomes dos campos recebidos no workflow devem ser os MESMOS que as COLUNAS da tabela do lead\nconst clientePhone = $('inicio_fluxo').last().json.telefone;\n\nfunction getFieldsToUpdate(currentData, databaseData) {\n  const updates = {};\n\n  if (databaseData.nome && databaseData.nome !== 'nao_informado') {\n    return {};\n  }\n  \n  for (const key in currentData) {\n    if (ignoreFields.includes(key)) continue;\n  \n    const currentValue = currentData[key];\n    const databaseValue = databaseData[key];\n  \n    if (currentValue === 'nao_informado' || currentValue === databaseValue || currentValue === null) continue;\n  \n    updates[key] = currentValue;\n  }\n\n  return updates;\n}\n\nfunction buildUpdateSQL(updates) {\n  const setClauses = Object.entries(updates).map(\n    ([key, value]) => {\n      if (key != 'is_dentista')\n      {\n      return `${key} = '${value.replace(/'/g, \"''\")}'`\n      } else {\n      return `${key} = ${value}`\n      }\n    }\n  );\n  if (setClauses.length === 0) return null;\n\n  return `UPDATE public.cliente SET ${setClauses.join(', ')}, updated_at = now() WHERE telefone = '${clientePhone}';`;\n}\n\nconst currentLeadData = $('inicio_fluxo').last().json;\nconst databaseLeadData = $('SELECT cliente').last().json;\n\n\nconst updatedLeadData = {...currentLeadData};\n\nconst updates = getFieldsToUpdate(updatedLeadData, databaseLeadData);\nconst sql = buildUpdateSQL(updates);\n\nreturn {\n  sql: sql,\n  updated_fields: updates,\n};"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -256,
+          560
+        ],
+        "id": "042a9628-1b9b-497e-a82a-a2c94f8a6cc0",
+        "name": "CLIENTE - Gerencia Campos Atualização"
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT *  \nFROM public.cliente \nWHERE telefone = '{{ $('inicio_fluxo').last().json.telefone }}';\n",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          432,
+          576
+        ],
+        "id": "29c2468b-b275-4e98-8244-58544915ff0b",
+        "name": "SELECT cliente após atualizar cadastro",
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "upsert",
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "cliente",
+            "mode": "list",
+            "cachedResultName": "cliente"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "telefone": "={{ $('inicio_fluxo').last().json.telefone }}",
+              "id_usuario": "={{ $('CREATE cadastro cliente EasyAppointments').last().json.id }}",
+              "updated_at": "={{ $now }}"
+            },
+            "matchingColumns": [
+              "telefone"
+            ],
+            "schema": [
+              {
+                "id": "id",
+                "displayName": "id",
+                "required": false,
+                "defaultMatch": true,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "nome",
+                "displayName": "nome",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": false,
+                "removed": false
+              },
+              {
+                "id": "email",
+                "displayName": "email",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": false,
+                "removed": true
+              },
+              {
+                "id": "telefone",
+                "displayName": "telefone",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "id_usuario",
+                "displayName": "id_usuario",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": false
+              },
+              {
+                "id": "id_consulta",
+                "displayName": "id_consulta",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": false,
+                "removed": true
+              },
+              {
+                "id": "created_at",
+                "displayName": "created_at",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": false,
+                "removed": true
+              },
+              {
+                "id": "updated_at",
+                "displayName": "updated_at",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": false,
+                "removed": false
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          4016,
+          336
+        ],
+        "id": "d11b120d-01b9-4088-8de9-3e0b2627c689",
+        "name": "UPDATE cliente",
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "authentication": "nocoDbApiToken",
+          "operation": "getAll",
+          "projectId": "pgql7k4nol2x2v3",
+          "table": "m0iyjihu1u1x367",
+          "options": {
+            "fields": [],
+            "where": "=(nome,like,%{{ $('GET procedimento').last().json.nome }}%)~and(servico_categoria_id,eq,{{ $('inicio_fluxo').last().json.unidade }})"
+          }
+        },
+        "type": "n8n-nodes-base.nocoDb",
+        "typeVersion": 3,
+        "position": [
+          2144,
+          464
+        ],
+        "id": "6b1bdc29-0770-4544-94ef-117a333879f3",
+        "name": "GET serviço",
+        "alwaysOutputData": true,
+        "notesInFlow": true,
+        "credentials": {
+          "nocoDbApiToken": {
+            "id": "YMzQJOYYNNqkgSKg",
+            "name": "n8n_ortho_x"
+          }
+        },
+        "onError": "continueRegularOutput",
+        "notes": "Recupera serviço pelo id"
+      },
+      {
+        "parameters": {
+          "operation": "select",
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "sessao_agendamento",
+            "mode": "list",
+            "cachedResultName": "sessao_agendamento"
+          },
+          "limit": 1,
+          "where": {
+            "values": [
+              {
+                "column": "telefone",
+                "value": "={{ $('inicio_fluxo').last().json.telefone }}"
+              },
+              {
+                "column": "deletado",
+                "value": "={{ false }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          2336,
+          464
+        ],
+        "id": "f5481bdd-3448-4203-8353-0179dd220826",
+        "name": "SELECT sessao_agendamento",
+        "alwaysOutputData": true,
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "table": {
+            "__rl": true,
+            "value": "sessao_agendamento",
+            "mode": "list",
+            "cachedResultName": "sessao_agendamento"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "telefone": "={{ $('inicio_fluxo').last().json.telefone }}",
+              "unidade_id": "={{ $('inicio_fluxo').last().json.unidade }}",
+              "atualizado_em": "={{ $now }}",
+              "servico_id": "={{ $('GET serviço').last().json.id_easyappointments }}",
+              "data_agendamento": "={{ $('inicio_fluxo').last().json.data_agendamento }}",
+              "convenio": "={{ $('inicio_fluxo').last().json.convenio }}"
+            },
+            "matchingColumns": [
+              "id"
+            ],
+            "schema": [
+              {
+                "id": "id",
+                "displayName": "id",
+                "required": false,
+                "defaultMatch": true,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "telefone",
+                "displayName": "telefone",
+                "required": true,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "unidade_id",
+                "displayName": "unidade_id",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "servico_id",
+                "displayName": "servico_id",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "criado_em",
+                "displayName": "criado_em",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "atualizado_em",
+                "displayName": "atualizado_em",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "dateTime",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "provider_id",
+                "displayName": "provider_id",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "deletado",
+                "displayName": "deletado",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "boolean",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "data_agendamento",
+                "displayName": "data_agendamento",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "convenio",
+                "displayName": "convenio",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          2784,
+          560
+        ],
+        "id": "fa321bfb-9a35-4c08-b5ce-3eb15d1be90a",
+        "name": "INSERT sessao_agendamento",
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "69bcbc97-a66e-49fe-8603-7ee7ea45d5f3",
+                "name": "response",
+                "value": "=Ainda faltam informações antes de seguir para o agendamento.",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          3328,
+          480
+        ],
+        "id": "32a6af53-c120-494f-b324-e55b9925bb4c",
+        "name": "Response dados incompletos"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "69bcbc97-a66e-49fe-8603-7ee7ea45d5f3",
+                "name": "response",
+                "value": "=Informações necessárias para realizar o agendamento obtidas. Utilize a ferramenta `verifica_disponibilidade_agenda` para entender os horários disponíveis de acordo com a data e hora informada pela pessoa.",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          4608,
+          416
+        ],
+        "id": "d96e22ae-b50a-43b1-87a9-2bf63b0c0805",
+        "name": "Response dados completos"
+      },
+      {
+        "parameters": {
+          "url": "https://orthox-easyappointments.reyhdo.easypanel.host/index.php/api/v1/customers",
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "q",
+                "value": "={{ $('SELECT cliente').last().json.telefone }}"
+              }
+            ]
+          },
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Authorization",
+                "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+              },
+              {
+                "name": "Accept",
+                "value": "application/json"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          3328,
+          320
+        ],
+        "id": "9f8b4860-4d52-422e-9ccc-47d0453615e3",
+        "name": "GET customer if exists",
+        "alwaysOutputData": true
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "57e31ebb-a88f-4481-846d-21fc20b9a9e7",
+                "leftValue": "={{ $('GET customer if exists').last().json.id }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "number",
+                  "operation": "exists",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          3536,
+          320
+        ],
+        "id": "2ae7377c-4a55-4c7a-b2a4-85ca11c77a63",
+        "name": "IF customer exists"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://orthox-easyappointments.reyhdo.easypanel.host/index.php/api/v1/customers",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "accept",
+                "value": "application/json"
+              },
+              {
+                "name": "Authorization",
+                "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"firstName\": \"{{ $('SELECT cliente após atualizar cadastro').last().json.nome }}\",\n  \"phone\": \"{{ $('inicio_fluxo').last().json.telefone }}\"\n} ",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          3776,
+          336
+        ],
+        "id": "48688c42-b662-47e5-a449-19bb334682b2",
+        "name": "CREATE cadastro cliente EasyAppointments"
+      },
+      {
+        "parameters": {
+          "method": "PUT",
+          "url": "=https://orthox-easyappointments.reyhdo.easypanel.host/index.php/api/v1/customers/{{ $('GET customer if exists').last().json.id }}",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "accept",
+                "value": "application/json"
+              },
+              {
+                "name": "Authorization",
+                "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"firstName\": \"{{ $('SELECT cliente após atualizar cadastro').last().json.nome }}\",\n  \"phone\": \"{{ $('inicio_fluxo').last().json.telefone }}\"\n} ",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          3904,
+          176
+        ],
+        "id": "c6510149-a0a4-463e-9caa-bbc338c172d0",
+        "name": "UPDATE cadastro cliente EasyAppointments"
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT DISTINCT ON (p.nome) p.nome AS procedimento_nome\nFROM procedimentos p\nJOIN exames e ON e.id_procedimento = p.id\nWHERE e.nome % '{{ $('inicio_fluxo').last().json.procedimento }}'\n   OR e.nome_normalizado % '{{ $('inicio_fluxo').last().json.procedimento }}'\n   OR '{{ $('inicio_fluxo').last().json.procedimento }}' <% e.nome\n   OR '{{ $('inicio_fluxo').last().json.procedimento }}' <% e.nome_normalizado\nORDER BY \n  p.nome\n  DESC;",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          1040,
+          320
+        ],
+        "id": "4161abb3-3e99-4080-b479-9f44fe7db20b",
+        "name": "Procura nome categoria (Similaridade)",
+        "alwaysOutputData": true,
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "UPDATE public.sessao_agendamento\nSET unidade_id = '{{ $('inicio_fluxo').last().json.unidade }}', servico_id = '{{ $('GET serviço').last().json.id_easyappointments }}', atualizado_em = '{{ $now }}'::timestamptz, data_agendamento = '{{ $('inicio_fluxo').last().json.data_agendamento }}', convenio = '{{ $('inicio_fluxo').last().json.convenio }}'\nWHERE telefone = '{{ $('inicio_fluxo').last().json.telefone }}'\n  AND deletado = false;",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          2784,
+          368
+        ],
+        "id": "28f2f9d3-9a94-425e-be42-f09a951bdd97",
+        "name": "UPDATE sessao_agendamento",
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "5e46b9bb-cd14-4113-8aa9-9dc4fb3f8212",
+                "name": "response",
+                "value": "Procedimento não encontrado.",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1888,
+          704
+        ],
+        "id": "f7ed302f-2db5-4aca-831e-4e9665714648",
+        "name": "Resposta procedimento não encontrado"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "393b2f35-07b3-4155-88e9-115a3af1e8fb",
+                "leftValue": "={{ $('AI Agent').last().json }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "object",
+                  "operation": "notEmpty",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          1728,
+          480
+        ],
+        "id": "3e160bbc-ce4d-4e40-8d3b-ca6a9cd80727",
+        "name": "If procedimento encontrado"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "5e46b9bb-cd14-4113-8aa9-9dc4fb3f8212",
+                "name": "response",
+                "value": "Identifique a unidade, procedimento, data que a pessoa deseja e se vai utilizar convênio e nome do convênio ou particular. ",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1104,
+          880
+        ],
+        "id": "022faf9d-5a95-4347-93a4-e335c592b27e",
+        "name": "Resposta unidade/procedimento/data não informado"
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT nome_normalizado,id_procedimento FROM exames",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          896,
+          496
+        ],
+        "id": "d8d5b6db-2f82-487c-8b62-8ce8c54a77cc",
+        "name": "GET exames",
+        "credentials": {
+          "postgres": {
+            "id": "cOhUd6GHS90HZOMJ",
+            "name": "Postgres Ortho X"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=Você é um assistente de uma clínica ortodôntica. Entrada: \"{{ $('inicio_fluxo').last().json.procedimento }}\".\nA lista de exames válida e suas respectivas categorias: {{ $json.examList }}\n\nREGRAS OBRIGATÓRIAS:\n1) Você DEVE encontrar o exame da lista que mais se aproxima ao desejado pelo paciente.\n2) Você DEVE retornar APENAS um único objeto JSON bruto, sem texto adicional, sem explicações, sem backticks, sem campos externos/extras. Nada além do JSON.\n3) O JSON deve obedecer estritamente este schema:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"nome_normalizado\": { \"type\": \"string\" },\n    \"id_procedimento\": { \"type\": \"integer\" }\n  },\n  \"required\": [\"nome_normalizado\",\"id_procedimento\"],\n  \"additionalProperties\": false\n}\n4) **id_procedimento deve ser um número inteiro JSON (sem aspas).**\n5) Se não encontrar um exame adequado, retorne:\n   {\"nome_normalizado\": null, \"id_procedimento\": null}\n   (novamente: objeto JSON único, e id como `null`, não como string.)\n6) Se houver ambiguidade, escolha o exame mais próximo pelo nome; ainda assim retorne um único objeto válido.\n7) **Não** inclua chaves como \"output\", \"result\", \"data\", etc — apenas o objeto acima.\n\nExemplo de saída VÁLIDA (exatamente esse formato):\n{\"nome_normalizado\":\"Mão e punho\",\"id_procedimento\":1}\n",
+          "hasOutputParser": true,
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 2.2,
+        "position": [
+          1312,
+          496
+        ],
+        "id": "6fce23ea-2565-4e3b-a6b7-28344fc7cfa1",
+        "name": "AI Agent",
+        "onError": "continueErrorOutput"
+      },
+      {
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "mode": "list",
+            "value": "gpt-4.1-mini"
+          },
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1.2,
+        "position": [
+          1312,
+          672
+        ],
+        "id": "12d6d180-8ea6-4486-8d94-e2ad8ade9012",
+        "name": "OpenAI Chat Model",
+        "credentials": {
+          "openAiApi": {
+            "id": "ER0I3fZmmkBwmDBr",
+            "name": "OpenAi ni.automacoes"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsonSchemaExample": "{\n  \"nome_normalizado\": \"string\",\n  \"id_procedimento\": 1\n}"
+        },
+        "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+        "typeVersion": 1.3,
+        "position": [
+          1456,
+          672
+        ],
+        "id": "b176a625-8152-460d-ae8b-b8286207b96f",
+        "name": "Structured Output Parser"
+      },
+      {
+        "parameters": {
+          "authentication": "nocoDbApiToken",
+          "projectId": "pgql7k4nol2x2v3",
+          "table": "mwssvzqs1y3sgza",
+          "id": "={{ $('If procedimento encontrado').last().json.output.id_procedimento }}"
+        },
+        "type": "n8n-nodes-base.nocoDb",
+        "typeVersion": 3,
+        "position": [
+          1952,
+          464
+        ],
+        "id": "42a9e27a-9a06-4792-b94a-dc3165a12865",
+        "name": "GET procedimento",
+        "credentials": {
+          "nocoDbApiToken": {
+            "id": "YMzQJOYYNNqkgSKg",
+            "name": "n8n_ortho_x"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "const exams = $('GET exames').all().map(item => item.json);\n\nconst formattedList = exams.map(e => `${e.nome_normalizado}: ${e.id_procedimento}`).join(\"\\n\");\n\nreturn [\n  {\n    json: {\n      examList: formattedList\n    }\n  }\n];\n"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1104,
+          496
+        ],
+        "id": "8c165c32-125b-4bae-9b34-9836664d9a0d",
+        "name": "Converte JSON para texto"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "1bc3ac90-874d-4f2f-b695-c022ea113459",
+                "leftValue": "={{ $('SELECT sessao_agendamento').last().json.keys() }}",
+                "rightValue": 0,
+                "operator": {
+                  "type": "array",
+                  "operation": "lengthGt",
+                  "rightType": "number"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          2512,
+          464
+        ],
+        "id": "1073c936-7b8d-4b61-b8b8-3406d1fc41cc",
+        "name": "IF sessao_agendamento existe"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "0c491140-8871-4895-b5a4-5ece9ecd7657",
+                "name": "response",
+                "value": "=Explique para o usuário que para falar com um humano é necessário obter o nome e se o usuário é um dentista. Solicite esses dados seguindo o processo definido.",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1104,
+          704
+        ],
+        "id": "5388b8d6-8cac-4bea-a1e9-a051a655793d",
+        "name": "Retorno solicitação de dados para Agente Executor"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "ed71f13a-7bf3-42ab-898c-37582401f713",
+                "leftValue": "={{ $('inicio_fluxo').last().json.falar_com_humano }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          896,
+          720
+        ],
+        "id": "705cd61d-2d21-4245-a581-2d2ccce04dde",
+        "name": "Falar com humano?"
+      },
+      {
+        "parameters": {
+          "workflowId": {
+            "__rl": true,
+            "value": "t6ds4kP8JAt72hIz",
+            "mode": "list",
+            "cachedResultName": "Cobertura Convênios"
+          },
+          "workflowInputs": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "telefone": "={{ $('inicio_fluxo').last().json.telefone }}",
+              "nome_exame": "={{ $('If procedimento encontrado').last().json.output.nome_normalizado }}"
+            },
+            "matchingColumns": [
+              "telefone"
+            ],
+            "schema": [
+              {
+                "id": "telefone",
+                "displayName": "telefone",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "string",
+                "removed": false
+              },
+              {
+                "id": "nome_exame",
+                "displayName": "nome_exame",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "string",
+                "removed": false
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": true
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.executeWorkflow",
+        "typeVersion": 1.2,
+        "position": [
+          4608,
+          240
+        ],
+        "id": "e2b8f094-16b6-402e-b111-797d5771f28f",
+        "name": "Verifica convênio"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "87ce1e71-d4fb-44c0-8b02-89e938045f14",
+                "leftValue": "={{ $('inicio_fluxo').last().json.convenio }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "string",
+                  "operation": "exists",
+                  "singleValue": true
+                }
+              },
+              {
+                "id": "ec580ff9-6e04-45dd-b901-3f72200d873b",
+                "leftValue": "={{ $('inicio_fluxo').last().json.convenio }}",
+                "rightValue": "particular",
+                "operator": {
+                  "type": "string",
+                  "operation": "notEquals"
+                }
+              }
+            ],
+            "combinator": "or"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          4320,
+          336
+        ],
+        "id": "5dbf0bc8-0b09-44c1-a191-0600e096f1ff",
+        "name": "IF cliente usa convênio"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "317f4790-eaac-47ba-9993-3a97dc8279ce",
+                "leftValue": "={{ $('Verifica convênio').last().json.response }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          4816,
+          240
+        ],
+        "id": "4b76a9b5-d5f3-4739-b098-f0fc03c9e04d",
+        "name": "IF convênio cobre exame"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "69bcbc97-a66e-49fe-8603-7ee7ea45d5f3",
+                "name": "response",
+                "value": "=Informações necessárias para realizar o agendamento obtidas. O convênio realiza o exame solicitado pelo usuário. Utilize a ferramenta `verifica_disponibilidade_agenda` para entender os horários disponíveis de acordo com a data e hora informada pela pessoa.",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          5056,
+          144
+        ],
+        "id": "0feb93be-7deb-481f-a5e7-d366f159a854",
+        "name": "Response dados completos com convênio"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "69bcbc97-a66e-49fe-8603-7ee7ea45d5f3",
+                "name": "response",
+                "value": "=Informe o usuário que o exame solicitado não é coberto pelo seu convênio. Pergunte se deseja contato com um humano e utilize a ferramenta `falar_com_humano` se confirmar.",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          5056,
+          320
+        ],
+        "id": "7f0af54d-1c02-42ce-adcf-1603e9c14c18",
+        "name": "Response dados completos sem convênio"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "c067dced-6c6e-44d2-94f4-7941f8d429d3",
+                "leftValue": "={{ $('inicio_fluxo').last().json.procedimento }}",
+                "rightValue": "nao_informado",
+                "operator": {
+                  "type": "string",
+                  "operation": "notEquals"
+                }
+              },
+              {
+                "id": "41e22d5a-96d0-4acf-9f5a-24fdbdf35435",
+                "leftValue": "={{ $('inicio_fluxo').last().json.unidade }}",
+                "rightValue": "nao_informado",
+                "operator": {
+                  "type": "string",
+                  "operation": "notEquals"
+                }
+              },
+              {
+                "id": "040cfba8-3e00-462e-99e3-fd8545570753",
+                "leftValue": "={{ $('inicio_fluxo').last().json.data_agendamento }}",
+                "rightValue": "nao_informado",
+                "operator": {
+                  "type": "string",
+                  "operation": "notEquals"
+                }
+              },
+              {
+                "id": "36ba030a-d04f-40a6-8b91-a400be8cd078",
+                "leftValue": "={{ $('inicio_fluxo').last().json.convenio }}",
+                "rightValue": "nao_informado",
+                "operator": {
+                  "type": "string",
+                  "operation": "notEquals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          656,
+          576
+        ],
+        "id": "9b5f4f3f-32ab-45c2-a937-18ff75c30f27",
+        "name": "Existe unidade, procedimento, data e convenio"
+      }
+    ],
+    "connections": {
+      "IF dados completos": {
+        "main": [
+          [
+            {
+              "node": "GET customer if exists",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Response dados incompletos",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF existe SQL": {
+        "main": [
+          [
+            {
+              "node": "UPDATE Cliente",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "SELECT cliente após atualizar cadastro",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF cliente existe no EasyAppointments": {
+        "main": [
+          [
+            {
+              "node": "Retorno preventivo para agente",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          []
+        ]
+      },
+      "UPDATE Cliente": {
+        "main": [
+          [
+            {
+              "node": "SELECT cliente após atualizar cadastro",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "inicio_fluxo": {
+        "main": [
+          [
+            {
+              "node": "SELECT cliente",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "SELECT cliente": {
+        "main": [
+          [
+            {
+              "node": "CLIENTE - Gerencia Campos Atualização",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "CLIENTE - Gerencia Campos Atualização": {
+        "main": [
+          [
+            {
+              "node": "IF existe SQL",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "SELECT cliente após atualizar cadastro": {
+        "main": [
+          [
+            {
+              "node": "Existe unidade, procedimento, data e convenio",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "GET serviço": {
+        "main": [
+          [
+            {
+              "node": "SELECT sessao_agendamento",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "SELECT sessao_agendamento": {
+        "main": [
+          [
+            {
+              "node": "IF sessao_agendamento existe",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "INSERT sessao_agendamento": {
+        "main": [
+          [
+            {
+              "node": "IF dados completos",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "UPDATE cliente": {
+        "main": [
+          [
+            {
+              "node": "IF cliente usa convênio",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "GET customer if exists": {
+        "main": [
+          [
+            {
+              "node": "IF customer exists",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF customer exists": {
+        "main": [
+          [
+            {
+              "node": "UPDATE cadastro cliente EasyAppointments",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "CREATE cadastro cliente EasyAppointments",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "CREATE cadastro cliente EasyAppointments": {
+        "main": [
+          [
+            {
+              "node": "UPDATE cliente",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "UPDATE cadastro cliente EasyAppointments": {
+        "main": [
+          [
+            {
+              "node": "IF cliente usa convênio",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Procura nome categoria (Similaridade)": {
+        "main": [
+          []
+        ]
+      },
+      "UPDATE sessao_agendamento": {
+        "main": [
+          [
+            {
+              "node": "IF dados completos",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "If procedimento encontrado": {
+        "main": [
+          [
+            {
+              "node": "GET procedimento",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Resposta procedimento não encontrado",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "GET exames": {
+        "main": [
+          [
+            {
+              "node": "Converte JSON para texto",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Structured Output Parser": {
+        "ai_outputParser": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_outputParser",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "AI Agent": {
+        "main": [
+          [
+            {
+              "node": "If procedimento encontrado",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Resposta procedimento não encontrado",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "GET procedimento": {
+        "main": [
+          [
+            {
+              "node": "GET serviço",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Converte JSON para texto": {
+        "main": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF sessao_agendamento existe": {
+        "main": [
+          [
+            {
+              "node": "UPDATE sessao_agendamento",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "INSERT sessao_agendamento",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Falar com humano?": {
+        "main": [
+          [
+            {
+              "node": "Retorno solicitação de dados para Agente Executor",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Resposta unidade/procedimento/data não informado",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Verifica convênio": {
+        "main": [
+          [
+            {
+              "node": "IF convênio cobre exame",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF cliente usa convênio": {
+        "main": [
+          [
+            {
+              "node": "Verifica convênio",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Response dados completos",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF convênio cobre exame": {
+        "main": [
+          [
+            {
+              "node": "Response dados completos com convênio",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Response dados completos sem convênio",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Existe unidade, procedimento, data e convenio": {
+        "main": [
+          [
+            {
+              "node": "GET exames",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Falar com humano?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "system migration",
+    "name": null,
+    "description": null,
+    "autosaved": false
+  },
+  "activeVersionId": "bcd2add3-c37b-44d8-9473-b87599290868",
+  "connections": {
+    "IF dados completos": {
+      "main": [
+        [
+          {
+            "node": "GET customer if exists",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Response dados incompletos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF existe SQL": {
+      "main": [
+        [
+          {
+            "node": "UPDATE Cliente",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "SELECT cliente após atualizar cadastro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF cliente existe no EasyAppointments": {
+      "main": [
+        [
+          {
+            "node": "Retorno preventivo para agente",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "UPDATE Cliente": {
+      "main": [
+        [
+          {
+            "node": "SELECT cliente após atualizar cadastro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "inicio_fluxo": {
+      "main": [
+        [
+          {
+            "node": "SELECT cliente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SELECT cliente": {
+      "main": [
+        [
+          {
+            "node": "CLIENTE - Gerencia Campos Atualização",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CLIENTE - Gerencia Campos Atualização": {
+      "main": [
+        [
+          {
+            "node": "IF existe SQL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SELECT cliente após atualizar cadastro": {
+      "main": [
+        [
+          {
+            "node": "Existe unidade, procedimento, data e convenio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET serviço": {
+      "main": [
+        [
+          {
+            "node": "SELECT sessao_agendamento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SELECT sessao_agendamento": {
+      "main": [
+        [
+          {
+            "node": "IF sessao_agendamento existe",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "INSERT sessao_agendamento": {
+      "main": [
+        [
+          {
+            "node": "IF dados completos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UPDATE cliente": {
+      "main": [
+        [
+          {
+            "node": "IF cliente usa convênio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET customer if exists": {
+      "main": [
+        [
+          {
+            "node": "IF customer exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF customer exists": {
+      "main": [
+        [
+          {
+            "node": "UPDATE cadastro cliente EasyAppointments",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "CREATE cadastro cliente EasyAppointments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CREATE cadastro cliente EasyAppointments": {
+      "main": [
+        [
+          {
+            "node": "UPDATE cliente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UPDATE cadastro cliente EasyAppointments": {
+      "main": [
+        [
+          {
+            "node": "IF cliente usa convênio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Procura nome categoria (Similaridade)": {
+      "main": [
+        []
+      ]
+    },
+    "UPDATE sessao_agendamento": {
+      "main": [
+        [
+          {
+            "node": "IF dados completos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If procedimento encontrado": {
+      "main": [
+        [
+          {
+            "node": "GET procedimento",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Resposta procedimento não encontrado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET exames": {
+      "main": [
+        [
+          {
+            "node": "Converte JSON para texto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "If procedimento encontrado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Resposta procedimento não encontrado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET procedimento": {
+      "main": [
+        [
+          {
+            "node": "GET serviço",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Converte JSON para texto": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF sessao_agendamento existe": {
+      "main": [
+        [
+          {
+            "node": "UPDATE sessao_agendamento",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "INSERT sessao_agendamento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Falar com humano?": {
+      "main": [
+        [
+          {
+            "node": "Retorno solicitação de dados para Agente Executor",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Resposta unidade/procedimento/data não informado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verifica convênio": {
+      "main": [
+        [
+          {
+            "node": "IF convênio cobre exame",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF cliente usa convênio": {
+      "main": [
+        [
+          {
+            "node": "Verifica convênio",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Response dados completos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF convênio cobre exame": {
+      "main": [
+        [
+          {
+            "node": "Response dados completos com convênio",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Response dados completos sem convênio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Existe unidade, procedimento, data e convenio": {
+      "main": [
+        [
+          {
+            "node": "GET exames",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Falar com humano?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-09-23T21:06:28.972Z",
+  "id": "nwGXGrHACCCDgXfO",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Cadastro Usuário V3 | EasyAppointments",
+  "nodes": [
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "68a0e166-9a2a-4dda-a26c-e1ac1e647bf8",
+              "leftValue": "={{ $('SELECT cliente após atualizar cadastro').last().json.nome }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3056,
+        464
+      ],
+      "id": "153f5ead-be86-4a36-b00c-5ef6ebbe8bbe",
+      "name": "IF dados completos"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "23d37a21-d4b6-4933-a5c4-bcc3540c4ce8",
+              "name": "response",
+              "value": "O usuário já está cadastrado!",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        304,
+        1552
+      ],
+      "id": "c248bfd3-38c2-4e07-bd60-b257e5f97991",
+      "name": "Retorno preventivo para agente"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "77cd45d0-845f-4199-b276-05c15afc7180",
+              "leftValue": "={{ $('CLIENTE - Gerencia Campos Atualização').last().json.sql }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -16,
+        560
+      ],
+      "id": "e6469a92-4b47-47a3-b5b4-18eaef98d98b",
+      "name": "IF existe SQL"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9b702113-3be0-40ec-adb9-9ca39904debb",
+              "leftValue": "={{ $('SELECT cliente').last().json.id_usuario }}",
+              "rightValue": "",
+              "operator": {
+                "type": "number",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -16,
+        1744
+      ],
+      "id": "2bb716b6-31a7-4f17-abad-e885782a7f4b",
+      "name": "IF cliente existe no EasyAppointments",
+      "notesInFlow": true,
+      "notes": "A validação de qualificação concluída no início do fluxo evita que sempre retorne para o agente falando que a Paramount entrará em contato."
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "{{ $('CLIENTE - Gerencia Campos Atualização').last().json.sql }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        208,
+        496
+      ],
+      "id": "35183e49-a72a-4a4a-bbe5-3d624bb82081",
+      "name": "UPDATE Cliente",
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "telefone"
+            },
+            {
+              "name": "nome"
+            },
+            {
+              "name": "convenio"
+            },
+            {
+              "name": "unidade"
+            },
+            {
+              "name": "procedimento"
+            },
+            {
+              "name": "data_agendamento"
+            },
+            {
+              "name": "is_dentista",
+              "type": "boolean"
+            },
+            {
+              "name": "falar_com_humano",
+              "type": "boolean"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -720,
+        560
+      ],
+      "id": "1ea5ab94-7eb7-4fbc-9f8f-8bc73e730ad5",
+      "name": "inicio_fluxo"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT *  \nFROM public.cliente \nWHERE telefone = '{{ $('inicio_fluxo').last().json.telefone }}';\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -496,
+        560
+      ],
+      "id": "5c052a8a-2173-4aef-9505-fa5c6c68c9d5",
+      "name": "SELECT cliente",
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const ignoreFields = ['telefone', 'unidade', 'procedimento', 'data_agendamento', 'falar_com_humano']\n\n// Para que esse código funcione corretamente, os nomes dos campos recebidos no workflow devem ser os MESMOS que as COLUNAS da tabela do lead\nconst clientePhone = $('inicio_fluxo').last().json.telefone;\n\nfunction getFieldsToUpdate(currentData, databaseData) {\n  const updates = {};\n\n  if (databaseData.nome && databaseData.nome !== 'nao_informado') {\n    return {};\n  }\n  \n  for (const key in currentData) {\n    if (ignoreFields.includes(key)) continue;\n  \n    const currentValue = currentData[key];\n    const databaseValue = databaseData[key];\n  \n    if (currentValue === 'nao_informado' || currentValue === databaseValue || currentValue === null) continue;\n  \n    updates[key] = currentValue;\n  }\n\n  return updates;\n}\n\nfunction buildUpdateSQL(updates) {\n  const setClauses = Object.entries(updates).map(\n    ([key, value]) => {\n      if (key != 'is_dentista')\n      {\n      return `${key} = '${value.replace(/'/g, \"''\")}'`\n      } else {\n      return `${key} = ${value}`\n      }\n    }\n  );\n  if (setClauses.length === 0) return null;\n\n  return `UPDATE public.cliente SET ${setClauses.join(', ')}, updated_at = now() WHERE telefone = '${clientePhone}';`;\n}\n\nconst currentLeadData = $('inicio_fluxo').last().json;\nconst databaseLeadData = $('SELECT cliente').last().json;\n\n\nconst updatedLeadData = {...currentLeadData};\n\nconst updates = getFieldsToUpdate(updatedLeadData, databaseLeadData);\nconst sql = buildUpdateSQL(updates);\n\nreturn {\n  sql: sql,\n  updated_fields: updates,\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -256,
+        560
+      ],
+      "id": "042a9628-1b9b-497e-a82a-a2c94f8a6cc0",
+      "name": "CLIENTE - Gerencia Campos Atualização"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT *  \nFROM public.cliente \nWHERE telefone = '{{ $('inicio_fluxo').last().json.telefone }}';\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        432,
+        576
+      ],
+      "id": "29c2468b-b275-4e98-8244-58544915ff0b",
+      "name": "SELECT cliente após atualizar cadastro",
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "cliente",
+          "mode": "list",
+          "cachedResultName": "cliente"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "telefone": "={{ $('inicio_fluxo').last().json.telefone }}",
+            "id_usuario": "={{ $('CREATE cadastro cliente EasyAppointments').last().json.id }}",
+            "updated_at": "={{ $now }}"
+          },
+          "matchingColumns": [
+            "telefone"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "nome",
+              "displayName": "nome",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": true
+            },
+            {
+              "id": "telefone",
+              "displayName": "telefone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "id_usuario",
+              "displayName": "id_usuario",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "id_consulta",
+              "displayName": "id_consulta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": false,
+              "removed": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": false,
+              "removed": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        4016,
+        336
+      ],
+      "id": "d11b120d-01b9-4088-8de9-3e0b2627c689",
+      "name": "UPDATE cliente",
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "getAll",
+        "projectId": "pgql7k4nol2x2v3",
+        "table": "m0iyjihu1u1x367",
+        "options": {
+          "fields": [],
+          "where": "=(nome,like,%{{ $('GET procedimento').last().json.nome }}%)~and(servico_categoria_id,eq,{{ $('inicio_fluxo').last().json.unidade }})"
+        }
+      },
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 3,
+      "position": [
+        2144,
+        464
+      ],
+      "id": "6b1bdc29-0770-4544-94ef-117a333879f3",
+      "name": "GET serviço",
+      "alwaysOutputData": true,
+      "notesInFlow": true,
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "YMzQJOYYNNqkgSKg",
+          "name": "n8n_ortho_x"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "notes": "Recupera serviço pelo id"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "sessao_agendamento",
+          "mode": "list",
+          "cachedResultName": "sessao_agendamento"
+        },
+        "limit": 1,
+        "where": {
+          "values": [
+            {
+              "column": "telefone",
+              "value": "={{ $('inicio_fluxo').last().json.telefone }}"
+            },
+            {
+              "column": "deletado",
+              "value": "={{ false }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2336,
+        464
+      ],
+      "id": "f5481bdd-3448-4203-8353-0179dd220826",
+      "name": "SELECT sessao_agendamento",
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "sessao_agendamento",
+          "mode": "list",
+          "cachedResultName": "sessao_agendamento"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "telefone": "={{ $('inicio_fluxo').last().json.telefone }}",
+            "unidade_id": "={{ $('inicio_fluxo').last().json.unidade }}",
+            "atualizado_em": "={{ $now }}",
+            "servico_id": "={{ $('GET serviço').last().json.id_easyappointments }}",
+            "data_agendamento": "={{ $('inicio_fluxo').last().json.data_agendamento }}",
+            "convenio": "={{ $('inicio_fluxo').last().json.convenio }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "telefone",
+              "displayName": "telefone",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "unidade_id",
+              "displayName": "unidade_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "servico_id",
+              "displayName": "servico_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "criado_em",
+              "displayName": "criado_em",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "atualizado_em",
+              "displayName": "atualizado_em",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "provider_id",
+              "displayName": "provider_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "deletado",
+              "displayName": "deletado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "data_agendamento",
+              "displayName": "data_agendamento",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "convenio",
+              "displayName": "convenio",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2784,
+        560
+      ],
+      "id": "fa321bfb-9a35-4c08-b5ce-3eb15d1be90a",
+      "name": "INSERT sessao_agendamento",
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "69bcbc97-a66e-49fe-8603-7ee7ea45d5f3",
+              "name": "response",
+              "value": "=Ainda faltam informações antes de seguir para o agendamento.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3328,
+        480
+      ],
+      "id": "32a6af53-c120-494f-b324-e55b9925bb4c",
+      "name": "Response dados incompletos"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "69bcbc97-a66e-49fe-8603-7ee7ea45d5f3",
+              "name": "response",
+              "value": "=Informações necessárias para realizar o agendamento obtidas. Utilize a ferramenta `verifica_disponibilidade_agenda` para entender os horários disponíveis de acordo com a data e hora informada pela pessoa.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4608,
+        416
+      ],
+      "id": "d96e22ae-b50a-43b1-87a9-2bf63b0c0805",
+      "name": "Response dados completos"
+    },
+    {
+      "parameters": {
+        "url": "https://orthox-easyappointments.reyhdo.easypanel.host/index.php/api/v1/customers",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{ $('SELECT cliente').last().json.telefone }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3328,
+        320
+      ],
+      "id": "9f8b4860-4d52-422e-9ccc-47d0453615e3",
+      "name": "GET customer if exists",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "57e31ebb-a88f-4481-846d-21fc20b9a9e7",
+              "leftValue": "={{ $('GET customer if exists').last().json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "number",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3536,
+        320
+      ],
+      "id": "2ae7377c-4a55-4c7a-b2a4-85ca11c77a63",
+      "name": "IF customer exists"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://orthox-easyappointments.reyhdo.easypanel.host/index.php/api/v1/customers",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"firstName\": \"{{ $('SELECT cliente após atualizar cadastro').last().json.nome }}\",\n  \"phone\": \"{{ $('inicio_fluxo').last().json.telefone }}\"\n} ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3776,
+        336
+      ],
+      "id": "48688c42-b662-47e5-a449-19bb334682b2",
+      "name": "CREATE cadastro cliente EasyAppointments"
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://orthox-easyappointments.reyhdo.easypanel.host/index.php/api/v1/customers/{{ $('GET customer if exists').last().json.id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Basic YXV0b21hY29lcy5vcnRob3hAZ21haWwuY29tOnJ0azZyeWNAUUhEKm56djB6bW4="
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"firstName\": \"{{ $('SELECT cliente após atualizar cadastro').last().json.nome }}\",\n  \"phone\": \"{{ $('inicio_fluxo').last().json.telefone }}\"\n} ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3904,
+        176
+      ],
+      "id": "c6510149-a0a4-463e-9caa-bbc338c172d0",
+      "name": "UPDATE cadastro cliente EasyAppointments"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT DISTINCT ON (p.nome) p.nome AS procedimento_nome\nFROM procedimentos p\nJOIN exames e ON e.id_procedimento = p.id\nWHERE e.nome % '{{ $('inicio_fluxo').last().json.procedimento }}'\n   OR e.nome_normalizado % '{{ $('inicio_fluxo').last().json.procedimento }}'\n   OR '{{ $('inicio_fluxo').last().json.procedimento }}' <% e.nome\n   OR '{{ $('inicio_fluxo').last().json.procedimento }}' <% e.nome_normalizado\nORDER BY \n  p.nome\n  DESC;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1040,
+        320
+      ],
+      "id": "4161abb3-3e99-4080-b479-9f44fe7db20b",
+      "name": "Procura nome categoria (Similaridade)",
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE public.sessao_agendamento\nSET unidade_id = '{{ $('inicio_fluxo').last().json.unidade }}', servico_id = '{{ $('GET serviço').last().json.id_easyappointments }}', atualizado_em = '{{ $now }}'::timestamptz, data_agendamento = '{{ $('inicio_fluxo').last().json.data_agendamento }}', convenio = '{{ $('inicio_fluxo').last().json.convenio }}'\nWHERE telefone = '{{ $('inicio_fluxo').last().json.telefone }}'\n  AND deletado = false;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2784,
+        368
+      ],
+      "id": "28f2f9d3-9a94-425e-be42-f09a951bdd97",
+      "name": "UPDATE sessao_agendamento",
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5e46b9bb-cd14-4113-8aa9-9dc4fb3f8212",
+              "name": "response",
+              "value": "Procedimento não encontrado.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1888,
+        704
+      ],
+      "id": "f7ed302f-2db5-4aca-831e-4e9665714648",
+      "name": "Resposta procedimento não encontrado"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "393b2f35-07b3-4155-88e9-115a3af1e8fb",
+              "leftValue": "={{ $('AI Agent').last().json }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1728,
+        480
+      ],
+      "id": "3e160bbc-ce4d-4e40-8d3b-ca6a9cd80727",
+      "name": "If procedimento encontrado"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5e46b9bb-cd14-4113-8aa9-9dc4fb3f8212",
+              "name": "response",
+              "value": "Identifique a unidade, procedimento, data que a pessoa deseja e se vai utilizar convênio e nome do convênio ou particular. ",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1104,
+        880
+      ],
+      "id": "022faf9d-5a95-4347-93a4-e335c592b27e",
+      "name": "Resposta unidade/procedimento/data não informado"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT nome_normalizado,id_procedimento FROM exames",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        896,
+        496
+      ],
+      "id": "d8d5b6db-2f82-487c-8b62-8ce8c54a77cc",
+      "name": "GET exames",
+      "credentials": {
+        "postgres": {
+          "id": "cOhUd6GHS90HZOMJ",
+          "name": "Postgres Ortho X"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Você é um assistente de uma clínica ortodôntica. Entrada: \"{{ $('inicio_fluxo').last().json.procedimento }}\".\nA lista de exames válida e suas respectivas categorias: {{ $json.examList }}\n\nREGRAS OBRIGATÓRIAS:\n1) Você DEVE encontrar o exame da lista que mais se aproxima ao desejado pelo paciente.\n2) Você DEVE retornar APENAS um único objeto JSON bruto, sem texto adicional, sem explicações, sem backticks, sem campos externos/extras. Nada além do JSON.\n3) O JSON deve obedecer estritamente este schema:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"nome_normalizado\": { \"type\": \"string\" },\n    \"id_procedimento\": { \"type\": \"integer\" }\n  },\n  \"required\": [\"nome_normalizado\",\"id_procedimento\"],\n  \"additionalProperties\": false\n}\n4) **id_procedimento deve ser um número inteiro JSON (sem aspas).**\n5) Se não encontrar um exame adequado, retorne:\n   {\"nome_normalizado\": null, \"id_procedimento\": null}\n   (novamente: objeto JSON único, e id como `null`, não como string.)\n6) Se houver ambiguidade, escolha o exame mais próximo pelo nome; ainda assim retorne um único objeto válido.\n7) **Não** inclua chaves como \"output\", \"result\", \"data\", etc — apenas o objeto acima.\n\nExemplo de saída VÁLIDA (exatamente esse formato):\n{\"nome_normalizado\":\"Mão e punho\",\"id_procedimento\":1}\n",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1312,
+        496
+      ],
+      "id": "6fce23ea-2565-4e3b-a6b7-28344fc7cfa1",
+      "name": "AI Agent",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1312,
+        672
+      ],
+      "id": "12d6d180-8ea6-4486-8d94-e2ad8ade9012",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "ER0I3fZmmkBwmDBr",
+          "name": "OpenAi ni.automacoes"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"nome_normalizado\": \"string\",\n  \"id_procedimento\": 1\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1456,
+        672
+      ],
+      "id": "b176a625-8152-460d-ae8b-b8286207b96f",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "projectId": "pgql7k4nol2x2v3",
+        "table": "mwssvzqs1y3sgza",
+        "id": "={{ $('If procedimento encontrado').last().json.output.id_procedimento }}"
+      },
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 3,
+      "position": [
+        1952,
+        464
+      ],
+      "id": "42a9e27a-9a06-4792-b94a-dc3165a12865",
+      "name": "GET procedimento",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "YMzQJOYYNNqkgSKg",
+          "name": "n8n_ortho_x"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const exams = $('GET exames').all().map(item => item.json);\n\nconst formattedList = exams.map(e => `${e.nome_normalizado}: ${e.id_procedimento}`).join(\"\\n\");\n\nreturn [\n  {\n    json: {\n      examList: formattedList\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1104,
+        496
+      ],
+      "id": "8c165c32-125b-4bae-9b34-9836664d9a0d",
+      "name": "Converte JSON para texto"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1bc3ac90-874d-4f2f-b695-c022ea113459",
+              "leftValue": "={{ $('SELECT sessao_agendamento').last().json.keys() }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "array",
+                "operation": "lengthGt",
+                "rightType": "number"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2512,
+        464
+      ],
+      "id": "1073c936-7b8d-4b61-b8b8-3406d1fc41cc",
+      "name": "IF sessao_agendamento existe"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0c491140-8871-4895-b5a4-5ece9ecd7657",
+              "name": "response",
+              "value": "=Explique para o usuário que para falar com um humano é necessário obter o nome e se o usuário é um dentista. Solicite esses dados seguindo o processo definido.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1104,
+        704
+      ],
+      "id": "5388b8d6-8cac-4bea-a1e9-a051a655793d",
+      "name": "Retorno solicitação de dados para Agente Executor"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ed71f13a-7bf3-42ab-898c-37582401f713",
+              "leftValue": "={{ $('inicio_fluxo').last().json.falar_com_humano }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        896,
+        720
+      ],
+      "id": "705cd61d-2d21-4245-a581-2d2ccce04dde",
+      "name": "Falar com humano?"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "t6ds4kP8JAt72hIz",
+          "mode": "list",
+          "cachedResultName": "Cobertura Convênios"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "telefone": "={{ $('inicio_fluxo').last().json.telefone }}",
+            "nome_exame": "={{ $('If procedimento encontrado').last().json.output.nome_normalizado }}"
+          },
+          "matchingColumns": [
+            "telefone"
+          ],
+          "schema": [
+            {
+              "id": "telefone",
+              "displayName": "telefone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "nome_exame",
+              "displayName": "nome_exame",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        4608,
+        240
+      ],
+      "id": "e2b8f094-16b6-402e-b111-797d5771f28f",
+      "name": "Verifica convênio"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "87ce1e71-d4fb-44c0-8b02-89e938045f14",
+              "leftValue": "={{ $('inicio_fluxo').last().json.convenio }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "ec580ff9-6e04-45dd-b901-3f72200d873b",
+              "leftValue": "={{ $('inicio_fluxo').last().json.convenio }}",
+              "rightValue": "particular",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4320,
+        336
+      ],
+      "id": "5dbf0bc8-0b09-44c1-a191-0600e096f1ff",
+      "name": "IF cliente usa convênio"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "317f4790-eaac-47ba-9993-3a97dc8279ce",
+              "leftValue": "={{ $('Verifica convênio').last().json.response }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4816,
+        240
+      ],
+      "id": "4b76a9b5-d5f3-4739-b098-f0fc03c9e04d",
+      "name": "IF convênio cobre exame"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "69bcbc97-a66e-49fe-8603-7ee7ea45d5f3",
+              "name": "response",
+              "value": "=Informações necessárias para realizar o agendamento obtidas. O convênio realiza o exame solicitado pelo usuário. Utilize a ferramenta `verifica_disponibilidade_agenda` para entender os horários disponíveis de acordo com a data e hora informada pela pessoa.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        5056,
+        144
+      ],
+      "id": "0feb93be-7deb-481f-a5e7-d366f159a854",
+      "name": "Response dados completos com convênio"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "69bcbc97-a66e-49fe-8603-7ee7ea45d5f3",
+              "name": "response",
+              "value": "=Informe o usuário que o exame solicitado não é coberto pelo seu convênio. Pergunte se deseja contato com um humano e utilize a ferramenta `falar_com_humano` se confirmar.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        5056,
+        320
+      ],
+      "id": "7f0af54d-1c02-42ce-adcf-1603e9c14c18",
+      "name": "Response dados completos sem convênio"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c067dced-6c6e-44d2-94f4-7941f8d429d3",
+              "leftValue": "={{ $('inicio_fluxo').last().json.procedimento }}",
+              "rightValue": "nao_informado",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            },
+            {
+              "id": "41e22d5a-96d0-4acf-9f5a-24fdbdf35435",
+              "leftValue": "={{ $('inicio_fluxo').last().json.unidade }}",
+              "rightValue": "nao_informado",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            },
+            {
+              "id": "040cfba8-3e00-462e-99e3-fd8545570753",
+              "leftValue": "={{ $('inicio_fluxo').last().json.data_agendamento }}",
+              "rightValue": "nao_informado",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            },
+            {
+              "id": "36ba030a-d04f-40a6-8b91-a400be8cd078",
+              "leftValue": "={{ $('inicio_fluxo').last().json.convenio }}",
+              "rightValue": "nao_informado",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        656,
+        576
+      ],
+      "id": "9b5f4f3f-32ab-45c2-a937-18ff75c30f27",
+      "name": "Existe unidade, procedimento, data e convenio"
+    }
+  ],
+  "pinData": {
+    "inicio_fluxo": [
+      {
+        "json": {
+          "telefone": "19998219970",
+          "nome": "Flavio",
+          "convenio": "Rede Unna",
+          "unidade": "1",
+          "procedimento": "Documentação Completa",
+          "data_agendamento": "2025-09-26",
+          "is_dentista": false,
+          "falar_com_humano": false
+        }
+      }
+    ]
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Sao_Paulo",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-09-23T21:06:28.975Z",
+      "createdAt": "2025-09-23T21:06:28.975Z",
+      "role": "workflow:owner",
+      "workflowId": "nwGXGrHACCCDgXfO",
+      "projectId": "IcfJLMCsRkuOqzR8"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-09-26T18:24:59.000Z",
+  "versionId": "bcd2add3-c37b-44d8-9473-b87599290868"
+}
